@@ -1,6 +1,6 @@
 function [alphaArray, offsetSize] = alpha080(volume, delay)
 %ALPHA080 (VOLUME-DELAY(VOLUME,5))/DELAY(VOLUME,5)*100
-%INPUT: volume,matrix of size '#days x #companies';;
+%INPUT: volume,matrix of size '#days x #companies';
 %
 %OUTPUT: alphaArray -- a matrix, of 'size days x #companies'
 %
