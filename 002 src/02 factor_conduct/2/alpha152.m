@@ -2,8 +2,7 @@ function X = alpha152(stock)
     X = getAlpha152(stock.close);
 end
 
-%SMA(MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),12)
-%   -MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),26),9,1)
+%SMA(MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),12)-MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),26),9,1)
 function exposure = getAlpha152(close)
     [m,n] = size(close);
     delayClose = [zeros(1,n);close(1:m-1,:)];
