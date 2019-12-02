@@ -1,20 +1,15 @@
-function alpha = Alpha63(stock)
-    [m, n] = size(stock.properties.close);
-    delay = zeros(m, n);
-    delay(2:m, :) = stock.properties.close(1:m-1, :);
-    maxMatri = max(stock.properties.close - delay, zeros(m, n));
-    absMatri = abs(stock.properties.close - delay);
+% SMA(MAX(CLOSE - DELAY(CLOSE, 1), 0), 6, 1) / SMA(ABS(CLOSE - DELAY(CLOSE,
+% 1)), 6, 1) * 100
+
+function X = alpha63(stock)
+    X = getAlpha63(stock.close);
+end
+
+function exposure = getAlpha63(close)
+    [m, n] = size(close);
+    delay = [zeros(1, n);close(1: m - 1,:)];
+    maxMatrix = max(close - delay, zeros(m, n));
+    absMatrix = abs(close - delay);
     
-    sma1 = zeros(m, n);
-    sma2 = zeros(m, n);
-    for i = 1:5
-        sma1(i, :) = mean(maxMatri(1: i, :), 'omitnan');
-        sma2(i, :) = mean(absMatri(1: i, :), 'omitnan');
-    end
-    for i = 6:m
-        sma1(i, :) = mean(maxMatri(i - 5: i, :), 'omitnan');
-        sma2(i, :) = mean(absMatri(i - 5: i, :), 'omitnan');
-    end
-    alpha = sma1./ sma2;
-    alpha = alpha.* 100;
+    exposure = sma(maxMatrix, 6, 1)./ sma(absMatrix, 6, 1) * 100;
 end

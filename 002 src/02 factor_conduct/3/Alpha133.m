@@ -1,13 +1,9 @@
-function alpha = Alpha133(stock)
-    [m, n] = size(stock.properties.high);
-    highday = zeros(m, n);
-    for i = 1: 19
-        [~, index] = max(stock.properties.high(1: i, :));
-        highday(i, :) = i - index;
-    end
-    for i = 20: m
-        [~, index] = max(stock.properties.high(i - 19: i, :));
-        highday(i, :) = i - index;
-    end
-    alpha = (20 - highday)./ 20.* 100 - Alpha103(stock);
+% ((20 - HIGHDAY(HIGH, 20)) / 20) * 100 - ((20 - LOWDAY(LOW, 20)) / 20) * 100
+
+function X = alpha133(stock)
+    X = getAlpha133(stock.high, stock.low);
+end
+
+function exposure = getAlpha133(high, low)
+    exposure = (20 - highday(high, 20))./ 20.* 100 - (20 - lowday(low, 20))./ 20.* 100;
 end

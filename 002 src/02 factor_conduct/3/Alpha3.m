@@ -1,22 +1,23 @@
-function alpha = Alpha3(stock)
-    [m, n] = size(stock.properties.close);
-    delay = zeros(m, n);
-    delay(2:m, :) = stock.properties.close(1:m-1, :);
-    matri1 = stock.properties.close;
-    matri1(stock.properties.close == delay) = 0;
-    matri2 = stock.properties.close;
-    minMat = min(stock.properties.low, delay);
-    maxMat = max(stock.properties.high, delay);
-    matri2(stock.properties.close > delay) = minMat(stock.properties.close > delay);
-    matri2(stock.properties.close <= delay)  = maxMat(stock.properties.close <= delay);
-    matri = matri1 - matri2;
+% SUM((CLOSE = DELAY(CLOSE, 1) ? 0: CLOSE - (CLOSE > DELAY(CLOSE, 1) ?
+% MIN(LOW, DELAY(CLOSE, 1)): MAX(HIGH, DELAY(CLOSE, 1)))), 6)
+
+function X = alpha3(stock)
+    X = getAlpha3(stock.high, stock.low, stock.close);
+end
+
+function exposure = getAlpha3(high, low, close)
+    [m, n] = size(close);
+    delay = [zeros(1, n);close(1: m - 1,:)];
     
-    alpha = zeros(m, n);
-    for i = 1:5
-        alpha(i,:) = sum(matri(1:i, :), 'omitnan');
-    end
-    for i = 6:m
-        alpha(i, :) = sum(matri(i-5:i, :), 'omitnan');
-    end
+    matrix1 = close;
+    matrix1(close == delay) = 0;
+    matrix2 = close;
+    minMatrix = min(low, delay);
+    maxMatrix = max(high, delay);
+    matrix2(close > delay) = minMatrix(close > delay);
+    matrix2(close <= delay) = maxMatrix(close <= delay);
+    matrix = matrix1 - matrix2;
+    
+    exposure = sumPast(matrix, 6);
 end
     

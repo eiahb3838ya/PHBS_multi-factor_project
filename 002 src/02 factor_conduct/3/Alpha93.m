@@ -1,17 +1,17 @@
-function alpha = Alpha93(stock)
-    [m, n] = size(stock.properties.open);
-    delay = zeros(m, n);
-    delay(2:m, :) = stock.properties.open(1:m-1, :);
-    maxMatrix = max((stock.properties.open - stock.properties.low), (stock.properties.open - delay));
+% SUM((OPEN >= DELAY(OPEN, 1) ? 0: MAX((OPEN - LOW), (OPEN - DELAY(OPEN,
+% 1)))),20)
+
+function X = alpha93(stock)
+    X = getAlpha93(stock.open, stock.low);
+end
+
+function exposure = getAlpha93(open, low)
+    [m, n] = size(open);
+    delay = [zeros(1, n);open(1: m - 1,:)];
+    maxMatrix = max((open - low), (open - delay));
     matrix = zeros(m, n);
-    matrix(stock.properties.open >= delay) = 0;
-    matrix(stock.properties.open < delay) = maxMatrix(stock.properties.open < delay);
+    matrix(open >= delay) = 0;
+    matrix(open < delay) = maxMatrix(open < delay);
     
-    alpha = zeros(m, n);
-    for i = 1: 19
-        alpha(i, :) = sum(matrix(1: i, :), 'omitnan');
-    end
-    for i = 20: m
-        alpha(i, :) = sum(matrix(i - 19: i, :), 'omitnan');
-    end
+    exposure = sumPast(matrix, 20);
 end
