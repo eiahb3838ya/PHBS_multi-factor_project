@@ -1,10 +1,18 @@
+function [X, offsetSize] = alpha083(stock)
+% main function
 % -1 * RANK(COVIANCE(RANK(HIGH), RANK(VOLUME), 5))
+% stock is a structure
 
-function X = alpha83(stock)
-    X = getAlpha83(stock.high, stock.volume);
+% clean data module here
+
+% get alpha module here
+    [X, offsetSize] = getAlpha(stock.high, stock.volume);
 end
 
-function exposure = getAlpha83(high, volume)
+%-------------------------------------------------------------------------
+
+function [exposure, offsetSize] = getAlpha(high, volume)
+% function compute alpha
     [m, n] = size(high);
     coviance = zeros(m ,n);
     
@@ -23,4 +31,5 @@ function exposure = getAlpha83(high, volume)
         end
     end
     exposure = -1 * sort(coviance);
+    offsetSize = 5;
 end

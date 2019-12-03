@@ -1,11 +1,19 @@
+function [X, offsetSize] = alpha043(stock)
+% main function
 % SUM((CLOSE > DELAY(CLOSE, 1) ? VOLUME: (CLOSE < DELAY(CLOSE, 1) ?
 % -VOLUME: 0)), 6)
+% stock is a structure
 
-function X = alpha43(stock)
-    X = getAlpha43(stock.close, stock.volume);
+% clean data module here
+
+% get alpha module here
+    [X, offsetSize] = getAlpha(stock.close, stock.volume);
 end
 
-function exposure = getAlpha43(close, volume)
+%-------------------------------------------------------------------------
+
+function [exposure, offsetSize] = getAlpha(close, volume)
+% function compute alpha
     [m, n] = size(close);
     delay = [zeros(1, n);close(1: m - 1,:)];
     matrix = close;
@@ -14,5 +22,6 @@ function exposure = getAlpha43(close, volume)
     matrix(close > delay) = volume(close > delay);
     
     exposure = sumPast(matrix, 6);
+    offsetSize = 6;
 end
     
