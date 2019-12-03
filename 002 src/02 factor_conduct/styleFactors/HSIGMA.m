@@ -14,7 +14,7 @@ end
 %-------------------------------------------------------------------------
 function [exposure, offsetSize] = getAlpha(stockrts,ZZ500rts)
     [m,n]= size(stockrts);
-	w = ExponentialWeight(252, 63);
+    w = ExponentialWeight(252, 63);
     wMatrix = repmat(w,1,n); 
     
     for i = 252:m
