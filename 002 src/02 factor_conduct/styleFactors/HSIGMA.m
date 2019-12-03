@@ -8,7 +8,7 @@ function [X, offsetSize] = BETA(stock)
 
 % get factor module here
     [X, offsetSize] = getAlpha(stock.properties.totalReturn;
-                              stock.index.totalReturn[:,7]);
+                               stock.index.totalReturn[:,7]);
 end
 
 %-------------------------------------------------------------------------
