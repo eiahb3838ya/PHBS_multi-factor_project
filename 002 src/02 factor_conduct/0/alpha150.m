@@ -22,7 +22,7 @@ function [alphaArray,offsetSize] = getAlpha(dailyClose, dailyHigh, dailyLow, dai
     [m4, n4] = size(dailyVolume);
     
     %--------------------error dealing part start-----------------------
-    if sum(isnan([dailyClose, dailyHigh, dailyLow, dailyVolume]))~=0
+    if sum(isnan([dailyClose, dailyHigh, dailyLow, dailyVolume]),'all')~=0
         error 'nan exists!please check the data!'
     end
 
