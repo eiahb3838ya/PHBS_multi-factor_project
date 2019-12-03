@@ -1,5 +1,6 @@
-%SMA(VOLUME,21,2)
+%alpha81 SMA(VOLUME,21,2)
 %SMA(A, n, m) 
+
 % volume = projectData.stock.properties.volume;
 
 function [X, offsetSize] = alpha81(stock)

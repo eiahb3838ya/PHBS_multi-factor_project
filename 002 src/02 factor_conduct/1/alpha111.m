@@ -1,6 +1,6 @@
-%Alpha111
-%SMA(VOL*((CLOSE-LOW)-(HIGH-CLOSE))/(HIGH-LOW),11,2)-SMA(VOL*((CLOSE-LOW)-(HIGH-CLOSE))/(HIGH-L
+%Alpha11 SMA(VOL*((CLOSE-LOW)-(HIGH-CLOSE))/(HIGH-LOW),11,2)-SMA(VOL*((CLOSE-LOW)-(HIGH-CLOSE))/(HIGH-L
 %OW),4,2)
+
 % close = projectData.stock.properties.close;
 % low = projectData.stock.properties.low;
 % high = projectData.stock.properties.high;

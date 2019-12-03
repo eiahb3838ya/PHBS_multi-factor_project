@@ -1,5 +1,5 @@
-% Alpha31 (CLOSE-MEAN(CLOSE,12))/MEAN(CLOSE,12)*100
-% first 12 will be unuseable
+%Alpha31 (CLOSE-MEAN(CLOSE,12))/MEAN(CLOSE,12)*100
+
 % close = projectData.stock.properties.close;
 
 

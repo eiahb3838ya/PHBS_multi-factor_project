@@ -1,5 +1,5 @@
-% alpha11
-% sum(((close - low) - (high - close)) ./(high - low).*volume, 6)
+%alpha11
+
 % close = projectData.stock.properties.close;
 % low = projectData.stock.properties.low;
 % high = projectData.stock.properties.high;

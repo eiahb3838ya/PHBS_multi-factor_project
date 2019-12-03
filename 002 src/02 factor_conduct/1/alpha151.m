@@ -1,5 +1,5 @@
 % Alpha151 SMA(CLOSE-DELAY(CLOSE,20),20,1)
-% first 20 not useable
+
 % close = projectData.stock.properties.close;
 
 function [X, offsetSize] = alpha151(stock)
