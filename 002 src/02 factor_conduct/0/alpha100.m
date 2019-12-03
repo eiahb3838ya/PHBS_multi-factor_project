@@ -28,7 +28,7 @@ function [alphaArray,offsetSize] = getAlpha(volume, rollingWindow)
     [m,n] = size(volume);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnan(volume))~=0
+    if sum(isnan(volume),'all')~=0
         error 'nan exists!please check the data!';
     end
 
