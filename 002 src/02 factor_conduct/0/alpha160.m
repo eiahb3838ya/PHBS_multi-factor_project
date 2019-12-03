@@ -1,4 +1,30 @@
-function [alphaArray, offsetSize] = alpha160(dailyClose, rollingWindow, delay, nSMA, mSMA)
+function [X, offsetSize] = alpha160(stock, rollingWindow, delay, nSMA, mSMA)
+%ALPHA160, get alpha160 series from stock struct.
+%         formula: SMA((CLOSE<=DELAY(CLOSE,1)?STD(CLOSE,20):0),20,1) 
+%         Default: rollingWindow = 20, delay = 1, nSMA = 20, mSMA = 1
+%
+%INPUTS:  stock: a struct contains stocks' information from exchange,
+%includes OHLS, volume, amount etc.
+
+    %set default params
+    if nargin == 1
+        rollingWindow = 20; 
+        delay = 1; 
+        nSMA = 20; 
+        mSMA = 1;
+    end
+
+    %step 1:  clean data module
+    [close, message] = cleanInfoFromTrading(stock.close);
+    disp(message);
+
+    %step 2:  get alphas
+    [X, offsetSize] = getAlpha(close, rollingWindow, delay, nSMA, mSMA);
+    
+end
+
+
+function [alphaArray, offsetSize] = getAlpha(dailyClose, rollingWindow, delay, nSMA, mSMA)
 %ALPHA160 SMA((CLOSE<=DELAY(CLOSE,1)?STD(CLOSE,20):0),20,1) 
 %   Default: rollingWindow = 20, delay = 1, nSMA = 20, mSMA = 1
 %   INPUTS: SMA(A,n,m): Y(i+1) = (Ai*m + Yi(n-m))/n 
@@ -6,81 +32,84 @@ function [alphaArray, offsetSize] = alpha160(dailyClose, rollingWindow, delay, n
 %   OUTPUTS: offsetSize, alphaArray(offsetSize:end,:) are useful data
 %   NOTE: data should be cleaned before put into the formula!
 
-if nargin == 1
-    rollingWindow = 20; 
-    delay = 1; 
-    nSMA = 20; 
-    mSMA = 1;
-end
+    %set default params
+    if nargin == 1
+        rollingWindow = 20; 
+        delay = 1; 
+        nSMA = 20; 
+        mSMA = 1;
+    end
+    
+    %get offset size
+    offsetSize = rollingWindow;
+    [m,n] = size(dailyClose);
+    
+    %--------------------error dealing part start-----------------------
+    if m < offsetSize
+        error 'observation size insufficient, should be >= rolling window size!';
+    end
 
-offsetSize = rollingWindow;
-[m,n] = size(dailyClose);
+    if delay >= rollingWindow
+        disp('delay is recommended to be smaller than rolling window. Some results after offset size should be used with caution!');
+    end
 
-if m < offsetSize
-    error 'observation size insufficient, should be >= rolling window size!';
-end
+    if delay >= m
+        error 'delay number should be strictly smaller than rows of dailyClose!';
+    end
 
-if delay >= rollingWindow
-    disp('some results after offset size should be used with caution!');
-end
+    if sum(isnan(dailyClose))~=0
+        error 'nan exists!please check dailyClose matrix!';
+    end
 
-if delay >= m
-    error 'delay number should be strictly smaller than rows of dailyClose!';
-end
+    if rollingWindow <= 0
+        error 'rolling window should be strictly greater than 0!';
+    end
 
-if sum(isnan(dailyClose))~=0
-    error 'nan exists!please check dailyClose matrix!';
-end
+    if mSMA >= nSMA
+        disp('mSMA is recomended to be strictly smaller than nSMA!');
+    end
+    %--------------------error dealing part end-----------------------
 
-if rollingWindow <= 0
-    error 'rolling window should be strictly greater than 0!';
-end
+    %DELAY(CLOSE,1)
+    delayClose = zeros(m,n);
+    delayClose(delay+1:end,:) = dailyClose(1:end-delay,:);
 
-if mSMA >= nSMA
-    disp('mSMA is recomended to be strictly smaller than nSMA!');
-end
+    %make a choice matrix, 1 means STD(CLOSE,20), 0 means 0
+    choiceMatrix = delayClose - dailyClose;
+    choiceMatrix = choiceMatrix >= 0;
 
-%DELAY(CLOSE,1)
-delayClose = zeros(m,n);
-delayClose(1:delay,:) = 0;
-delayClose(delay+1:end,:) = dailyClose(1:end-delay,:);
+    %make a std(close,20) matrix
+    rollingStdMatrix = zeros(m,n);
+    for col = 1:n
+        rollingStdMatrix(:,col) = movstd(dailyClose(:,col), [rollingWindow-1,0]);
+    end
 
-%make a choice matrix, 1 means STD(CLOSE,20), 0 means 0
-choiceMatrix = delayClose - dailyClose;
-choiceMatrix = choiceMatrix >= 0;
+    %execute A?B:C
+    ifMatrix = choiceMatrix .* rollingStdMatrix;
 
-%make a std(close,20) matrix
-rollingStdMatrix = zeros(m,n);
-for col = 1:n
-    rollingStdMatrix(:,col) = movstd(dailyClose(:,col), [rollingWindow-1,0]);
-end
-
-%execute A?B:C
-ifMatrix = choiceMatrix .* rollingStdMatrix;
-
-%SMA
-alphaArray = SMA(ifMatrix, nSMA, mSMA);
+    %SMA
+    alphaArray = SMA(ifMatrix, nSMA, mSMA);
     
 end
 
 function sma = SMA(ts, nSMA, mSMA)
-%a function, used to calculate SMA of a time series
-[timeLength, obsObjNumber] = size(ts);
+    %a function, used to calculate SMA of a time series
+    [timeLength, obsObjNumber] = size(ts);
 
-if timeLength <= 0 || obsObjNumber <1
-    error 'time series is null!';
-end
-
-Y = zeros(timeLength, obsObjNumber); %prepare a vector to record result
-
-for time = 1:timeLength
-    if time == 1 || time == 2
-        Y(time,:) = ts(1,:);
-    else
-        Y(time,:) = (ts(time-1,:)*mSMA + Y(time-1,:)*(nSMA - mSMA))/nSMA;
+    if timeLength <= 0 || obsObjNumber <1
+        error 'time series is null!';
     end
-end
 
-sma = Y;
+    Y = zeros(timeLength, obsObjNumber); %prepare a vector to record result
+
+    for time = 1:timeLength
+        if time == 1 || time == 2
+            Y(time,:) = ts(1,:);
+        else
+            Y(time,:) = (ts(time-1,:)*mSMA + Y(time-1,:)*(nSMA - mSMA))/nSMA;
+        end
+    end
+
+    sma = Y;
 
 end
