@@ -56,7 +56,7 @@ function [X,offsetSize] = alpha31(stock)
 % clean data module here
 
 % get alpha module here
-    [X,offsetSize] = getAlpha(close, high, ...);
+    [X,offsetSize] = getAlpha(stock.properties.close, stock.properties.high, ...);
     
 %--------------------------
 function [factor,offsetSize] = getAlpha(close, high, ...)
@@ -74,7 +74,7 @@ function [X,offsetSize] = ETOP(stock)
 % clean data module here
 
 % get alpha module here
-    [X,offsetSize] = getETOP(stock.PE_TTM);
+    [X,offsetSize] = getETOP(stock.properties.PE_TTM);
 end
 
 %--------------------------
