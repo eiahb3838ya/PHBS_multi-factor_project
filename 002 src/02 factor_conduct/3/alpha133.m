@@ -6,7 +6,7 @@ function [X, offsetSize] = alpha133(stock)
 % clean data module here
 
 % get alpha module here
-    [X, offsetSize] = getAlpha(stock.high, stock.low);
+    [X, offsetSize] = getAlpha(stock.properties.high, stock.properties.low);
 end
 
 %-------------------------------------------------------------------------
