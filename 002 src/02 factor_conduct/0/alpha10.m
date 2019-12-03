@@ -50,7 +50,7 @@ function [alphaArray, offsetSize] = getAlpha( dailyClose, rollingStdWindow, roll
     offsetSize = rollingStdWindow;
     
     %--------------------error dealing part start-----------------------
-    if sum(isnan(dailyClose))~=0
+    if sum(isnan(dailyClose),'all')~=0
         error 'nan exists, please check raw data!';
     end
     
