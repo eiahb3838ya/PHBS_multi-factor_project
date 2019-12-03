@@ -10,7 +10,7 @@ function [X, offsetSize] = alpha100(stock, rollingWindow)
     end
 
     %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.volume, rollingWindow);
+    [X, offsetSize] = getAlpha(stock.properties.volume, rollingWindow);
 end
 
 function [alphaArray,offsetSize] = getAlpha(volume, rollingWindow)
