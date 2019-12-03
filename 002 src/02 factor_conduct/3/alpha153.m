@@ -1,10 +1,18 @@
+function [X, offsetSize] = alpha153(stock)
+% main function
 % (MEAN(CLOSE, 3) + MEAN(CLOSE, 6) + MEAN(CLOSE, 12) + MEAN(CLOSE, 24)) / 4
+% stock is a structure
 
-function X = alpha153(stock)
-    X = getAlpha153(stock.close);
+% clean data module here
+
+% get alpha module here
+    [X, offsetSize] = getAlpha(stock.close);
 end
 
-function exposure = getAlpha153(close)
+%-------------------------------------------------------------------------
+
+function [exposure, offsetSize] = getAlpha(close)
+% function compute alpha
     [m, n] = size(close);
     MA3 = zeros(m, n);
     MA6 = zeros(m, n);
@@ -35,4 +43,5 @@ function exposure = getAlpha153(close)
         MA24(i, :) = mean(sum(close(i - 23: i, :), 'omitnan'));
     end
     exposure = (MA3 + MA6 + MA12 + MA24)./ 4;
+    offsetSize = 24;
 end
