@@ -11,7 +11,7 @@ function [X, offsetSize] = alpha110(stock, delay, rollingWindow)
     end
 
     %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.high, stock.close, stock.low, delay, rollingWindow);
+    [X, offsetSize] = getAlpha(stock.properties.high, stock.properties.close, stock.properties.low, delay, rollingWindow);
 end
 
 function [alphaArray, offsetSize] = getAlpha(high, close, low, delay, rollingWindow )
