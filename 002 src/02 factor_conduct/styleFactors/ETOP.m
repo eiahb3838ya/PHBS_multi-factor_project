@@ -7,7 +7,7 @@ function [X, offsetSize] = ETOP(stock)
 % clean data module here
 
 % get factor module here
-    [X, offsetSize] = getETOP(stock.PE_TTM);
+    [X, offsetSize] = getETOP(stock.properties.PE_TTM);
 end
 
 %-------------------------------------------------------------------------

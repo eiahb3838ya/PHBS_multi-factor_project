@@ -6,7 +6,7 @@ function [X, offsetSize] = LNCAP(stock)
 % clean data module here
 
 % get factor module here
-    [X, offsetSize] = getLNCAP(stock.totalMktCap);
+    [X, offsetSize] = getLNCAP(stock.properties.totalMktCap);
 end
 
 %-------------------------------------------------------------------------
