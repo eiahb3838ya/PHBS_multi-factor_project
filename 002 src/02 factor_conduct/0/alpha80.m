@@ -10,7 +10,7 @@ function [X, offsetSize] = alpha80(stock, delay)
     end
 
     %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.volume, delay);
+    [X, offsetSize] = getAlpha(stock.properties.volume, delay);
 end
 
 function [alphaArray, offsetSize] = getAlpha(volume, delay)
