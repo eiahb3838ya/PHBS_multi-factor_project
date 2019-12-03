@@ -1,11 +1,19 @@
 %SMA(VOLUME,21,2)
 %SMA(A, n, m) 
+% volume = projectData.stock.properties.volume;
+
+function [X, offsetSize] = alpha81(stock)
+    [X, offsetSize] = getAlpha(stock.properties.volume);
+end
+
+function [exposure, offsetSize] = getAlpha(volume)
+    exposure = sma(volume, 21, 2);
+    offsetSize = 1;
+end
 
 
-volume = projectData.stock.properties.volume;
-alpha = sma(volume, 21, 2);
 
-
+% sma
 % A = volume;
 % n = 21
 % m = 2
