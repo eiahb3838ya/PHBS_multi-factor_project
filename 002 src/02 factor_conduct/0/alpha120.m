@@ -10,7 +10,7 @@ function [X, offsetSize] = alpha120(stock, rollingRankWindow)
     end
 
     %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.vwap, stock.close, rollingRankWindow);
+    [X, offsetSize] = getAlpha(stock.properties.vwap, stock.properties.close, rollingRankWindow);
 end
 
 function [alphaArray,offsetSize] = getAlpha(vwap, dailyClose, rollingRankWindow)
