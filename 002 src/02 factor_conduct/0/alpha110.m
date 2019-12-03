@@ -37,7 +37,7 @@ function [alphaArray, offsetSize] = getAlpha(high, close, low, delay, rollingWin
     [m3,n3] = size(low);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnan([high,close,low]))~=0
+    if sum(isnan([high,close,low]),'all')~=0
         error 'nan exists!check the raw data!';
     end
 
