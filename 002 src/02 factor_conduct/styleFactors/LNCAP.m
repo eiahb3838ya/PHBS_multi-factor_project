@@ -1,9 +1,18 @@
+function [X, offsetSize] = LNCAP(stock)
 % Returns the log value of the total market capital of single stocks
+% log(total market capital)
+% stock is a structure
 
-function X = LNCAP(stock)
-    X = getLNCAP(stock.totalMktCap);
+% clean data module here
+
+% get factor module here
+    [X, offsetSize] = getLNCAP(stock.totalMktCap);
 end
 
-function exposure = getLNCAP(totalMktCap)
+%-------------------------------------------------------------------------
+
+function [exposure, offsetSize] = getLNCAP(totalMktCap)
+% function compute factor exposure of style factor
     exposure = log(totalMktCap);
+    offsetSize = 1;
 end
