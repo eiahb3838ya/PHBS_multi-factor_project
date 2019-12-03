@@ -12,7 +12,7 @@ function [factor offsetSize] = getAlpha(stockrts,ZZ500rts)
         wStockRts = stockrts(i-251:i,:) .* wMatrix;
         wZZ500Rts = ZZ500rts(i-251:i,:) .* w;
         beta(i,:)=(wStockRts' * wStockRts \ (wStockRts' * wZZ500Rts ))'
-        res(i,:) = wZZ500Rts(i,1) - wStockRts*beta';
+        res(i,:) = wZZ500Rts(i,1) - wStockRts * beta';
     end
 end
 
