@@ -11,7 +11,7 @@ end
 %-------------------------------------------------------------------------
 function [exposure, offsetSize] = getAlpha(rt)
     [m,n]= size(rt);
-	w = ExponentialWeight(500, 126);
+    w = ExponentialWeight(500, 126);
     w = [w ; zeros(21,1)]; %get a large vector, first 500  is exponentialWeight, last 21 is zero.
     wMatrix =  repmat(w,1,n); %rep the w, n times, the ExponentialWeight of each column is the same.
     
