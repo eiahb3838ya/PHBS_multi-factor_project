@@ -5,7 +5,7 @@ function [X, offsetSize] = alpha20(stock)
 %includes OHLS, volume, amount etc.
 
     %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.close);
+    [X, offsetSize] = getAlpha(stock.properties.close);
 end
 
 function [alphaArray, offsetSize] = getAlpha(dailyClose)
