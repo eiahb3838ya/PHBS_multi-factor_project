@@ -14,12 +14,8 @@ function [X, offsetSize] = alpha160(stock, rollingWindow, delay, nSMA, mSMA)
         mSMA = 1;
     end
 
-    %step 1:  clean data module
-    [close, message] = cleanInfoFromTrading(stock.close);
-    disp(message);
-
     %step 2:  get alphas
-    [X, offsetSize] = getAlpha(close, rollingWindow, delay, nSMA, mSMA);
+    [X, offsetSize] = getAlpha(stock.properties.close, rollingWindow, delay, nSMA, mSMA);
     
 end
 
