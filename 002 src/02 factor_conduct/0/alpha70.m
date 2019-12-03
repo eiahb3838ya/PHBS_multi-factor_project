@@ -31,7 +31,7 @@ function [alphaArray, offsetSize] = getAlpha(amount, rollingWindow)
     [m,n] = size(amount);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnana(amount))~=0
+    if sum(isnana(amount),'all')~=0
         error 'nan exists!'
     end
 
