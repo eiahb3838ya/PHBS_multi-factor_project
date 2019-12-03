@@ -6,7 +6,7 @@ function [X, offsetSize] = alpha150(stock)
 %includes OHLS, volume, amount etc.
 
     %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.close, stock.high, stock.low, stock.volume);
+    [X, offsetSize] = getAlpha(stock.properties.close, stock.properties.high, stock.properties.low, stock.properties.volume);
     
 end
 
