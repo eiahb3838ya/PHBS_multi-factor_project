@@ -30,7 +30,7 @@ function [alphaArray, offsetSize] = getAlpha(volume, delay)
     [m,~] = size(volume);
     
     %--------------------error dealing part start-----------------------
-    if sum(isnan(volume))~=0
+    if sum(isnan(volume),'all')~=0
         error 'nan exists!check the raw data!';
     end
 
