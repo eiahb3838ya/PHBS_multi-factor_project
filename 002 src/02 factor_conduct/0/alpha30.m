@@ -5,7 +5,7 @@ function [X, offsetSize] = alpha30(stock)
 %includes OHLS, volume, amount etc.
 
     %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.close, stock.MKT, stock.SMB, stock.HML);
+    [X, offsetSize] = getAlpha(stock.properties.close, stock.properties.MKT, stock.properties.SMB, stock.properties.HML);
 end
 
 function [alphaArray,offsetSize] = getAlpha(dailyClose,MKT,SMB,HML)
