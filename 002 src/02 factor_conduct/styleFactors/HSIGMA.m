@@ -23,7 +23,7 @@ function [exposure, offsetSize] = getAlpha(stockrts,ZZ500rts)
         toCell =mat2cell(wStockRts,252,[ones(1,n)]);
         B =blkdiag(toCell{:});%diag each column of the wStockRts
         Y = repmat(wZZ500Rts,n,1);
-        beta(i,:) = (B'*B\(B' * Y ))';
+        beta(i,:) = (B'* B \(B' * Y ))';
     end
     
     exposure = beta;
