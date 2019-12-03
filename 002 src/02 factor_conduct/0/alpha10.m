@@ -14,7 +14,7 @@ function [X, offsetSize] = alpha10(stock, rollingStdWindow, rollingMaxWindow, ro
     end
 
     %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.close, rollingStdWindow, rollingMaxWindow, rollingRankWindow);
+    [X, offsetSize] = getAlpha(stock.properties.close, rollingStdWindow, rollingMaxWindow, rollingRankWindow);
     
 end
 
