@@ -1,9 +1,16 @@
-function X = alpha152(stock)
-    X = getAlpha152(stock.close);
+function [X, offsetSize] = alpha152(stock)
+% main function
+%SMA(MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),12)-MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),26),9,1)
+% stock is a structure
+
+% clean data module here
+
+% get alpha module here
+    [X, offsetSize] = getAlpha(stock.properties.close);
 end
 
-%SMA(MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),12)-MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),26),9,1)
-function exposure = getAlpha152(close)
+%-------------------------------------------------------------------------
+function [exposure, offsetSize] = getAlpha(close)
     [m,n] = size(close);
     delayClose = [zeros(1,n);close(1:m-1,:)];
     divClose = close ./ delayClose;
@@ -15,4 +22,5 @@ function exposure = getAlpha152(close)
     meanDelayCalSMA2 = movmean(delayCalSMA,[26 0],1);
     
     exposure = sma(meanDelayCalSMA - meanDelayCalSMA2,9,1);
+    offsetSize = 45;
 end

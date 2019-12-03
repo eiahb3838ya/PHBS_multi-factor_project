@@ -1,10 +1,17 @@
-function X = alpha112(stock)
-    X = getAlpha112(stock.close);
+function [X, offsetSize] = alpha112(stock)
+% main function
+% (SUM((CLOSE-DELAY(CLOSE,1)>0?CLOSE-DELAY(CLOSE,1):0),12)-SUM((CLOSE-DELAY(CLOSE,1)<0?ABS(CLOSE-DELAY(CLOSE,1)):0),12))
+% /(SUM((CLOSE-DELAY(CLOSE,1)>0?CLOSE-DELAY(CLOSE,1):0),12)+SUM((CLOSE-DELAY(CLOSE,1)<0?ABS(CLOSE-DELAY(CLOSE,1)):0),12))*100
+% stock is a structure
+
+% clean data module here
+
+% get alpha module here
+    [X, offsetSize] = getAlpha(stock.properties.close);
 end
 
-%(SUM((CLOSE-DELAY(CLOSE,1)>0?CLOSE-DELAY(CLOSE,1):0),12)-SUM((CLOSE-DELAY(CLOSE,1)<0?ABS(CLOSE-DELAY(CLOSE,1)):0),12))
-%/(SUM((CLOSE-DELAY(CLOSE,1)>0?CLOSE-DELAY(CLOSE,1):0),12)+SUM((CLOSE-DELAY(CLOSE,1)<0?ABS(CLOSE-DELAY(CLOSE,1)):0),12))*100
-function exposure = getAlpha112(close)
+%-------------------------------------------------------------------------
+function [exposure, offsetSize] = getAlpha(close)
     [m,n] = size(close);
     delayClose = [zeros(1,n);close(1:m-1,:)];
     diffClose = close - delayClose;
@@ -21,5 +28,6 @@ function exposure = getAlpha112(close)
     down = movsum(ifClose + ifClose2,[12 0],1);
     
     exposure = up./down * 100;
+    offsetSize = 13;
 end
     

@@ -1,11 +1,21 @@
-function X = alpha072(stock)
-    X = getAlpha072(stock.high,stock.close,stock.low);
+function [X, offsetSize] = alpha052(stock)
+%main function
+%SMA((TSMAX(HIGH,6)-CLOSE)/(TSMAX(HIGH,6)-TSMIN(LOW,6))*100,15,1)
+% stock is a structure
+
+% clean data module here
+
+% get alpha module here
+    [X, offsetSize] = getAlpha(stock.properties.high,
+                               stock.properties.close,
+                               stock.properties.low);
 end
 
-%SMA((TSMAX(HIGH,6)-CLOSE)/(TSMAX(HIGH,6)-TSMIN(LOW,6))*100,15,1)
-function exposure = getAlpha072(low,high,close)
+%-------------------------------------------------------------------------
+function [exposure,offsetSize] = getAlpha(high,close,low)
     left = movmax(high,[6 ],1) - close
     right = movmax(high,[6 ],1) - movmin(low,[6 ],1)
     
     exposure = sma(left./right * 100 ,15,1)
+    offsetSize = 21;
 end

@@ -1,8 +1,16 @@
-function X = alpha132(stock)
-    X = getAlpha132(stock.amount);
+function [X, offsetSize] = alpha132(stock)
+% main function
+% MEAN(AMOUNT,20)
+% stock is a structure
+
+% clean data module here
+
+% get alpha module here
+    [X, offsetSize] = getAlpha(stock.properties.amount);
 end
 
-%MEAN(AMOUNT,20)
-function exposure = getAlpha132(amount)
+%-------------------------------------------------------------------------
+function [exposure, offsetSize] = getAlpha(amount)
     exposure = movmean(amount,[20 ],1)
+    offsetSize = 20;
 end
