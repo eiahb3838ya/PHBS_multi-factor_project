@@ -57,12 +57,12 @@ function reserveColumns = deleteInfoFromTrading(feedStruct, fieldName)
     else
         keywordTable = feedStruct.(otherKeyword);
         nanStatKeywordTable = sum(isnan(keywordTable),1);
-        reserveColumns = nanStatKeywordTable(nanStatKeywordTable < n3);
+        reserveColumns = find(nanStatKeywordTable < n3);
         
         if sum(keywordTable(:,reserveColumns),'all') == 0
             disp(['DELETION summary: no nan exists in ', otherKeyword,' table']);
         else
-            disp(['DELETION summary: nan still exist in', otherKeyword,' table']);
+            disp(['DELETION summary: nan still exist in ', otherKeyword,' table']);
         end
     end
 
