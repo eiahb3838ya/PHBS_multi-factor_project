@@ -42,6 +42,14 @@ Yuting F.:market beta, momentum, volatility--std($\epsilon_i$)(*CFA ddl:Dec.9/20
 Evan H.:CMRA,liquidity；
 Zhihao C.:size,E/P,DASTD
 ddl**Dec.6,8am**
+### ddl(制定日期：Dec.6/2019)
+
+- All:檢查是否能滾動產生相同結果(將 for 寫在 function 外面)?將 offset 標明清楚:新增 flag 處理滾動
+- All: 更新因子 function 參照 alpha11
+- Evan: class 編寫(try call function by name)
+- Prof.Chen: 極端值處理函數、標準化函數
+- Yuting.F: Pass CFA test 、請大家吃飯
+- Zhangjie L.:清洗数据(你要加油了哈哈)
 
 
 ---
