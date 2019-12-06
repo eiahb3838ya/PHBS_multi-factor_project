@@ -1,14 +1,20 @@
-%alpha11
 
-% close = projectData.stock.properties.close;
-% low = projectData.stock.properties.low;
-% high = projectData.stock.properties.high;
-% volume = projectData.stock.properties.volume;
-
-
-function [X, offsetSize] = alpha11(stock)
-    [X, offsetSize] = getAlpha(stock.properties.high, stock.properties.low, stock.properties.close, stock.properties.volume);
+function [X, offsetSize] = alpha11(alphaPara)
+    %alpha11
+    
+    try
+        high = alphaPara.high;
+        low = alphaPara.low;
+        close = alphaPara.close;
+        volume = alphaPara.volume;
+    catch
+        error 'para error';
+    end
+        
+    [X, offsetSize] = getAlpha(high, low, close, volume);
+    return
 end
+
 
 function [exposure, offsetSize] = getAlpha(high, low, close, volume)
     toCumsum = ((close - low) - (high - close)) ./(high - low).*volume ;
