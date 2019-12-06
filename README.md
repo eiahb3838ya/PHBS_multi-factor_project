@@ -21,6 +21,8 @@ View the book with "<i class="fa fa-book fa-fw"></i> Book Mode".
 
 **discussion log(通过讨论日期分类)**
 [Dec.2/2019](#dicussion-logDec22019)
+[Dec.6/2019](#dicussion-logDec62019)
+
 
 ---
 
@@ -113,6 +115,53 @@ end
 - volatility:DASTD,std($\epsilon$),CMRA
 - liquidity
 
+### dicussion log(Dec.6/2019)
+
+1. 重构因子计算类
+1.1. 函数封装
+```{Matlab}
+function [X, offsetSize] = alpha11(alphaPara)
+    %alpha11
+    
+    try
+        high = alphaPara.high;
+        low = alphaPara.low;
+        close = alphaPara.close;
+        volume = alphaPara.volume;
+        % if there are params e.g. windowSize
+        % use alphaPara.windowSize etc.
+    catch
+        error 'para error';
+    end
+        
+    [X, offsetSize] = getAlpha(high, low, close, volume);
+    return
+end
+
+function [exposure, offsetSize] = getAlpha(high, low, close, volume)
+    %compute alpha11
+end
+```
+1.2. 类封装
+
+```
+ParamStruct -- "alpha1" --"close"
+                      |--"high"
+                      |--"rollingMeanWindowSize"
+             -- "alpha2" --"vwap"
+                      |--"amount"
+                      |--"rollingStdWindowSize"
+```
+
+```{Matlab}
+classdef (struct,params(json))
+
+
+```
+2. 数据清洗
+
+2.1. 0-1表清洗(stTable,)
+- **rule 1** 
 
 ---
 
