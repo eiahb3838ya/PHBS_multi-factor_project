@@ -2,7 +2,7 @@ function filledTable = fillData(feedStruct, fieldName, fillMethod)
 % FILLDATA combines delete nan and fill nan
 % fillMethod, cell of size 1x2, first element: method fillna in the
 % beginning of table; second element: method fillna in the end of table,
-% e.g. fillMethod can be {['constant',0],['movmean',3]}. Following shows all
+% e.g. fillMethod can be {["constant",0],["movmean",3]}. Following shows all
 % methods of fillna for a table(matrix). 
 %       |major params   |other params
 %       |'constant'     | value to be filled in
@@ -57,29 +57,36 @@ function filledTable = fillData(feedStruct, fieldName, fillMethod)
     if ~(strcmp(commonMethod, 'mostFrequent') ||...
             strcmp(endValueMethod, 'mostFrequent'))
         if size(fillMethod{1},2) == 1 && size(fillMethod{2},2) == 1
+            commonMethod = convertStringsToChars(commonMethod);
+            endValueMethod = convertStringsToChars(endValueMethod);
             for col = 1:size(filledTable,2)
                 filledTable(:,col) = fillmissing(feedTableAfterDeletion(:,col),...
                     commonMethod, 'EndValues', endValueMethod);
             end
         elseif size(fillMethod{1},2) == 1 && size(fillMethod{2},2) == 2
+            commonMethod = convertStringsToChars(commonMethod);
+            endValueMethod = convertStringsToChars(endValueMethod);
             for col = 1:size(filledTable,2)
                 filledTable(:,col) = fillmissing(feedTableAfterDeletion(:,col),...
                     commonMethod, str2num(fillMethod{2}(2)), 'EndValues', endValueMethod);
             end
         elseif size(fillMethod{1},2) == 2 && size(fillMethod{2},2) == 1
+            commonMethod = convertStringsToChars(commonMethod);
             for col = 1:size(filledTable,2)
                 filledTable(:,col) = fillmissing(feedTableAfterDeletion(:,col),...
-                    commonMethod, 'EndValues', endValueMethod, str2num(fillMethod{1}(2)));
+                    commonMethod, 'EndValues', str2num(fillMethod{1}(2)));
             end
         elseif size(fillMethod{1},2) == 2 && size(fillMethod{2},2) == 2
+            commonMethod = convertStringsToChars(commonMethod);
             for col = 1:size(filledTable,2)
                 filledTable(:,col) = fillmissing(feedTableAfterDeletion(:,col),...
-                    commonMethod, str2num(fillMethod{2}(2)), 'EndValues', endValueMethod, str2num(fillMethod{1}(2)));
+                    commonMethod, str2num(fillMethod{2}(2)), 'EndValues', str2num(fillMethod{1}(2)));
             end
         else
             error 'other errors,use canonical fillMethod please!';
         end
     elseif strcmp(commonMethod, 'mostFrequent') && size(fillMethod{1},2) == 1
+        endValueMethod = convertStringsToChars(endValueMethod);
         for col = 1:size(filledTable,2)
             filledTable(:,col) = fillmissing(feedTableAfterDeletion(:,col),...
                 'constant', mode(feedTableAfterDeletion(:,col)),...
@@ -89,7 +96,7 @@ function filledTable = fillData(feedStruct, fieldName, fillMethod)
         for col = 1:size(filledTable,2)
             filledTable(:,col) = fillmissing(feedTableAfterDeletion(:,col),...
                 'constant', mode(feedTableAfterDeletion(:,col)),...
-                'EndValues', endValueMethod, str2num(fillMethod{1}(2)));
+                'EndValues', str2num(fillMethod{1}(2)));
         end
     else
         error 'other errors, use canonical fillMethod please!';
