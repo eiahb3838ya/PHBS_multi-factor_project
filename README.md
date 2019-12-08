@@ -182,25 +182,28 @@ classdef (struct,params(json))
 
 **cloneStruct**
 
-**nanSummary**
-
 **fillData**
 
 
 
 2.4.模块类封装
 
-**class: @cleanDataModule**
+**class: @CleanDataModule**
 ```
 input = structData, structParams
 
-structParams -- settingClean01     |-- maxConsecutiveInvalidLength
-                                   |-- maxConsecutiveRollingSize
-                                   |-- maxCumulativeInvalidLength     
-                                   |-- maxCumulativeRollingSize
-                                   |-- noToleranceRollingSize
-                                   |-- flag
-             -- settingNanSummary  |-- refStruct     
+structParams -- settingClean01         |-- maxConsecutiveInvalidLength
+                                       |-- maxConsecutiveRollingSize
+                                       |-- maxCumulativeInvalidLength     
+                                       |-- maxCumulativeRollingSize
+                                       |-- noToleranceRollingSize
+                                       |-- flag
+                                       
+             -- settingRefer01Table    |-- table1's relative location   
+                                       |-- table2's relative location 
+                                       
+             -- settingValidIndicator  |-- table1's valid data indicator
+                                       |-- table2's valid data indicator
                     
 ```
 
