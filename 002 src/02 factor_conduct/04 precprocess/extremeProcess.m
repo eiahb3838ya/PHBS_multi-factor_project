@@ -23,9 +23,9 @@ function processedTable = extremeProcess(feedStruct, fieldName, paraStruct)
     processedTable = feedStruct.(fieldName);
     
     xMedian = median(processedTable, 2);
-    if choice == 'mean'
+    if choice == "mean"
         DMad = mean(processedTable - xMedian, 2);
-    elseif choice == 'median'
+    elseif choice == "median"
         DMad = median(processedTable - xMedian, 2);
     else
         error 'Wrong choice';

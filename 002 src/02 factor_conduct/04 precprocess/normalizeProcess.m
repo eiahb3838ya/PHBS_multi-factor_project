@@ -1,4 +1,4 @@
-function normalizedTable = normalizeProcess(feedStruct, fieldName)
+function [normalizedTable, meanValue, medianValue, skewnessValue, kurtosisValue] = normalizeProcess(feedStruct, fieldName)
 % NORMALIZEPROCESS returns the normalized version of feedStruct with
 % z-score method 
 % The normalization will be cross-sectional, which means row-wise
@@ -9,6 +9,10 @@ function normalizedTable = normalizeProcess(feedStruct, fieldName)
     end
     normalizedTable = feedStruct.(fieldName);
     normalizedTable = zscore(normalizedTable, 0, 2);
+    meanValue = mean(normalizedTable, 2);
+    medianValue = median(normalizedTable, 2);
+    skewnessValue = skewness(normalizedTable, 1, 2);
+    kurtosisValue = kurtosis(normalizedTable, 1, 2);
     [m, ~] = size(normalizedTable);
     plot(normalizedTable(m, :));
 end
