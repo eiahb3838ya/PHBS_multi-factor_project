@@ -1,7 +1,7 @@
+function lowDay = lowday(A, k)
 % LOWDAY(A, n) is the time interval between the min of the previous n and
 % the current time
 
-function lowDay = lowday(A, k)
     [m, n] = size(A);
     lowDay = zeros(m, n);
     for i = 1: k - 1

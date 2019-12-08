@@ -1,13 +1,20 @@
-function [X, offsetSize] = alpha043(stock)
+function [X, offsetSize] = alpha043(alphaPara)
 % main function
 % SUM((CLOSE > DELAY(CLOSE, 1) ? VOLUME: (CLOSE < DELAY(CLOSE, 1) ?
 % -VOLUME: 0)), 6)
-% stock is a structure
-
+% min data size: 1
+% alphaPara is a structure
+    try
+        close = alphaPara.close;
+        volume = alphaPara.volume;
+    catch
+        error 'para error';
+    end
+    
 % clean data module here
 
 % get alpha module here
-    [X, offsetSize] = getAlpha(stock.properties.close, stock.properties.volume);
+    [X, offsetSize] = getAlpha(close, volume);
 end
 
 %-------------------------------------------------------------------------
@@ -24,4 +31,19 @@ function [exposure, offsetSize] = getAlpha(close, volume)
     exposure = sumPast(matrix, 6);
     offsetSize = 6;
 end
-    
+
+function [exposure, offsetSize] = getAlphaUpdate(close, volume)
+    offsetSize = 7;
+    [m, ~] = size(close);
+    if m < offsetSize
+        error 'Lack data. At least data of 7 days.';
+    end
+    delay = close(m - 6 : m - 1,:);
+    closeTable = close(m - 5: m, :);
+    volumeTable = volume(m - 5: m, :);
+    matrix = closeTable;
+    matrix(closeTable < delay) = -volumeTable(closeTable < delay);
+    matrix(closeTable == delay) = 0;
+    matrix(closeTable > delay) = volumeTable(closeTable > delay);
+    exposure = sum(matrix);
+end
