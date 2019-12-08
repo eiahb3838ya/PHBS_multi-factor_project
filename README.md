@@ -169,7 +169,7 @@ classdef (struct,params(json))
 2. 数据清洗
 
 2.1. 0-1表清洗(stTable, tradeDay)
-清洗tradeDay或者stDay表格，以tradeDay为例，目的是在给定时间长度#days中，对于所有可能交易的公司#companies，得到如下两种情况之一的结果：已知观测矩阵大小为#days $\times$ #companies,观测者位于#days+1天的位置试图做出决策，根据一个给定的规则，如（要求最近90个交易日内不能连续non-tradable超过7天，最近30个交易日内不能有任何non-tradable day）,有两种返回情况（flag =0或1），第一种是返回一个同等大小（#days $\times$ #companies）的矩阵，其中前90条观测(1:90)为offset,自第91天起，每天返回一个股票池数据（为0-1行向量）,第二种是返回一个行向量（1 $\times$ #companies），它的值来源于对第一种情况的每一行（row-wise）取交集运算。默认返回情况1（flag=0）
+清洗tradeDay或者stDay表格，以tradeDay为例，目的是在给定时间长度#days中，对于所有可能交易的公司#companies，得到如下两种情况之一的结果：已知观测矩阵大小为#days $\times$ #companies,观测者位于N#days天的位置试图做出决策，根据一个给定的规则，如（要求最近90个交易日内不能连续non-tradable超过7天，最近30个交易日内不能有任何non-tradable day）,有两种返回情况（flag =0或1），第一种是返回一个同等大小（#days $\times$ #companies）的矩阵，其中前89条观测(1:89)为offset,自第90天起，每天返回一个股票池数据（为0-1行向量）,第二种是返回一个行向量（1 $\times$ #companies），它的值来源于对第一种情况的每一行（row-wise）取交集运算。默认返回情况1（flag=0）
 
 2.2.其余步骤
 --  **step1：** 使用0-1表的处理结果应用于所有需要清洗的表格（利用结构体相对索引位置），返回一个相同结构的新结构体，用step1中的默认返回值（flag=0）处理所有表格对应的位置，返回此情况下是否仍然存在的nan(nan总数，表格总记录数，nan占比)
@@ -216,7 +216,7 @@ structParams -- settingClean01     |-- maxConsecutiveInvalidLength
 - iii. 使用历史数据进行插值填补
 - iv. 待定其他方法 -->
 -- **step1：** 0-1表（tradeDay以及stDay）处理
-清洗tradeDay或者stDay表格，以tradeDay为例，目的是在给定时间长度#days中，对于所有可能交易的公司#companies，得到如下两种情况之一的结果：已知观测矩阵大小为#days $\times$ #companies,观测者位于#days+1天的位置试图做出决策，根据一个给定的规则，如（要求最近90个交易日内不能连续non-tradable超过7天，最近30个交易日内不能有任何non-tradable day）,有两种返回情况（flag =0或1），第一种是返回一个同等大小（#days $\times$ #companies）的矩阵，其中前90条观测(1:90)为offset,自第91天起，每天返回一个股票池数据（为0-1行向量）,第二种是返回一个行向量（1 $\times$ #companies），它的值来源于对第一种情况的每一行（row-wise）取交集运算。默认返回情况1（flag=0）
+清洗tradeDay或者stDay表格，以tradeDay为例，目的是在给定时间长度#days中，对于所有可能交易的公司#companies，得到如下两种情况之一的结果：已知观测矩阵大小为#days $\times$ #companies,观测者位于No.#days天的位置试图做出决策，根据一个给定的规则，如（要求最近90个交易日内不能连续non-tradable超过7天，最近30个交易日内不能有任何non-tradable day）,有两种返回情况（flag =0或1），第一种是返回一个同等大小（#days $\times$ #companies）的矩阵，其中前89条观测(1:89)为offset,自第90天起，每天返回一个股票池数据（为0-1行向量）,第二种是返回一个行向量（1 $\times$ #companies），它的值来源于对第一种情况的每一行（row-wise）取交集运算。默认返回情况1（flag=0）
 
 --  **step2：** 使用0-1表的处理结果应用于所有需要清洗的表格（利用结构体相对索引位置），返回一个相同结构的新结构体，用step1中的默认返回值（flag=0）处理所有表格对应的位置，返回此情况下是否仍然存在的nan(nan总数，表格总记录数，nan占比)
 
