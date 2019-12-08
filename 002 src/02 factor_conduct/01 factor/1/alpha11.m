@@ -9,7 +9,7 @@ function [X, offsetSize] = alpha11(alphaPara)
         low = alphaPara.low;
         close = alphaPara.close;
         volume = alphaPara.volume;
-        updateFlag  = alphaPara.updateFlag
+        updateFlag  = alphaPara.updateFlag;
     catch
         error 'para error';
     end

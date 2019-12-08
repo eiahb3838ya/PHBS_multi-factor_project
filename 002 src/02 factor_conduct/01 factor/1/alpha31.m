@@ -1,10 +1,26 @@
 %Alpha31 (CLOSE-MEAN(CLOSE,12))/MEAN(CLOSE,12)*100
 
-% close = projectData.stock.properties.close;
 
-
-function [X, offsetSize] = alpha31(stock)
-    [X, offsetSize] = getAlpha(stock.properties.close);
+function [X, offsetSize] = alpha31(alphaPara)
+    %Alpha31 (CLOSE-MEAN(CLOSE,12))/MEAN(CLOSE,12)*100
+    % min data size:12
+    
+    try
+        close = alphaPara.close;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+    
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(high, low, close, volume);
+        return
+    %     return only latest factor
+    else
+        [X, offsetSize] = getAlphaUpdate(high, low, close, volume);
+    end
 end
 
 function [exposure, offsetSize] = getAlpha(close)
@@ -18,4 +34,12 @@ function [exposure, offsetSize] = getAlpha(close)
     offsetSize = 11;
     return
 end
+
+function [exposure, offsetSize] = getAlphaUpdate(close)
+    %     return the latest index
+    [X, offsetSize] = getAlpha(close);
+    exposure = X(end,:);
+    return
+end
+
 
