@@ -14,5 +14,5 @@ function [normalizedTable, meanValue, medianValue, skewnessValue, kurtosisValue]
     skewnessValue = skewness(normalizedTable, 1, 2);
     kurtosisValue = kurtosis(normalizedTable, 1, 2);
     [m, ~] = size(normalizedTable);
-    plot(normalizedTable(m, :));
+    histogram(normalizedTable(m, :));
 end
