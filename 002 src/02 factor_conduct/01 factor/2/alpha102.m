@@ -1,15 +1,29 @@
-function [X, offsetSize] = alpha102(stock)
-%main function
-%SMA(MAX(VOLUME-DELAY(VOLUME,1),0),6,1)/SMA(ABS(VOLUME-DELAY(VOLUME,1)),6,1)*100
-% stock is a structure
+function [X, offsetSize] = alpha102(alphaPara)
+% main function
+% alpha102
+% min data size:7
+% SMA(MAX(VOLUME-DELAY(VOLUME,1),0),6,1)/SMA(ABS(VOLUME-DELAY(VOLUME,1)),6,1)*100
 
-% clean data module here
-
-% get alpha module here
-    [X, offsetSize] = getAlpha(stock.properties.volume);
+%     get parameters from alphaPara
+    try
+        volume = alphaPara.volume;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+    
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(volume);
+        return
+        
+    %     return only latest factor
+    else
+        [X, offsetSize] = getAlphaUpdate(volume);
+    end      
 end
 
-%-------------------------------------------------------------------------
 function [exposure, offsetSize] = getAlpha(volume)
      [m,n]= size(volume);
      delayVolume = [zeros(1,n);volume(1:m-1,:)];
@@ -17,4 +31,12 @@ function [exposure, offsetSize] = getAlpha(volume)
      
      exposure = sma(left,6,1)./sma(abs(left),6,1) * 100;
      offsetSize = 7;
+end
+
+
+function [exposure, offsetSize] = getAlphaUpdate(volume)
+    %     return the latest index
+    [X, offsetSize] = getAlpha(volume);
+    exposure = X(end,:);
+    return
 end

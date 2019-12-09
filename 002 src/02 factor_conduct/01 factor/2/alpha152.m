@@ -1,15 +1,30 @@
-function [X, offsetSize] = alpha152(stock)
+function [X, offsetSize] = alpha152(alphaPara)
 % main function
-%SMA(MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),12)-MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),26),9,1)
-% stock is a structure
+% alpha152
+% min data size: 66(may be smaller than 66)
+% SMA(MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),12)-MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),26),9,1)
 
-% clean data module here
-
-% get alpha module here
-    [X, offsetSize] = getAlpha(stock.properties.close);
+%     get parameters from alphaPara
+    try
+        close = alphaPara.close;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+    
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(close);
+        return
+        
+    %     return only latest factor
+    else
+        [X, offsetSize] = getAlphaUpdate(close);
+    end    
 end
 
-%-------------------------------------------------------------------------
+
 function [exposure, offsetSize] = getAlpha(close)
     [m,n] = size(close);
     delayClose = [zeros(1,n);close(1:m-1,:)];
@@ -22,5 +37,12 @@ function [exposure, offsetSize] = getAlpha(close)
     meanDelayCalSMA2 = movmean(delayCalSMA,[26 0],1);
     
     exposure = sma(meanDelayCalSMA - meanDelayCalSMA2,9,1);
-    offsetSize = 45;
+    offsetSize = 66;
+end
+
+function [exposure, offsetSize] = getAlphaUpdate(close)
+    %     return the latest index
+    [X, offsetSize] = getAlpha(close);
+    exposure = X(end,:);
+    return
 end
