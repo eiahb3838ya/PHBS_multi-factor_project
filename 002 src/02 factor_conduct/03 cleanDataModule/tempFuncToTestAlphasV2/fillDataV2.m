@@ -1,4 +1,4 @@
-function filledTables = fillData(feedStruct, fieldNames, fillMethod)
+function filledTables = fillDataV2(feedStruct, fieldNames, fillMethod)
 % FILLDATA combines delete nan and fill nan
 % fillMethod, cell of size 1x2, first element: method fillna in the
 % beginning of table; second element: method fillna in the end of table,
