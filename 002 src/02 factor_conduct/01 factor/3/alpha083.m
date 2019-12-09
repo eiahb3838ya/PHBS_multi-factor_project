@@ -5,17 +5,26 @@ function [X, offsetSize] = alpha083(alphaPara, rollingWindow)
 % parameter rollingWindow
 % min data size: rollingWindow + 4
 % alphaPara is a structure
+    if nargin == 1
+        rollingWindow = 10;
+    end
+    
     try
         high = alphaPara.high;
         volume = alphaPara.volume;
+        updateFlag  = alphaPara.updateFlag;
     catch
         error 'para error';
     end
 
-% clean data module here
-
-% get alpha module here
-    [X, offsetSize] = getAlpha(high, volume, rollingWindow);
+% calculate and return all history factor
+% controled by updateFlag, call getAlpha if TRUE
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(high, volume);
+        return
+    else
+        [X, offsetSize] = getAlphaUpdate(high, volume, rollingWindow);
+    end
 end
 
 %-------------------------------------------------------------------------

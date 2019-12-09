@@ -7,14 +7,19 @@ function [X, offsetSize] = alpha093(alphaPara)
     try
         open = alphaPara.open;
         low = alphaPara.low;
+        updateFlag  = alphaPara.updateFlag;
     catch
         error 'para error';
     end
 
-% clean data module here
-
-% get alpha module here
-    [X, offsetSize] = getAlpha(open, low);
+% calculate and return all history factor
+% controled by updateFlag, call getAlpha if TRUE
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(open, low);
+        return
+    else
+        [X, offsetSize] = getAlphaUpdate(open, low);
+    end
 end
 
 %-------------------------------------------------------------------------

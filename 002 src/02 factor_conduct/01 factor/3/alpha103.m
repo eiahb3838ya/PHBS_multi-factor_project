@@ -5,14 +5,19 @@ function [X, offsetSize] = alpha103(alphaPara)
 % alphaPara is a structure
     try
         low = alphaPara.low;
+        updateFlag  = alphaPara.updateFlag;
     catch
         error 'para error';
     end 
 
-% clean data module here
-
-% get alpha module here
-    [X, offsetSize] = getAlpha(low);
+% calculate and return all history factor
+% controled by updateFlag, call getAlpha if TRUE
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(low);
+        return
+    else
+        [X, offsetSize] = getAlphaUpdate(low);
+    end
 end
 
 %-------------------------------------------------------------------------
