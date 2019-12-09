@@ -1,4 +1,4 @@
-function reserveColumns = deleteInfoFromTrading(feedStruct, fieldName)
+function reserveColumns = deleteInfoFromTradingV2(feedStruct, fieldName)
 % feedStruct is a structure contains OHLC,volume,amount,tradeDay, stDay etc. information
 % from exchange.
 % fieldName is a string indicates which table in the feedStruct should be
