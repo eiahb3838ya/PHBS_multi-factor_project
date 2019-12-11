@@ -36,4 +36,5 @@ function [exposure, offsetSize] = getAlphaUpdate(low)
     end
     lowTable = low(m - 19: m, :);
     exposure = (20 - lowday(lowTable, 20))./ 20.* 100;
+    exposure = exposure(20, :);
 end

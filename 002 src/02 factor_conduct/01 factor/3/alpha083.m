@@ -68,5 +68,6 @@ function [exposure, offsetSize] = getAlphaUpdate(high, volume, rollingWindow)
             coviance(i, j) = covMatrix(1, 2);
         end
     end
-    exposure = -1 * rollingRank(coviance, offsetSize, rollingWindow);
+    exposure = -1 * sort(coviance);
+    exposure = exposure(10, :);
 end

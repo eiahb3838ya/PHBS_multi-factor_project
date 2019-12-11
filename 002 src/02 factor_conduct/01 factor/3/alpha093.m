@@ -37,7 +37,7 @@ function [exposure, offsetSize] = getAlpha(open, low)
 end
 
 function [exposure, offsetSize] = getAlphaUpdate(open, low)
-    [m, ~] = size(open);
+    [m, n] = size(open);
     offsetSize = 21;
     if m < offsetSize
         error 'Lack data. At least data of 7 days.';
