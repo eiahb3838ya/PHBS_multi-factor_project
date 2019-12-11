@@ -14,21 +14,20 @@ function [X, offsetSize] = alpha022(alphaPara)
     
     %     calculate and return all history factor
     %     controled by updateFlag, call getAlpha if TRUE 
-    if ~updateFlag
-        [X, offsetSize] = getAlpha(close);
-        return
-        
+     if ~updateFlag
+         [X, offsetSize] = getAlpha(close);
+         return
+         
     %     return only latest factor
-    else
-        [X, offsetSize] = getAlphaUpdate(close);
-    end     
+     else
+         [X, offsetSize] = getAlphaUpdate(close);
+     end     
 end
 
-%-------------------------------------------------------------------------
 function [exposure, offsetSize] = getAlpha(close)
     [m,n] =size(close);
     meanClose = movmean(close,[6 0],1);
-    closePart = (close - meanClose)./meanClose;
+    closePart = (close - meanClose)./(meanClose +eps);
     delayClosePart = [zeros(3,n);closePart(1:m-3,:)];
     
     exposure = sma(closePart - delayClosePart,12,1);

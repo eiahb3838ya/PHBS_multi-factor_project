@@ -28,9 +28,8 @@ end
 function [exposure,offsetSize] = getAlpha(high,volume)
     [m,n] = size(high);
     calMoveStd = movstd(high,[10 0],1);   
-    rankHigh = rollingRank(calMoveStd,10,20);
+    rankHigh = rollingRank(calMoveStd,10,10);
     corrValue = movecoef(high,volume,10);
-   
     exposure = -1 * rankHigh .* corrValue;  
     offsetSize = 10;
 end

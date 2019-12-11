@@ -42,7 +42,7 @@ function [exposure, offsetSize] = getAlpha(close)
     up = movsum(ifClose - ifClose2,[12 0],1);
     down = movsum(ifClose + ifClose2,[12 0],1);
     
-    exposure = up./down * 100;
+    exposure = up./(down+eps) * 100;
     offsetSize = 13;
 end
     

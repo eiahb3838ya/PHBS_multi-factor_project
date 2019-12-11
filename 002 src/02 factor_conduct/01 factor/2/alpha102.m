@@ -28,11 +28,11 @@ function [exposure, offsetSize] = getAlpha(volume)
      [m,n]= size(volume);
      delayVolume = [zeros(1,n);volume(1:m-1,:)];
      left = max(volume - delayVolume,0);
+     delayMatrix = volume - delayVolume;
      
-     exposure = sma(left,6,1)./sma(abs(left),6,1) * 100;
+     exposure = sma(left,6,1)./(sma(abs(delayMatrix),6,1)+eps);
      offsetSize = 7;
 end
-
 
 function [exposure, offsetSize] = getAlphaUpdate(volume)
     %     return the latest index

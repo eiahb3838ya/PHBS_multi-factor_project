@@ -1,4 +1,4 @@
-function [X, offsetSize] = alpha002(stock)
+function [X, offsetSize] = alpha002(alphaPara)
 % main function
 % alpha022
 % min data size: 2
@@ -28,7 +28,7 @@ end
 
 function [exposure,offsetSize] = getAlpha(close,low, high)
     [m,n]= size(close);
-    daily = ((close - low)-(high - close))./(high - low);
+    daily = ((close - low)-(high - close))./(high - low + eps);
     delay = [zeros(1,n);daily(1:m-1,:)];
     
     exposure = -1 *(daily - delay);

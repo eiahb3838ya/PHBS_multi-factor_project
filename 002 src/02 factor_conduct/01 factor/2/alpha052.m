@@ -3,7 +3,16 @@ function [X, offsetSize] = alpha052(alphaPara)
 % alpha052
 % min data size:27
 % SUM(MAX(0,HIGH-DELAY((HIGH+LOW+CLOSE)/3,1)),26)/SUM(MAX(0,DELAY((HIGH+LOW+CLOSE)/3,1)-L),26)* 100
-
+%     get parameters from alphaPara
+    try
+        high = alphaPara.high;
+        low = alphaPara.low;
+        close = alphaPara.close;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+    
     %     calculate and return all history factor
     %     controled by updateFlag, call getAlpha if TRUE 
     if ~updateFlag
