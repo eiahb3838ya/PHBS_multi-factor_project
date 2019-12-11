@@ -23,7 +23,7 @@ View the book with "<i class="fa fa-book fa-fw"></i> Book Mode".
 **discussion log(通过讨论日期分类)**
 [Dec.2/2019](#dicussion-logDec22019)
 [Dec.6/2019](#dicussion-logDec62019)
-[Dec.9&11/2019](#discussion-logDec112019)
+[Dec.9&11/2019](#dicussion-logDec112019)
 
 
 ---
