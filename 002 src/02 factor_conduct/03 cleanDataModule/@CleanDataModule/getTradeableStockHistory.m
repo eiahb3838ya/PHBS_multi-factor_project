@@ -1,4 +1,4 @@
-function tradeableStocksMatrix = getTradeableStockHistory(obj)
+function [] = getTradeableStockHistory(obj)
 %GETTRADEABLESTOCKHISTORY update all tradeable stocks with
 %minimum data required.
 %
@@ -21,6 +21,9 @@ function tradeableStocksMatrix = getTradeableStockHistory(obj)
     flag = updateCriteria.settingClean01.flag;
     stride = historyCriteria.settingBacktestStride;
     % and refValidIndicator
+    
+    % save stride
+    obj.set.stride(obj,stride);
     
     % get max slice size
     obj.set.updateRows(obj,max([maxConsecutiveRollingSize, maxCumulativeRollingSize, noToleranceRollingSize]));
@@ -56,6 +59,9 @@ function tradeableStocksMatrix = getTradeableStockHistory(obj)
             if ~(isequal(unique(refTables{count}),[0,1]) ||...
                     isequal(unique(refTables{count}),[0;1]))
                 error 'elements other than 0,1 exist!';
+            end
+            if size(refTables{count},1) < obj.get.updateRows(obj)
+                error('given 0-1 table has fewer rows than obj.updateRows');
             end
         end
     end
@@ -133,8 +139,12 @@ function tradeableStocksMatrix = getTradeableStockHistory(obj)
         tradeableStocksMatrix = prod(tradeableStocksMatrix(offsetSize+1:end,:),1);
         tradeableStocksMatrix = repmat(tradeableStocksMatrix, columnLength, 1);
         tradeableStocksMatrix(1:offsetSize,:) = 0;
+        obj.set.selectionRecord = tradeableStocksMatrix;
+        return;
     end
     
+     % otherwise return the matrix
+    obj.set.selectionRecord = tradeableStocksMatrix;
     
 
 end

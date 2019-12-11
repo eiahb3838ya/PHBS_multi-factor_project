@@ -1,4 +1,4 @@
-function structMatrix = getStructToCleanHistory(obj)
+function [] = getStructToCleanHistory(obj)
 %GETSTRUCTTOCLEANHISTORY  make a new copy of structure that is used to feed 
 %to stock selection process.
 %   NOTE: depend on defaultTableNamesToSelect = 'tableNamesToSelect.json';
