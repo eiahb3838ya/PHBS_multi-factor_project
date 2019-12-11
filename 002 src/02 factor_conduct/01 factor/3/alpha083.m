@@ -49,7 +49,7 @@ function [exposure, offsetSize] = getAlpha(high, volume)
         end
     end
     exposure = -1 * sort(coviance);
-    offsetSize = 5;
+    offsetSize = rollingWindow + 4;
 end
 
 function [exposure, offsetSize] = getAlphaUpdate(high, volume, rollingWindow)
@@ -58,14 +58,15 @@ function [exposure, offsetSize] = getAlphaUpdate(high, volume, rollingWindow)
     if m < offsetSize
         error 'Lack data. At least data of 7 days.';
     end
-    coviance = zeros(rollingWindow ,n);
+    coviance = zeros(rollingWindow, n);
     for j = 1: n
         for i = 1: rollingWindow
-            rankHigh = sort(high(i: i + 4, :));
-            rankVolume = sort(volume(i: i + 4, :));
-            covMatrix = cov(rankHigh(i: i + 4, j), rankVolume(i: i + 4, j));
+%             rankHigh = sort(high(i: i + 4, :));
+%             rankVolume = sort(volume(i: i + 4, :));
+%             covMatrix = cov(rankHigh(i: i + 4, j), rankVolume(i: i + 4, j));
+            covMatrix = cov(sort(high(i: i + 4, j)), sort(volume(i: i + 4, j)));
             coviance(i, j) = covMatrix(1, 2);
         end
     end
-    exposure = -1 * sort(coviance);
+    exposure = -1 * rollingRank(coviance, offsetSize, rollingWindow);
 end

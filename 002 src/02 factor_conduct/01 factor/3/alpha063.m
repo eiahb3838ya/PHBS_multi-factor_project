@@ -42,8 +42,10 @@ function [exposure, offsetSize] = getAlphaUpdate(close)
     if m < offsetSize
         error 'Lack data. At least data of 7 days.';
     end
-    delay = [zeros(1, n);close(1: m - 1,:)];
-    maxMatrix = max(close - delay, zeros(m, n));
-    absMatrix = abs(close - delay);
+    delay = close(m - 6: m - 1, :);
+    closeTable = close(m - 5: m, :);
+    maxMatrix = max(closeTable - delay, zeros(6, n));
+    absMatrix = abs(closeTable - delay);
     exposure = sma(maxMatrix, 6, 1)./ sma(absMatrix, 6, 1) * 100;
+    exposure = exposure(6, :);
 end

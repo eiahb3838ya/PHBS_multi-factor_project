@@ -5,6 +5,7 @@ function Y = sma(A, n, m)
             Y(i,:) = A(i,:);
         else
             Y(i,:) = (A(i-1,:)*m + Y(i-1,:)*(n-m))/n;
+        end
         
     end
 end
