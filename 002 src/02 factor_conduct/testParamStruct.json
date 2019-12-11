@@ -1,0 +1,13 @@
+{   
+    "alpha11":{
+        "datasets":["high", "low", "close", "volume"]         
+    },
+    "alpha31":{
+        "datasets":["high", "low", "close", "volume"]
+    },
+    "settingRefer01Table":["stock.tradeDayTable",
+                            "stock.stTable"],
+    "settingValidIndicator":[1,0]
+    
+
+}

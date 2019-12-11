@@ -1,4 +1,4 @@
-function tradeableStocksRow = getTradeableStockUpdate(obj)
+function [] = getTradeableStockUpdate(obj)
 %TRADEABLESTOCKSROW update one-day tradeable stocks with
 %minimum data required.
 %
@@ -54,6 +54,9 @@ function tradeableStocksRow = getTradeableStockUpdate(obj)
             if ~(isequal(unique(refTables{count}),[0,1]) ||...
                     isequal(unique(refTables{count}),[0;1]))
                 error 'elements other than 0,1 exist!';
+            end
+            if size(refTables{count},1) < obj.get.updateRows(obj)
+                error('given 0-1 table has fewer rows than obj.updateRows');
             end
         end
     end
@@ -124,10 +127,13 @@ function tradeableStocksRow = getTradeableStockUpdate(obj)
     if flag == 1
         offsetSize = max([maxCumulativeRollingSize, maxConsecutiveRollingSize, noToleranceRollingSize])-1;%because it is size, not starting index
         tradeableStocksRow = prod(tradeableStocksRow(offsetSize+1:end,:),1);
+        obj.set.selectionRecord = tradeableStocksRow;
+        return;
     end
     
     % otherwise return the last row
     tradeableStocksRow = tradeableStocksRow(end,:);
+    obj.set.selectionRecord = tradeableStocksRow;
 
 end
 

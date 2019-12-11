@@ -1,4 +1,4 @@
-function structRows = getStructToCleanUpdate(obj)
+function [] = getStructToCleanUpdate(obj)
 %GETSTRUCTTOCLEANUPDATE from obj.updateRows to get slice size and make a
 %new copy of structure that is used to feed to stock selection process.
 %   NOTE: depend on defaultTableNamesToSelect = 'tableNamesToSelect.json';

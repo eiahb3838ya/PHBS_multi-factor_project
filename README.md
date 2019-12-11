@@ -18,10 +18,12 @@ View the book with "<i class="fa fa-book fa-fw"></i> Book Mode".
 **ddl控制(通过制定日期分类)**
 [Nov.29/2019](#ddl制定日期：Nov292019)
 [Dec.2/2019](#ddl制定日期：Dec22019)
+[Dec.6/2019](#ddl制定日期：Dec62019)
 
 **discussion log(通过讨论日期分类)**
 [Dec.2/2019](#dicussion-logDec22019)
 [Dec.6/2019](#dicussion-logDec62019)
+[Dec.9&11/2019](#dicussion-logDec112019)
 
 
 ---
@@ -206,6 +208,8 @@ structParams -- settingClean01         |-- maxConsecutiveInvalidLength
                                        |-- table2's valid data indicator
                     
 ```
+
+### dicussion log(Dec.11/2019)
 
 
 
