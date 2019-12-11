@@ -1,4 +1,4 @@
-function processedTable = extremeProcess(feedStruct, fieldName, paraStruct)
+function processedFactor = extremeProcess(factorMatrix, paraStruct)
 % EXTREMEPROCESS adjusts extreme values into common values
 % xAdj = xMedian + n * DMad if x > xMedian + n * DMad
 % xAdj = xMedian - n * DMad if x < xMedian - n * DMad
@@ -16,31 +16,26 @@ function processedTable = extremeProcess(feedStruct, fieldName, paraStruct)
         error 'Parameter error';
     end
     
-    % check validity of input: fieldName
-    if isfield(feedStruct, fieldName) == 0
-        error 'field name not contained in the given structure';
-    end
-    processedTable = feedStruct.(fieldName);
-    
-    xMedian = median(processedTable, 2);
+    processedFactor = factorMatrix;
+    xMedian = median(processedFactor, 2);
     if choice == "mean"
-        DMad = mean(processedTable - xMedian, 2);
+        DMad = mean(processedFactor - xMedian, 2);
     elseif choice == "median"
-        DMad = median(processedTable - xMedian, 2);
+        DMad = median(processedFactor - xMedian, 2);
     else
         error 'Wrong choice';
     end
     
     % count the number of values to be processed
-    sumProcessed = sum(sum(processedTable > xMedian + n * DMad));
-    sumProcessed = sumProcessed + sum(sum(processedTable < xMedian - n * DMad));
+    sumProcessed = sum(sum(processedFactor > xMedian + n * DMad));
+    sumProcessed = sumProcessed + sum(sum(processedFactor < xMedian - n * DMad));
     
     % process the extreme values
-    [m, n] = size(processedTable);
+    [m, n] = size(processedFactor);
     xMax = (xMedian + n * DMad) * ones(1, n);
     xMin = (xMedian - n * DMad) * ones(1, n);
-    processedTable(processedTable > xMax) = xMax(processedTable > xMax);
-    processedTable(processedTable < xMin) = xMin(processedTable < xMin);
+    processedFactor(processedFactor > xMax) = xMax(processedFactor > xMax);
+    processedFactor(processedFactor < xMin) = xMin(processedFactor < xMin);
     
     % calculate the percentage of processed values
     percent = sumProcessed * 100 / (m * n);
