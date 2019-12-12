@@ -255,13 +255,17 @@ document in 002 src/03 dailyFactorCreation/02 alphaFactoryModule
     Klass.getAlphaHistory(alphaName) 
     ```
 
+3. 数据清洗类@CleanDataModule说明
 
+[@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/blob/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule/CleanDataModule.md)
 
 
 ---
 
 ### 流程1：因子数据清洗
 #### a.公司删除以及缺失值填补
+
+[@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/blob/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule/CleanDataModule.md)
 <!-- 方法：
 - i. 检查数据缺失原因决定是否填补或删去
 - ii. 填补可使用前一天的数值进行填补
