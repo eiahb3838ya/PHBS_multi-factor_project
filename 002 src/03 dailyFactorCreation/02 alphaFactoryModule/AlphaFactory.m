@@ -39,7 +39,7 @@ classdef AlphaFactory < handle
             
     end
     methods
-        function obj = AlphaFactory(paraJsonDir, rawData)
+        function obj = AlphaFactory(rawData, paraJsonDir )
             obj.rawData = rawData;
             
             if isstring(paraJsonDir)
@@ -99,7 +99,7 @@ classdef AlphaFactory < handle
                     out = 1;
                     return
                 catch
-                    out = 0
+                    out = 0;
                     return
                 end
             else
@@ -112,7 +112,7 @@ classdef AlphaFactory < handle
             end
         end
         
-        function success = saveHistoryAlpha(obj, alphaName)
+        function success = saveAlphaHistory(obj, alphaName)
             exposure = obj.getAlphaHistory(alphaName);
             success = obj.saveAlpha(exposure, alphaName, 0);
         end
@@ -121,12 +121,12 @@ classdef AlphaFactory < handle
 %         function updateAllAlpha(obj, folderDir, timeSlide)
 %         end
 % 
-        function historyAllAlpha(obj)
+        function saveAllAlphaHistory(obj)
             targetAlphas = fieldnames(obj.paraStruct)
             for k=1:length(targetAlphas)
                 alphaName=targetAlphas{k};
                 disp("start process:"+ alphaName);
-                if obj.saveHistoryAlpha(alphaName)
+                if obj.saveAlphaHistory(alphaName)
                     disp("success")
                 else
                     disp("fail")
