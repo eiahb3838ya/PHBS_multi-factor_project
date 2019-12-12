@@ -4,8 +4,34 @@
     },
     "alpha31":{
         "datasets":["high", "low", "close", "volume"]
+    },
+    "alpha003":{
+        "datasets":["high", "low", "close"]
+    },
+	"alpha043":{
+        "datasets":["close", "volume"]
+    },
+	"alpha053":{
+        "datasets":["close"]
+    },
+	"alpha063":{
+        "datasets":["close"]
+    },
+	"alpha083":{
+        "datasets":["high", "volume"]
+    },
+	"alpha093":{
+        "datasets":["open", "low"]
+    },
+	"alpha103":{
+        "datasets":["close"]
+    },
+	"alpha133":{
+        "datasets":["high", "low"]
+    },
+	"alpha153":{
+        "datasets":["close"]
     }
-    
     
 
 }

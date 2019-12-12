@@ -19,7 +19,6 @@ classdef AlphaFactory < handle
         end
         
         function cleanedData = getCleanedData(rawData)
-            %             先隨便寫一個到時候用你的
 %             cleanedData.high = stock.high;
 %             cleanedData.close = stock.close;
 %             cleanedData.low = stock.low;
@@ -40,7 +39,7 @@ classdef AlphaFactory < handle
             
     end
     methods
-        function obj = BasicClass(paraJsonDir, rawData)
+        function obj = AlphaFactory(paraJsonDir, rawData)
             obj.rawData = rawData;
             
             if isstring(paraJsonDir)
