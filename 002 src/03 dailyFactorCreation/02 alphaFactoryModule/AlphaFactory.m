@@ -1,4 +1,4 @@
-classdef BasicClass < handle
+classdef AlphaFactory < handle
     
     properties 
         paraJsonDir
