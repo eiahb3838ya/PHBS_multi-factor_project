@@ -29,7 +29,7 @@ end
 
 %-------------------------------------------------------------------------
 
-function [exposure, offsetSize] = getAlpha(high, volume)
+function [exposure, offsetSize] = getAlpha(high, volume, rollingWindow)
 % function compute alpha
     [m, n] = size(high);
     coviance = zeros(m ,n);
