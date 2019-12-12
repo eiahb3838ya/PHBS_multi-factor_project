@@ -19,7 +19,6 @@ classdef BasicClass < handle
         end
         
         function cleanedData = getCleanedData(stock)
-%             先隨便寫一個到時候用你的
             cleanedData.high = stock.properties.high;
             cleanedData.close = stock.properties.close;
             cleanedData.low = stock.properties.low;
