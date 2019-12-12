@@ -1,12 +1,29 @@
-function [X, offsetSize] = alpha150(stock)
+function [X, offsetSize] = alpha150(alphaPara)
 %ALPHA150, get alpha150 series from stock struct.
 %         formula: (CLOSE+HIGH+LOW)/3*VOLUME 
 %
 %INPUTS:  stock: a struct contains stocks' information from exchange,
 %includes OHLS, volume, amount etc.
 
-    %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.close, stock.properties.high, stock.properties.low, stock.properties.volume);
+    %     get parameters from alphaPara
+    try
+        close = alphaPara.close;
+        high = alphaPara.high;
+        low = alphaPara.low;
+        volume = alphaPara.volume;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(close, high, low, volume);
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(close, high, low, volume);
+    end
     
 end
 
@@ -22,7 +39,7 @@ function [alphaArray,offsetSize] = getAlpha(dailyClose, dailyHigh, dailyLow, dai
     [m4, n4] = size(dailyVolume);
     
     %--------------------error dealing part start-----------------------
-    if sum(isnan([dailyClose, dailyHigh, dailyLow, dailyVolume]),'all')~=0
+    if sum(isnan([dailyClose, dailyHigh, dailyLow, dailyVolume]))~=0
         error 'nan exists!please check the data!'
     end
 
@@ -34,5 +51,10 @@ function [alphaArray,offsetSize] = getAlpha(dailyClose, dailyHigh, dailyLow, dai
     alphaArray = (dailyClose + dailyHigh + dailyLow)/3.*dailyVolume;
     
 
+end
+
+function [alphaArray,offsetSize] = getAlphaUpdate(dailyClose, dailyHigh, dailyLow, dailyVolume)
+    [X,offsetSize] = getAlpha(dailyClose, dailyHigh, dailyLow, dailyVolume);
+    alphaArray = X(end,:);
 end
 

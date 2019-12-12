@@ -1,5 +1,5 @@
-function [X, offsetSize] = alpha100(stock, rollingWindow)
-%ALPHA110 SUM(MAX(0,HIGH-DELAY(CLOSE,1)),20)/SUM(MAX(0,DELAY(CLOSE,1)-LOW),20)*100
+function [X, offsetSize] = alpha100(alphaPara, rollingWindow)
+%ALPHA100 STD(VOLUME,20) 
 %
 %INPUTS:  stock: a struct contains stocks' information from exchange,
 %includes OHLS, volume, amount etc.
@@ -9,8 +9,22 @@ function [X, offsetSize] = alpha100(stock, rollingWindow)
         rollingWindow = 20;
     end
 
-    %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.volume, rollingWindow);
+    %     get parameters from alphaPara
+    try
+        volume = alphaPara.volume;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(volume, rollingWindow);
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(volume, rollingWindow);
+    end
 end
 
 function [alphaArray,offsetSize] = getAlpha(volume, rollingWindow)
@@ -28,7 +42,7 @@ function [alphaArray,offsetSize] = getAlpha(volume, rollingWindow)
     [m,n] = size(volume);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnan(volume),'all')~=0
+    if sum(isnan(volume))~=0
         error 'nan exists!please check the data!';
     end
 
@@ -51,3 +65,7 @@ function [alphaArray,offsetSize] = getAlpha(volume, rollingWindow)
 
 end
 
+function [alphaArray,offsetSize] = getAlphaUpdate(volume, rollingWindow)
+    [X,offsetSize] = getAlpha(volume, rollingWindow);
+    alphaArray = X(end,:);
+end

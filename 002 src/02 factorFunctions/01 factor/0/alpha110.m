@@ -1,4 +1,4 @@
-function [X, offsetSize] = alpha110(stock, delay, rollingWindow)
+function [X, offsetSize] = alpha110(alphaPara, delay, rollingWindow)
 %ALPHA110 SUM(MAX(0,HIGH-DELAY(CLOSE,1)),20)/SUM(MAX(0,DELAY(CLOSE,1)-LOW),20)*100
 %
 %INPUTS:  stock: a struct contains stocks' information from exchange,
@@ -10,8 +10,24 @@ function [X, offsetSize] = alpha110(stock, delay, rollingWindow)
         rollingWindow = 20;
     end
 
-    %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.high, stock.properties.close, stock.properties.low, delay, rollingWindow);
+    %     get parameters from alphaPara
+    try
+        close = alphaPara.close;
+        high = alphaPara.high;
+        low = alphaPara.low;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(high, close, low, delay, rollingWindow );
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(high, close, low, delay, rollingWindow );
+    end
 end
 
 function [alphaArray, offsetSize] = getAlpha(high, close, low, delay, rollingWindow )
@@ -37,7 +53,7 @@ function [alphaArray, offsetSize] = getAlpha(high, close, low, delay, rollingWin
     [m3,n3] = size(low);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnan([high,close,low]),'all')~=0
+    if sum(isnan([high,close,low]))~=0
         error 'nan exists!check the raw data!';
     end
 
@@ -67,6 +83,11 @@ function [alphaArray, offsetSize] = getAlpha(high, close, low, delay, rollingWin
     %get result, add eps in case of zero divison
     alphaArray = 100 * sumMatrix1./(sumMatrix2+eps);
 
+end
+
+function [alphaArray, offsetSize] = getAlphaUpdate(high, close, low, delay, rollingWindow )
+    [X, offsetSize] = getAlpha(high, close, low, delay, rollingWindow );
+    alphaArray = X(end,:);
 end
 
 function delayMatrix = delayMat(rawMatrix, delay)

@@ -1,4 +1,4 @@
-function [X, offsetSize] = alpha70(stock, rollingWindow)
+function [X, offsetSize] = alpha70(alphaPara, rollingWindow)
 %ALPHA70 STD(AMOUNT,6) 
 %
 %INPUTS:  stock: a struct contains stocks' information from exchange,
@@ -9,8 +9,22 @@ function [X, offsetSize] = alpha70(stock, rollingWindow)
         rollingWindow = 6;
     end
 
-    %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.amount, rollingWindow);
+    %     get parameters from alphaPara
+    try
+        amount = alphaPara.amount;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(amount, rollingWindow);
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(amount, rollingWindow);
+    end
 end
 
 function [alphaArray, offsetSize] = getAlpha(amount, rollingWindow)
@@ -31,7 +45,7 @@ function [alphaArray, offsetSize] = getAlpha(amount, rollingWindow)
     [m,n] = size(amount);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnana(amount),'all')~=0
+    if sum(isnan(amount))~=0
         error 'nan exists!'
     end
 
@@ -49,3 +63,7 @@ function [alphaArray, offsetSize] = getAlpha(amount, rollingWindow)
 
 end
 
+function [alphaArray, offsetSize] = getAlphaUpdate(amount, rollingWindow)
+    [X, offsetSize] = getAlpha(amount, rollingWindow);
+    alphaArray = X(end,:);
+end
