@@ -15,11 +15,11 @@ function [X, offsetSize] = alpha31(alphaPara)
     %     calculate and return all history factor
     %     controled by updateFlag, call getAlpha if TRUE 
     if ~updateFlag
-        [X, offsetSize] = getAlpha(high, low, close, volume);
+        [X, offsetSize] = getAlpha(close);
         return
     %     return only latest factor
     else
-        [X, offsetSize] = getAlphaUpdate(high, low, close, volume);
+        [X, offsetSize] = getAlphaUpdate(close);
     end
 end
 
