@@ -1,10 +1,22 @@
-function [] = runUpdate(obj)
+function [] = runUpdate(obj, warningSwitch)
 %RUNUPDATE this is a pipeline of all update method
 
-obj.getTradeableStockUpdate(obj);
+    if nargin == 1
+        warningSwitch = 'on';
+        warning('on');
+    end
+    
+    try
+        warning(warningSwitch);
+    catch
+        error("only 'on' or 'off' are valid!");
+    end
 
-disp("check struct data's nan situation: ");
-obj.checkStructAfterSelectionUpdate(obj);
+    disp(['mode: Update, warningMode:', char(warningSwitch)]);
+    T = obj.getTradeableStockUpdate();
+    T = obj.checkStructAfterSelectionUpdate();
+    clear T;
 
+    warning('on');
 end
 

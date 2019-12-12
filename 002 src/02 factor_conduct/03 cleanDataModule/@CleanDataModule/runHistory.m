@@ -1,10 +1,22 @@
-function [] = runHistory(obj)
-%RUNHISTORY this is a pipeline of all history method
+function [] = runHistory(obj, warningSwitch)
+%RUNHISTORY this is a pipeline of all update method
 
-obj.getTradeableStockHistory(obj);
+    if nargin == 1
+        warningSwitch = 'on';
+        warning('on');
+    end
+    
+    try
+        warning(warningSwitch);
+    catch
+        error("only 'on' or 'off' are valid!");
+    end
 
-disp("check struct data's nan situation: ");
-obj.checkStructAfterSelectionHistory(obj);
+    disp(['mode: History, warningMode:', char(warningSwitch)]);
+    T = obj.getTradeableStockHistory();
+    T = obj.checkStructAfterSelectionHistory();
+    clear T;
 
+    warning('on');
 end
 

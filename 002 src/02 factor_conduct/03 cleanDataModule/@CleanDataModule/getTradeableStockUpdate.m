@@ -1,4 +1,4 @@
-function [] = getTradeableStockUpdate(obj)
+function tradeableStocksRow = getTradeableStockUpdate(obj)
 %TRADEABLESTOCKSROW update one-day tradeable stocks with
 %minimum data required.
 %
@@ -8,30 +8,49 @@ function [] = getTradeableStockUpdate(obj)
 %   data == 0 should be reserved.
     
     % load parameters
-    updateCriteria = obj.jsonDecoder(obj, obj.defaultUpdateCriteria);
-    
-    % get config parameters
-    % following values are all array
-    maxConsecutiveInvalidLength = updateCriteria.settingClean01.maxConsecutiveInvalidLength;
-    maxConsecutiveRollingSize = updateCriteria.settingClean01.maxConsecutiveRollingSize;
-    maxCumulativeInvalidLength = updateCriteria.settingClean01.maxCumulativeInvalidLength;
-    maxCumulativeRollingSize = updateCriteria.settingClean01.maxCumulativeRollingSize;
-    noToleranceRollingSize = updateCriteria.settingClean01.noToleranceRollingSize;
-    flag = updateCriteria.settingClean01.flag;
-    % and refValidIndicator
-    
-    % get max slice size
-    obj.set.updateRows(obj,max([maxConsecutiveRollingSize, maxCumulativeRollingSize, noToleranceRollingSize]));
-    rawDataStruct = obj.getStructToCleanUpdate(obj);
+    updateCriteria = obj.jsonDecoder(obj.defaultUpdateCriteria);
     
     % step 0: check updateCriteria validity
-    if length(updateCriteria.settingRefer01Table) ~= length(updateCriteria.settingValidIndicator)
-        error 'param structure error! settingRefer01 must match settingValidIndicator!';
+    try
+        if ~isequal(fieldnames(updateCriteria)',{"settingClean01","settingRefer01Table","settingValidIndicator"})
+            error 'bad defined fieldnames';        
+        end
+    
+        if ~isequal(fieldnames(updateCriteria.settingClean01)',{"maxConsecutiveInvalidLength",...
+                                                            "maxConsecutiveRollingSize",...
+                                                            "maxCumulativeInvalidLength",...
+                                                            "maxCumulativeRollingSize",...
+                                                            "noToleranceRollingSize",...
+                                                            "flag"})
+            error 'bad defined fieldnames';
+        end
+    catch
+        error 'tradeableStocksSelectionCriteria.json file structure error!';
     end
     
-    if ~isfield(updateCriteria, "settingRefer01Table")
-        error 'Not define 0-1 table for reference!';
+    
+    if length(updateCriteria.settingRefer01Table) ~= length(updateCriteria.settingValidIndicator)
+        error 'param structure error! settingRefer01 must match settingValidIndicator!';
     else
+        % get config parameters
+        % following values are all array
+        maxConsecutiveInvalidLength = updateCriteria.settingClean01.maxConsecutiveInvalidLength;
+        maxConsecutiveRollingSize = updateCriteria.settingClean01.maxConsecutiveRollingSize;
+        maxCumulativeInvalidLength = updateCriteria.settingClean01.maxCumulativeInvalidLength;
+        maxCumulativeRollingSize = updateCriteria.settingClean01.maxCumulativeRollingSize;
+        noToleranceRollingSize = updateCriteria.settingClean01.noToleranceRollingSize;
+        flag = updateCriteria.settingClean01.flag;
+        % and refValidIndicator
+        
+        % get max slice size
+        obj.updateRows = max(max([maxConsecutiveRollingSize, maxCumulativeRollingSize, noToleranceRollingSize]));
+        % get minimum of updateRows
+        if any(noToleranceRollingSize == 0)
+            error 'no zeros are tolerated in noToleranceRollingSize, must be positive integer!';
+        end
+        obj.minUpdateRows = min(noToleranceRollingSize);
+        rawDataStruct = obj.getStructToCleanUpdate();
+    
         tableAddr = cell(1,length(updateCriteria.settingRefer01Table));
         refTables = cell(1,length(updateCriteria.settingRefer01Table));
         refValidIndicator = cell(1,length(updateCriteria.settingValidIndicator));
@@ -55,11 +74,12 @@ function [] = getTradeableStockUpdate(obj)
                     isequal(unique(refTables{count}),[0;1]))
                 error 'elements other than 0,1 exist!';
             end
-            if size(refTables{count},1) < obj.get.updateRows(obj)
+            if size(refTables{count},1) < obj.updateRows
                 error('given 0-1 table has fewer rows than obj.updateRows');
             end
         end
     end
+    
     
     % step2: according to 
     %                                    |-- maxConsecutiveInvalidLength
@@ -81,16 +101,18 @@ function [] = getTradeableStockUpdate(obj)
         error 'data selection criteria size not match, size must match!';
     end
     
-    if (maxConsecutiveInvalidLength > maxConsecutiveRollingSize) ||...
-            (maxCumulativeInvalidLength > maxCumulativeRollingSize)
+    if all(maxConsecutiveInvalidLength > maxConsecutiveRollingSize) ||...
+            all(maxCumulativeInvalidLength > maxCumulativeRollingSize)
         error 'rolling size must be >= invalid length.';
     end
     
-    if ~(((maxConsecutiveRollingSize <= maxCumulativeRollingSize) ||...
-            (maxConsecutiveRollingSize >= noToleranceRollingSize)) || ...
-            maxConsecutiveRollingSize == 0 || maxCumulativeRollingSize == 0 ||...
-            noToleranceRollingSize == 0)
-        error 'if no 0s, should be:cumulative rolling size >=consecutive rolling size >= no tolerance rolling size; otherwise params are senesless.';
+    for count = 1:length(maxConsecutiveRollingSize)
+        if ~(((maxConsecutiveRollingSize(count) <= maxCumulativeRollingSize(count)) ||...
+                (maxConsecutiveRollingSize(count) >= noToleranceRollingSize(count))) || ...
+                maxConsecutiveRollingSize(count) == 0 || maxCumulativeRollingSize(count) == 0 ||...
+                noToleranceRollingSize(count) == 0)
+            error 'if no 0s, should be:cumulative rolling size >=consecutive rolling size >= no tolerance rolling size; otherwise params are senesless.';
+        end
     end
     
     % init controller and result
@@ -107,7 +129,7 @@ function [] = getTradeableStockUpdate(obj)
     
     % start case choice
     %caseController = [maxCumulativeRollingSize, maxConsecutiveRollingSize, noToleranceRollingSize] ~= 0;
-    choiceIndex = caseController.*[1,2,3];
+    choiceIndex = caseController.*repelem([1,2,3],length(maxConsecutiveInvalidLength),1);
     try 
         for count = 1:length(refTables)
             currentTable = refTables{count};
@@ -115,7 +137,7 @@ function [] = getTradeableStockUpdate(obj)
             consecutiveRuleResult = dealConsecutiveRule(currentTable, maxConsecutiveInvalidLength(count), maxConsecutiveRollingSize(count));
             noToleranceRuleResult = dealNoToleranceRule(currentTable, noToleranceRollingSize(count));
             cellRuleResults = {cumulativeRuleResult, consecutiveRuleResult, noToleranceRuleResult};
-            for mat = cellRuleResults(choiceIndex)
+            for mat = cellRuleResults(find(choiceIndex(count,:)~=0))
                 tradeableStocksRow = tradeableStocksRow.*mat{:};
             end
         end
@@ -125,15 +147,15 @@ function [] = getTradeableStockUpdate(obj)
     
     % step 3: according to flag, choose output format
     if flag == 1
-        offsetSize = max([maxCumulativeRollingSize, maxConsecutiveRollingSize, noToleranceRollingSize])-1;%because it is size, not starting index
+        offsetSize = max(max([maxCumulativeRollingSize, maxConsecutiveRollingSize, noToleranceRollingSize])-1);%because it is size, not starting index
         tradeableStocksRow = prod(tradeableStocksRow(offsetSize+1:end,:),1);
-        obj.set.selectionRecord = tradeableStocksRow;
+        obj.selectionRecord = tradeableStocksRow;
         return;
     end
     
-    % otherwise return the last row
-    tradeableStocksRow = tradeableStocksRow(end,:);
-    obj.set.selectionRecord = tradeableStocksRow;
+    % otherwise return the maxtrix by updateRows
+    tradeableStocksRow = tradeableStocksRow(end - obj.updateRows + 1:end,:);
+    obj.selectionRecord = tradeableStocksRow;
 
 end
 
@@ -168,7 +190,7 @@ function consecutiveRuleResult = dealConsecutiveRule(table01, maxConsecutiveInva
             end
         end
     end
-    consecutiveRuleResult = consecutiveRuleResult <= maxConsecutiveInvalidLength;
+    consecutiveRuleResult(maxConsecutiveRollingSize:end,:) = consecutiveRuleResult(maxConsecutiveRollingSize:end,:) <= maxConsecutiveInvalidLength;
     consecutiveRuleResult(1:maxConsecutiveRollingSize-1,:) = 0;
 
 end
@@ -196,7 +218,7 @@ function cumulativeRuleResult = dealCumulativeRule(table01, maxCumulativeInvalid
         cumulativeRuleResult(rowC,:) = judgeSlice;
     end
 
-    cumulativeRuleResult = cumulativeRuleResult <= maxCumulativeInvalidLength;
+    cumulativeRuleResult(maxCumulativeRollingSize:end,:) = cumulativeRuleResult(maxCumulativeRollingSize:end,:) <= maxCumulativeInvalidLength;
     cumulativeRuleResult(1:maxCumulativeRollingSize-1,:) = 0;
 
 end
@@ -222,10 +244,9 @@ function noToleranceRuleResult = dealNoToleranceRule(table01, noToleranceRolling
         judgeSlice = sum(slice,1);
         noToleranceRuleResult(rowC,:) = judgeSlice;
     end
-
-    noToleranceRuleResult = noToleranceRuleResult == 0;
+    
+    noToleranceRuleResult(noToleranceRollingSize:end,:) = noToleranceRuleResult(noToleranceRollingSize:end,:) == 0;
     noToleranceRuleResult(1:noToleranceRollingSize-1,:) = 0;
 
-    
 end
 

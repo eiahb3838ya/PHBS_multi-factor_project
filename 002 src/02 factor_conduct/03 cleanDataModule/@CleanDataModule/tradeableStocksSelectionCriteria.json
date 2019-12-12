@@ -1,0 +1,11 @@
+{"settingClean01":{
+                    "maxConsecutiveInvalidLength":[0,0],
+                    "maxConsecutiveRollingSize":[0,0],
+                    "maxCumulativeInvalidLength":[30,30],
+                    "maxCumulativeRollingSize":[90,90],
+                    "noToleranceRollingSize":[30,30],
+                    "flag":0
+                    },
+    "settingRefer01Table":["stock.tradeDayTable",
+                            "stock.stTable"],
+    "settingValidIndicator":[1,0]}

@@ -1,4 +1,4 @@
-function v = parseStringToStructPath(S, fieldlist)
+function v = parseStringToStructPath(obj, S, fieldlist)
 % PARSESTRINGTOSTRUCTPATH is a util function that parse string to dynamic
 % struct path. 
 

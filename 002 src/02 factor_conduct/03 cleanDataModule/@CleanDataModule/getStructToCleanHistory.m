@@ -1,10 +1,17 @@
-function [] = getStructToCleanHistory(obj)
+function structMatrix = getStructToCleanHistory(obj)
+% []= getStructToCleanHistory(obj)
 %GETSTRUCTTOCLEANHISTORY  make a new copy of structure that is used to feed 
 %to stock selection process.
 %   NOTE: depend on defaultTableNamesToSelect = 'tableNamesToSelect.json';
 
     minimumSliceSize = obj.updateRows;
-    fNs = obj.jsonDecoder(obj, obj.defaultTableNamesToSelect);
+    
+    %add warning
+    if isempty(minimumSliceSize)
+        warning("the properties updateRows is empty!");
+    end
+    
+    fNs = obj.jsonDecoder(obj.defaultTableNamesToSelect);
     
     % step 1: give values back to structMatrix
     structMatrix = struct();
@@ -32,7 +39,7 @@ function [] = getStructToCleanHistory(obj)
     end
     
     if all(fieldTableColSize == fieldTableColSize(1))
-        obj.set.preSelectedStruct(obj, structMatrix);
+        obj.preSelectedStruct = structMatrix;
     else
         error 'column size of input data not match, please check!';
     end
