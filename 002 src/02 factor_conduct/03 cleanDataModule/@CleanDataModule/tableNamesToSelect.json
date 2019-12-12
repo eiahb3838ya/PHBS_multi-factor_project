@@ -3,6 +3,7 @@
     "stock.properties.low":[],
     "stock.properties.open":[],
     "stock.properties.amount":[],
+    "stock.properties.volume":[],
     "stock.tradeDayTable":[],
     "stock.stTable":[]
 }

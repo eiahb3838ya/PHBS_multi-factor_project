@@ -53,6 +53,12 @@ classdef CleanDataModule < handle
                 catch
                     error('cannot load %s ',dataStruct);
                 end
+            elseif isstruct(dataStruct)
+                try
+                    obj.rawStruct = dataStruct; 
+                catch
+                    error 'read struct error!';
+                end
             else
                 error 'invalid struct name or struct not in path';
             end
@@ -72,7 +78,7 @@ classdef CleanDataModule < handle
         end
     end
     
-    methods(Access = protected) 
+    methods(Access = public) %tshould be public 
         %------------------------------------------------------
         %utils
         %------------------------------------------------------
