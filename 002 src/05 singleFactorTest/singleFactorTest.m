@@ -1,4 +1,4 @@
-function summary = singleFactorTest(alpha,day,rollingWindow,ICmode,d,alphaPara,fNs)
+function summary = singleFactorTest(alpha,day,rollingWindow,fkthrehold,ICmode,ICthrehold,d,alphaPara,fNs)
 % single factor test
 % get parameters from alphaPara
      try
@@ -53,8 +53,8 @@ end
     summary.fkSignaficance(2) = absMeanTest(abs(factorRt),10000);
 
 % 2.2 f_k Stationarity
-% mode1:std(f_k) = 0
-    [h,p] = vartest(factorRt,0,'Tail','right');
+% mode1:std(f_k) <= 0 H1:std(f_k) > 0
+    [h,p] = vartest(factorRt,fkthrehold,'Tail','right');
     if p < 0.05
             summary.fkStationarity(1) =1;
     else    summary.fkStationarity(1) =0;
@@ -116,8 +116,8 @@ end
     summary.ICSignaficance(2) = absMeanTest(IC,10000);
 
 %3.2 IC Stationarity
-%mode1:std(IC) = 0
-    [h,p] = vartest(IC,0,'Tail','right');
+%mode1:std(IC) <= threhold  H1: std(IC) > threhold
+    [h,p] = vartest(IC,ICthrehold,'Tail','right');
     if p < 0.05
             summary.fkStationarity(1) =1;
     else    summary.fkStationarity(1) =0;
