@@ -1,11 +1,28 @@
-function [X, offsetSize] = alpha30(stock)
+function [X, offsetSize] = alpha30(alphaPara)
 %ALPHA030 WMA((REGRESI(CLOSE/DELAY(CLOSE)-1,MKT,SMB,HML, 60))^2,20) 
 %
 %INPUTS:  stock: a struct contains stocks' information from exchange,
 %includes OHLS, volume, amount etc.
 
-    %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.close, stock.properties.MKT, stock.properties.SMB, stock.properties.HML);
+    %     get parameters from alphaPara
+    try
+        close = alphaPara.close;
+        MKT = alphaPara.MKT;
+        SMB = alphaPara.SMB;
+        HML = alphaPara.HML;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(close,MKT,SMB,HML);
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(close,MKT,SMB,HML);
+    end
 end
 
 function [alphaArray,offsetSize] = getAlpha(dailyClose,MKT,SMB,HML)
@@ -93,3 +110,7 @@ function [alphaArray,offsetSize] = getAlpha(dailyClose,MKT,SMB,HML)
 
 end
 
+function [alphaArray,offsetSize] = getAlphaUpdate(dailyClose,MKT,SMB,HML)
+    [X,offsetSize] = getAlpha(dailyClose,MKT,SMB,HML);
+    alphaArray = X(end,:);
+end

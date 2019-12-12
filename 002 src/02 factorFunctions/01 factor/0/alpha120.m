@@ -1,4 +1,4 @@
-function [X, offsetSize] = alpha120(stock, rollingRankWindow)
+function [X, offsetSize] = alpha120(alphaPara, rollingRankWindow)
 %ALPHA120 RANK(VWAP - CLOSE) / RANK(VWAP + CLOSE)
 %
 %INPUTS:  stock: a struct contains stocks' information from exchange,
@@ -6,11 +6,26 @@ function [X, offsetSize] = alpha120(stock, rollingRankWindow)
     
     %set default params
     if nargin == 1
-        rollingRankWindow = 0;
+        rollingRankWindow = 10;
     end
 
-    %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.vwap, stock.properties.close, rollingRankWindow);
+    %     get parameters from alphaPara
+    try
+        close = alphaPara.close;
+        vwap = alphaPara.vwap;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(vwap,close,rollingRankWindow);
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(vwap,close,rollingRankWindow);
+    end
 end
 
 function [alphaArray,offsetSize] = getAlpha(vwap, dailyClose, rollingRankWindow)
@@ -30,7 +45,7 @@ function [alphaArray,offsetSize] = getAlpha(vwap, dailyClose, rollingRankWindow)
     [m2, n2] = size(dailyClose);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnan([volume,vwap]),'all')~=0
+    if sum(isnan([volume,vwap]))~=0
         error 'nan exists!please check the data!';
     end
 
@@ -45,5 +60,10 @@ function [alphaArray,offsetSize] = getAlpha(vwap, dailyClose, rollingRankWindow)
     alphaArray = rollingRank(minusMatrix, offsetSize, rollingRankWindow)...
         ./rollingRank(plusMatrix, offsetSize, rollingRankWindow);
 
+end
+
+function [alphaArray,offsetSize] = getAlphaUpdate(vwap, dailyClose, rollingRankWindow)
+    [X,offsetSize] = getAlpha(vwap, dailyClose, rollingRankWindow);
+    alphaArray = X(end,:);
 end
 

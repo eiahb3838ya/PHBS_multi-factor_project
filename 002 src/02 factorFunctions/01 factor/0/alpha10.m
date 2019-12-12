@@ -1,20 +1,35 @@
-function [X, offsetSize] = alpha10(stock, rollingStdWindow, rollingMaxWindow, rollingRankWindow)
+function [X, offsetSize] = alpha10(alphaPara, rollingStdWindow, rollingMaxWindow, rollingRankWindow)
 %ALPHA10, get alpha10 series from stock struct.
 %         formula: RANK(MAX(((RET < 0) ? STD(RET, 20) : CLOSE)^2),5))
 %
 %INPUTS:  stock: a struct contains stocks' information from exchange,
 %includes OHLS, volume, amount etc.
 %         rollingStdWindow, rollingMaxWindow: refer to the formula.
+%para to uss: stock, rollingStdWindow, rollingMaxWindow, rollingRankWindow
 
     %set default params
     if nargin == 1
         rollingStdWindow = 20;
         rollingMaxWindow = 5;
-        rollingRankWindow = 0;
+        rollingRankWindow = 10;
+    end
+    
+    %     get parameters from alphaPara
+    try
+        close = alphaPara.close;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
     end
 
-    %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.close, rollingStdWindow, rollingMaxWindow, rollingRankWindow);
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(close, rollingStdWindow, rollingMaxWindow, rollingRankWindow);
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(close, rollingStdWindow, rollingMaxWindow, rollingRankWindow);
+    end
     
 end
 
@@ -50,7 +65,7 @@ function [alphaArray, offsetSize] = getAlpha( dailyClose, rollingStdWindow, roll
     offsetSize = rollingStdWindow;
     
     %--------------------error dealing part start-----------------------
-    if sum(isnan(dailyClose),'all')~=0
+    if sum(isnan(dailyClose))~=0
         error 'nan exists, please check raw data!';
     end
     
@@ -100,28 +115,33 @@ function [alphaArray, offsetSize] = getAlpha( dailyClose, rollingStdWindow, roll
 
 end
 
-function ansMatrix = rollingRank(rawMatrix,offsetSize, rollingRankWindow)
-    [days,~] = size(rawMatrix);
-    ansMatrix = zeros(size(rawMatrix));
-    
-    if rollingRankWindow == 0
-        disp('alpha10, rolling rank is up to latest date');
-        for day = offsetSize:days
-            rollingSortMatrix= sort(rawMatrix(offsetSize:day,:),1);
-            ansMatrix(day,:) = rollingSortMatrix(end,:);
-        end
-    else
-        disp(['alpha10, rolling rank using window size: ',num2str(rollingRankWindow)]);
-        for day = offsetSize:offsetSize+rollingRankWindow-1
-            rollingSortMatrix= sort(rawMatrix(offsetSize:day,:),1);
-            ansMatrix(day,:) = rollingSortMatrix(end,:);
-        end
-        
-        for day = offsetSize+rollingRankWindow:days
-            rollingSortMatrix= sort(rawMatrix(day-offsetSize+1:day,:),1);
-            ansMatrix(day,:) = rollingSortMatrix(end,:);
-        end
-    end
-    
+function [alphaArray, offsetSize] = getAlphaUpdate( dailyClose, rollingStdWindow, rollingMaxWindow,rollingRankWindow )
+    [X, offsetSize] = getAlpha(dailyClose, rollingStdWindow, rollingMaxWindow,rollingRankWindow );
+    alphaArray = X(end,:);
 end
+
+% function ansMatrix = rollingRank(rawMatrix,offsetSize, rollingRankWindow)
+%     [days,~] = size(rawMatrix);
+%     ansMatrix = zeros(size(rawMatrix));
+%     
+%     if rollingRankWindow == 0
+%         disp('alpha10, rolling rank is up to latest date');
+%         for day = offsetSize:days
+%             rollingSortMatrix= sort(rawMatrix(offsetSize:day,:),1);
+%             ansMatrix(day,:) = rollingSortMatrix(end,:);
+%         end
+%     else
+%         disp(['alpha10, rolling rank using window size: ',num2str(rollingRankWindow)]);
+%         for day = offsetSize:offsetSize+rollingRankWindow-1
+%             rollingSortMatrix= sort(rawMatrix(offsetSize:day,:),1);
+%             ansMatrix(day,:) = rollingSortMatrix(end,:);
+%         end
+%         
+%         for day = offsetSize+rollingRankWindow:days
+%             rollingSortMatrix= sort(rawMatrix(day-offsetSize+1:day,:),1);
+%             ansMatrix(day,:) = rollingSortMatrix(end,:);
+%         end
+%     end
+%     
+% end
 

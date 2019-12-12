@@ -1,4 +1,4 @@
-function [X, offsetSize] = alpha160(stock, rollingWindow, delay, nSMA, mSMA)
+function [X, offsetSize] = alpha160(alphaPara, rollingWindow, delay, nSMA, mSMA)
 %ALPHA160, get alpha160 series from stock struct.
 %         formula: SMA((CLOSE<=DELAY(CLOSE,1)?STD(CLOSE,20):0),20,1) 
 %         Default: rollingWindow = 20, delay = 1, nSMA = 20, mSMA = 1
@@ -14,8 +14,22 @@ function [X, offsetSize] = alpha160(stock, rollingWindow, delay, nSMA, mSMA)
         mSMA = 1;
     end
 
-    %step 2:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.close, rollingWindow, delay, nSMA, mSMA);
+    %     get parameters from alphaPara
+    try
+        close = alphaPara.close;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(close, rollingWindow, delay, nSMA, mSMA);
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(close, rollingWindow, delay, nSMA, mSMA);
+    end
     
 end
 
@@ -53,7 +67,7 @@ function [alphaArray, offsetSize] = getAlpha(dailyClose, rollingWindow, delay, n
         error 'delay number should be strictly smaller than rows of dailyClose!';
     end
 
-    if sum(isnan(dailyClose),'all')~=0
+    if sum(isnan(dailyClose))~=0
         error 'nan exists!please check dailyClose matrix!';
     end
 
@@ -86,6 +100,11 @@ function [alphaArray, offsetSize] = getAlpha(dailyClose, rollingWindow, delay, n
     %SMA
     alphaArray = SMA(ifMatrix, nSMA, mSMA);
     
+end
+
+function [alphaArray, offsetSize] = getAlphaUpdate(dailyClose, rollingWindow, delay, nSMA, mSMA)
+    [X, offsetSize] = getAlpha(dailyClose, rollingWindow, delay, nSMA, mSMA);
+    alphaArray = X(end,:);
 end
 
 function sma = SMA(ts, nSMA, mSMA)

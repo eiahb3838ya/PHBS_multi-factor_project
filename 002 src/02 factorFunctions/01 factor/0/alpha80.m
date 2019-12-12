@@ -1,4 +1,4 @@
-function [X, offsetSize] = alpha80(stock, delay)
+function [X, offsetSize] = alpha80(alphaPara, delay)
 %ALPHA080 (VOLUME-DELAY(VOLUME,5))/DELAY(VOLUME,5)*100
 %
 %INPUTS:  stock: a struct contains stocks' information from exchange,
@@ -9,8 +9,22 @@ function [X, offsetSize] = alpha80(stock, delay)
         delay = 5;
     end
 
-    %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.volume, delay);
+    %     get parameters from alphaPara
+    try
+        volume = alphaPara.volume;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(volume, delay);
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(volume, delay);
+    end
 end
 
 function [alphaArray, offsetSize] = getAlpha(volume, delay)
@@ -30,7 +44,7 @@ function [alphaArray, offsetSize] = getAlpha(volume, delay)
     [m,~] = size(volume);
     
     %--------------------error dealing part start-----------------------
-    if sum(isnan(volume),'all')~=0
+    if sum(isnan(volume))~=0
         error 'nan exists!check the raw data!';
     end
 
@@ -49,6 +63,11 @@ function [alphaArray, offsetSize] = getAlpha(volume, delay)
     %add epsilon in case of 0 division
     alphaArray = 100*diffMatrix ./ (delayMatrix + eps);
 
+end
+
+function [alphaArray, offsetSize] = getAlphaUpdate(volume, delay)
+    [X, offsetSize] = getAlpha(volume, delay);
+    alphaArray = X(end,:); 
 end
 
 function delayMatrix = delayMat(rawMatrix, delay)

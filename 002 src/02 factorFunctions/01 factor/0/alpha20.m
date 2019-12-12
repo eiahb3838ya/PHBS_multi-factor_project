@@ -1,11 +1,25 @@
-function [X, offsetSize] = alpha20(stock)
-%ALPHA70 STD(AMOUNT,6) 
+function [X, offsetSize] = alpha20(alphaPara)
+%ALPHA20 (CLOSE-DELAY(CLOSE,6))/DELAY(CLOSE,6)*100
 %
 %INPUTS:  stock: a struct contains stocks' information from exchange,
 %includes OHLS, volume, amount etc.
 
-    %step 1:  get alphas
-    [X, offsetSize] = getAlpha(stock.properties.close);
+    %     get parameters from alphaPara
+    try
+        close = alphaPara.close;
+        updateFlag  = alphaPara.updateFlag;
+    catch
+        error 'para error';
+    end
+
+    %     calculate and return all history factor
+    %     controled by updateFlag, call getAlpha if TRUE 
+    if ~updateFlag
+        [X, offsetSize] = getAlpha(close);
+        return;
+    else
+        [X, offsetSize] = getAlphaUpdate(close);
+    end
 end
 
 function [alphaArray, offsetSize] = getAlpha(dailyClose)
@@ -34,4 +48,9 @@ function [alphaArray, offsetSize] = getAlpha(dailyClose)
     %add epsilon in case of 0 division
     alphaArray = diffMatrix./(delayMatrix+eps)*100;
 
+end
+
+function [alphaArray, offsetSize] = getAlphaUpdate(dailyClose)
+    [X, offsetSize] = getAlpha(dailyClose);
+    alphaArray = X(end,:);
 end
