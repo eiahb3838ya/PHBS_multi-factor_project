@@ -32,7 +32,7 @@ function [exposure, offsetSize] = getAlphaUpdate(low)
     [m, ~] = size(low);
     offsetSize = 20;
     if m < offsetSize
-        error 'Lack data. At least data of 7 days.';
+        error 'Lack data. At least data of 20 days.';
     end
     lowTable = low(m - 19: m, :);
     exposure = (20 - lowday(lowTable, 20))./ 20.* 100;
