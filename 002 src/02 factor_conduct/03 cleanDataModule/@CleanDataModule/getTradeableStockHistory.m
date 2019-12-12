@@ -12,22 +12,22 @@ function tradeableStocksMatrix = getTradeableStockHistory(obj)
 %     historyCriteria = obj.jsonDecoder(obj, obj.defaultHistoryCriteria);
     
     % step 0: check updateCriteria validity
-    try
-        if ~isequal(fieldnames(updateCriteria)',{"settingClean01","settingRefer01Table","settingValidIndicator"})
-            error 'bad defined fieldnames';        
-        end
-    
-        if ~isequal(fieldnames(updateCriteria.settingClean01)',{"maxConsecutiveInvalidLength",...
-                                                            "maxConsecutiveRollingSize",...
-                                                            "maxCumulativeInvalidLength",...
-                                                            "maxCumulativeRollingSize",...
-                                                            "noToleranceRollingSize",...
-                                                            "flag"})
-            error 'bad defined fieldnames';
-        end
-    catch
-        error 'tradeableStocksSelectionCriteria.json file structure error!';
-    end
+%     try
+%         if ~isequal(fieldnames(updateCriteria)',{"settingClean01","settingRefer01Table","settingValidIndicator"})
+%             error 'bad defined fieldnames';        
+%         end
+%     
+%         if ~isequal(fieldnames(updateCriteria.settingClean01)',{"maxConsecutiveInvalidLength",...
+%                                                             "maxConsecutiveRollingSize",...
+%                                                             "maxCumulativeInvalidLength",...
+%                                                             "maxCumulativeRollingSize",...
+%                                                             "noToleranceRollingSize",...
+%                                                             "flag"})
+%             error 'bad defined fieldnames';
+%         end
+%     catch
+%         error 'tradeableStocksSelectionCriteria.json file structure error!';
+%     end
     
     
     if length(updateCriteria.settingRefer01Table) ~= length(updateCriteria.settingValidIndicator)
