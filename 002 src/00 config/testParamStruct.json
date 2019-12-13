@@ -1,6 +1,7 @@
 {   
     "alpha11":{
-        "datasets":["high", "low", "close", "volume"]         
+        "datasets":["high", "low", "close", "volume"] 
+        
     },
     "alpha31":{
         "datasets":["high", "low", "close", "volume"]

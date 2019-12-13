@@ -8,6 +8,7 @@ function [X, offsetSize] = alpha31(alphaPara)
     try
         close = alphaPara.close;
         updateFlag  = alphaPara.updateFlag;
+        
     catch
         error 'para error';
     end
@@ -30,7 +31,7 @@ function [exposure, offsetSize] = getAlpha(close)
         sumPast = sumPast + toAdd;
     end
     meanPast = sumPast/12;
-    exposure = (close-meanPast)/meanPast*100;
+    exposure = (close-meanPast)./meanPast*100;
     offsetSize = 11;
     return
 end

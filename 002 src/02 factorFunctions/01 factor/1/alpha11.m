@@ -28,7 +28,7 @@ end
 
 
 function [exposure, offsetSize] = getAlpha(high, low, close, volume)
-    toCumsum = ((close - low) - (high - close)) ./(high - low).*volume ;
+    toCumsum = ((close - low) - (high - close)) ./(high - low + eps).*volume ;
     originSize = size(toCumsum);
     exposure = zeros(originSize);
     for i = 0:5
