@@ -80,11 +80,11 @@ classdef AlphaFactory < handle
             alphaPara.updateFlag = updateFlag;          
         end
 
-        function alpha = getAlphaUpdate(obj, alphaName)
-            %           check valid
-            aPara = obj.getAlphaPara(obj.paraStruct.(alphaName), 1);
-            alpha = obj.getAlpha(alphaName, aPara);
-        end
+%         function alpha = getAlphaUpdate(obj, alphaName)
+%             %           check valid
+%             aPara = obj.getAlphaPara(obj.paraStruct.(alphaName), 1);
+%             alpha = obj.getAlpha(alphaName, aPara);
+%         end
 
         function alpha = getAlphaHistory(obj, alphaName)
             %           check valid
