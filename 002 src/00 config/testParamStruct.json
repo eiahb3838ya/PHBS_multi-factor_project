@@ -33,6 +33,34 @@
 	"alpha189":{
         "datasets":["close"]
     }
-    
-
+    	"alpha002":{
+        "datasets":["high", "low","close"]
+    }
+	"alpha022":{
+        "datasets":["close"]
+    }
+	"alpha042":{
+        "datasets":["high", "volume"]
+    }
+	"alpha052":{
+        "datasets":["high", "low","close"]
+    }
+	"alpha072":{
+        "datasets":["high", "low","close"]
+    }
+	"alpha102":{
+        "datasets":["volume"]
+    }
+	"alpha112":{
+        "datasets":["close"]
+    }
+	"alpha122":{
+        "datasets":["close"]
+    }
+	"alpha132":{
+        "datasets":["amount"]
+    }
+	"alpha152":{
+        "datasets":["close"]
+    }
 }
