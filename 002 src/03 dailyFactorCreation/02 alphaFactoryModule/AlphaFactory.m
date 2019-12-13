@@ -68,7 +68,7 @@ classdef AlphaFactory < handle
             return
         end
       
-        function alphaPara = getAlphaPara(obj, aStruct, updateFlag)
+        function alphaPara = getAlphaPara(obj, aStruct, incrementalFlag)
             requireData = aStruct.datasets;
             
             %             iter through all require datasets
@@ -77,7 +77,7 @@ classdef AlphaFactory < handle
                 setName=requireData{k};
                 alphaPara.(setName) = obj.cleanedData.(setName);
             end
-            alphaPara.updateFlag = updateFlag;          
+            alphaPara.updateFlag = incrementalFlag;          
         end
 
 %         function alpha = getAlphaUpdate(obj, alphaName)
@@ -92,8 +92,8 @@ classdef AlphaFactory < handle
             alpha = obj.getAlpha(alphaName, aPara);
         end
  
-        function out = saveAlpha(obj, exposure, fileName, updateFlag)
-            if ~updateFlag
+        function out = saveAlpha(obj, exposure, fileName, incrementalFlag)
+            if ~incrementalFlag
                 try
                     save(fileName, "exposure")
                     out = 1;
