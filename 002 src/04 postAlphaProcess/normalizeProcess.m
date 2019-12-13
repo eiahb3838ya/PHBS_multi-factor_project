@@ -13,8 +13,10 @@ function [normFactor, meanValue, medianValue, skewnessValue, kurtosisValue] = no
     
     % draw and save histogram
     [m, ~] = size(normFactor);
+    figure_data = normFactor(m, :);
     h = figure;
-    histogram(normFactor(m, :));
+    xlim([-5, 5]);
+    histogram(figure_data);
     filename = num2str(date) + ".fig";
     savefig(h, filename)
 end
