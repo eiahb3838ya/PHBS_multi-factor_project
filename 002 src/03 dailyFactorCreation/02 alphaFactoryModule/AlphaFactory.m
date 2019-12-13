@@ -103,8 +103,7 @@ classdef AlphaFactory < handle
                     return
                 end
             else
-                %    update
-                %    not yet ready
+                %    prepare for update: not yet ready
 
 %                 toSaveString = inputname(2);
 %                 m = matfile(fileName,'Writable',true);
