@@ -17,28 +17,29 @@ function processedFactor = extremeProcess(factorMatrix, paraStruct)
     end
     
     processedFactor = factorMatrix;
-    xMedian = median(processedFactor, 2);
+    xMedian = median(processedFactor, 2, 'omitnan');
+    lag = abs(processedFactor - xMedian);
     if choice == "mean"
-        DMad = mean(processedFactor - xMedian, 2);
+        DMad = mean(lag, 2, 'omitnan');
     elseif choice == "median"
-        DMad = median(processedFactor - xMedian, 2);
+        DMad = median(lag, 2, 'omitnan');
     else
         error 'Wrong choice';
     end
     
     % count the number of values to be processed
-    sumProcessed = sum(sum(processedFactor > xMedian + n * DMad));
-    sumProcessed = sumProcessed + sum(sum(processedFactor < xMedian - n * DMad));
+    sumProcessed = sum(sum(processedFactor > xMedian + n * DMad, 'omitnan'));
+    sumProcessed = sumProcessed + sum(sum(processedFactor < xMedian - n * DMad, 'omitnan'));
     
     % process the extreme values
-    [m, n] = size(processedFactor);
-    xMax = (xMedian + n * DMad) * ones(1, n);
-    xMin = (xMedian - n * DMad) * ones(1, n);
+    [row, col] = size(processedFactor);
+    xMax = (xMedian + n * DMad) * ones(1, col);
+    xMin = (xMedian - n * DMad) * ones(1, col);
     processedFactor(processedFactor > xMax) = xMax(processedFactor > xMax);
     processedFactor(processedFactor < xMin) = xMin(processedFactor < xMin);
     
     % calculate the percentage of processed values
-    percent = sumProcessed * 100 / (m * n);
+    percent = sumProcessed * 100 / (row * col);
     disp(["There are ",num2str(sumProcessed),"extrme values processed."])
     disp([num2str(percent),"% of the values are extreme values processed."])
 end
