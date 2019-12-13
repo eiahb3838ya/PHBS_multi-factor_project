@@ -150,8 +150,6 @@ classdef AlphaFactory < handle
                         disp("fail")
                     end
                 end
-            else
-%                 save as 3 dim mat
             end
         end 
         
