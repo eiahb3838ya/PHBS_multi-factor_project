@@ -1,4 +1,4 @@
-function resultStruct = summarySingleFactorTest(day,rollingWindow,fkthrehold,ICmode,ICthrehold,ICmode,d,S)
+function resultStruct = summarySingleFactorTest(day,rollingWindow,ICmode,d,S)
      resultStruct = struct();
      fNs=fieldnames(S);
      

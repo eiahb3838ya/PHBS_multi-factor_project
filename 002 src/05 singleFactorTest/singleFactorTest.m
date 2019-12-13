@@ -1,4 +1,4 @@
-function summary = singleFactorTest(alpha,day,rollingWindow,fkthrehold,ICmode,ICthrehold,d,alphaPara,fNs)
+function summary = singleFactorTest(alpha,day,rollingWindow,ICmode,d,alphaPara,fNs)
 % single factor test
 % get parameters from alphaPara
      try
@@ -54,7 +54,7 @@ end
 
 % 2.2 f_k Stationarity
 % mode1:std(f_k) <= 0 H1:std(f_k) > 0
-    [h,p] = vartest(factorRt,fkthrehold,'Tail','right');
+    [h,p] = vartest(factorRt,0,'Tail','right');
     if p < 0.05
             summary.fkStationarity(1) =1;
     else    summary.fkStationarity(1) =0;
@@ -70,7 +70,7 @@ end
 % 3.1 IC Signaficance
 % mode1: H0:mean(IC) = 0
     IC = ICValue(alpha,day,rollingWindow,d,alphaPara);
-    pic = figure('visible','off');
+    pic = figure();
     plot(IC);
     xlabel('rollingWindow');
     ylabel('ICValue');
@@ -100,7 +100,7 @@ end
 % 3.1 IC Signaficance
 % mode1: H0:mean(IC) = 0
     IC = rankICValue(alpha,day,rollingWindow,d,alphaPara);
-    pic = figure('visible','off');
+    pic = figure(); %'visible','off'
     plot(IC);
     xlabel('rollingWindow');
     ylabel('rankICValue');
@@ -117,7 +117,7 @@ end
 
 %3.2 IC Stationarity
 %mode1:std(IC) <= threhold  H1: std(IC) > threhold
-    [h,p] = vartest(IC,ICthrehold,'Tail','right');
+    [h,p] = vartest(IC,0,'Tail','right');
     if p < 0.05
             summary.fkStationarity(1) =1;
     else    summary.fkStationarity(1) =0;
