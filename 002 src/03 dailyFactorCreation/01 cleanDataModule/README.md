@@ -27,6 +27,16 @@ compatible with: MATLAB R2018a+
                 |__ tableNamesToSelect.json
                 |__ tradeableStocksSelectionCriteria.json
 ```
+## proposed updates
+更新0.2beta
+
+    时间：12:35am,Dec.15/2019
+    预计更新模块：CleanDataModule
+    预计更新时间不晚于Dec.16/2019,4pm
+    更新功能：
+    - 重新抛出清洗数据warning
+    - 抛出每日selection record，存进cleanedData文件夹，记录为selectionRuleResult_YYYYmmdd.mat矩阵
+    - 补充额外的util函数，主要红能为实现快速过滤，将selectionRuleResult_YYYYmmdd.mat（必须指定该变量,否则默认为系统当日日期定义的该变量）作为mask作用与所有计算矩阵上，指定mask返回inf，计算时将所有inf使用find(~isinf(row))抛弃
 
 ## quick start
 
