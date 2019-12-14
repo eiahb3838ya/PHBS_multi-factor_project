@@ -23,12 +23,7 @@ classdef AlphaFactory < handle
         end
         
         function cleanedData = getCleanedData(rawData)
-%             cleanedData.high = stock.high;
-%             cleanedData.close = stock.close;
-%             cleanedData.low = stock.low;
-%             cleanedData.open = stock.open;
-%             cleanedData.volume = stock.volume;
-            
+         
             CDM = CleanDataModule(rawData);
             CDM.runHistory();
             cleanedData = CDM.getResult();
@@ -132,13 +127,17 @@ classdef AlphaFactory < handle
 %         end
 
         function saveAllAlphaHistory(obj, saveStucture)
-            if nargin<1
+            
+            if nargin<2
                 saveStucture = 0;
             end
             
+            targetAlphas = fieldnames(obj.paraStruct);
+            fileName = strcat('factorExposure_', datestr(now, 'yyyymmdd'));
+            matobj = matfile(fileName, 'Writable', true);
+            
             if saveStucture
-                targetAlphas = fieldnames(obj.paraStruct);
-                matobj = matfile('factorExposure','Writable',true);
+                %                 save as struct
                 for k=1:length(targetAlphas)
                     alphaName=targetAlphas{k};
                     disp("start process:"+ alphaName);
@@ -151,7 +150,22 @@ classdef AlphaFactory < handle
                     end
                 end
             else
-%                 save as 3 dim mat
+            %                 save as 3 dim mat
+                exposure = [];
+                alphaNameList = [];
+                for k=1:length(targetAlphas)
+                    alphaName=targetAlphas{k};
+                    disp("start process:"+ alphaName);
+                    try
+                        exposure = cat(3,exposure,obj.getAlphaHistory(alphaName));
+                        alphaNameList = [alphaNameList, alphaName];
+                        disp("success")
+                    catch
+                        disp("fail")
+                    end
+                end
+                matobj.('exposure') = exposure;
+                matobj.('alphaNameList') = alphaNameList;
             end
         end 
         
