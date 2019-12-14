@@ -30,7 +30,7 @@ compatible with: MATLAB R2018a+
 ## proposed updates
 更新0.2beta
 
-    时间：12:35am,Dec.15/2019
+    预期时间：4pm,Dec.16/2019
     预计更新模块：CleanDataModule
     预计更新时间不晚于Dec.16/2019,4pm
     更新功能：
