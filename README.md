@@ -59,44 +59,44 @@ ddl**Dec.6,8am**
 ### dicussion log(Dec.2/2019)
 1. 书写因子规范和共识，命名：camel
 - 规定alpha因子文件格式(如alpha31.m)
-```{Matlab}
-function [X,offsetSize] = alpha31(stock)
-%main function
-%要求注明alpha计算公式
-% stock is a structure
+    ```{Matlab}
+    function [X,offsetSize] = alpha31(stock)
+    %main function
+    %要求注明alpha计算公式
+    % stock is a structure
 
-% clean data module here
+    % clean data module here
 
-% get alpha module here
-    [X,offsetSize] = getAlpha(stock.properties.close, stock.properties.high, ...);
-    
-%--------------------------
-function [factor,offsetSize] = getAlpha(close, high, ...)
-%function compute alpha
-```
+    % get alpha module here
+        [X,offsetSize] = getAlpha(stock.properties.close, stock.properties.high, ...);
+
+    %--------------------------
+    function [factor,offsetSize] = getAlpha(close, high, ...)
+    %function compute alpha
+    ```
 2. 书写style factor规范和共识，命名：camel
 - 规定style factor文件格式(如ETOP.m)
-```{Matlab}
-function [X,offsetSize] = ETOP(stock)
-% Returns the historical EP,which is the net revenue of the past 12 months 
-% of single stocks divided by their current market capital, 
-% earnings_ttm / mkt_freeshares
-% stock is a structure
+    ```{Matlab}
+    function [X,offsetSize] = ETOP(stock)
+    % Returns the historical EP,which is the net revenue of the past 12 months 
+    % of single stocks divided by their current market capital, 
+    % earnings_ttm / mkt_freeshares
+    % stock is a structure
 
-% clean data module here
+    % clean data module here
 
-% get alpha module here
-    [X,offsetSize] = getETOP(stock.properties.PE_TTM);
-end
+    % get alpha module here
+        [X,offsetSize] = getETOP(stock.properties.PE_TTM);
+    end
 
-%--------------------------
-function [exposure,offsetSize] = getETOP(PE_TTM)
-%function compute factor exposure of style factor
-    exposure = 1 ./ (PE_TTM + eps);
-    offsetSize = 1;
-end
+    %--------------------------
+    function [exposure,offsetSize] = getETOP(PE_TTM)
+    %function compute factor exposure of style factor
+        exposure = 1 ./ (PE_TTM + eps);
+        offsetSize = 1;
+    end
 
-```
+    ```
 - 计算过程中的consensus
 -- rank计算要滚动
 -- 计算要包含今天
@@ -105,105 +105,106 @@ end
 2. 数据清洗讨论
 2.1. 交易所数据：OHLC,volume,amount
 **Note:** 填充范式： 0表明没有数据，nan表示数据存在但没有拿到
-- step1: tradeDay, count(0) $\geq n_1 = 360$,直接踢出股票池
-- step2: stDay, MaxLength(1) $\geq n_2 = 180$,连续ST超过一定时间，直接踢出股票池
-- step3: onList time,所有股票在上市交易之前的数据全部填充为0
-- step4:如果一个股票的某个关键字段，如收盘价，满足sum(isnan(字段))$\geq n_3$，则踢出股票池，因为数据不足
-- step5.1:中间NA: ffill, rollingMean, interploration
-- step5.2:头NA： bfill, 0
+    - step1: tradeDay, count(0) $\geq n_1 = 360$,直接踢出股票池
+    - step2: stDay, MaxLength(1) $\geq n_2 = 180$,连续ST超过一定时间，直接踢出股票池
+    - step3: onList time,所有股票在上市交易之前的数据全部填充为0
+    - step4:如果一个股票的某个关键字段，如收盘价，满足sum(isnan(字段))$\geq n_3$，则踢出股票池，因为数据不足
+    - step5.1:中间NA: ffill, rollingMean, interploration
+    - step5.2:头NA： bfill, 0
 
-2.2. 行业因子与风格因子
+    2.2. 行业因子与风格因子
 
-**行业因子**：
-- step1: 踢除 sum(isnan(level_1))$\geq 180$的股票
-- step2: fillna(argmax(level_1)),用出现最多的情况填补空值
+    **行业因子**：
+    - step1: 踢除 sum(isnan(level_1))$\geq 180$的股票
+    - step2: fillna(argmax(level_1)),用出现最多的情况填补空值
 
-**风格因子**
-- market beta
-- size
-- E/P
-- volatility:DASTD,std($\epsilon$),CMRA
-- liquidity
+    **风格因子**
+    - market beta
+    - size
+    - E/P
+    - volatility:DASTD,std($\epsilon$),CMRA
+    - liquidity
 
 ### dicussion log(Dec.6/2019)
 
 1. 因子计算类
-1.1. 函數規範更新
-```{Matlab}
-function [X, offsetSize] = alpha11(alphaPara)
-    %alpha11
-    
-    try
-        high = alphaPara.high;
-        low = alphaPara.low;
-        close = alphaPara.close;
-        volume = alphaPara.volume;
-        % if there are params e.g. windowSize
-        % use alphaPara.windowSize etc.
-    catch
-        error 'para error';
+    1.1. 函數規範更新
+    ```{Matlab}
+    function [X, offsetSize] = alpha11(alphaPara)
+        %alpha11
+
+        try
+            high = alphaPara.high;
+            low = alphaPara.low;
+            close = alphaPara.close;
+            volume = alphaPara.volume;
+            % if there are params e.g. windowSize
+            % use alphaPara.windowSize etc.
+        catch
+            error 'para error';
+        end
+
+        [X, offsetSize] = getAlpha(high, low, close, volume);
+        return
     end
-        
-    [X, offsetSize] = getAlpha(high, low, close, volume);
-    return
-end
 
-function [exposure, offsetSize] = getAlpha(high, low, close, volume)
-    %compute alpha11
-end
-```
-1.2. 定義 alphaPara 結構
+    function [exposure, offsetSize] = getAlpha(high, low, close, volume)
+        %compute alpha11
+    end
+    ```
+    1.2. 定義 alphaPara 結構
 
-```
-ParamStruct -- "alpha1" --"close"
-                      |--"high"
-                      |--"rollingMeanWindowSize"
-             -- "alpha2" --"vwap"
-                      |--"amount"
-                      |--"rollingStdWindowSize"
-```
+    ```
+    ParamStruct -- "alpha1" --"close"
+                          |--"high"
+                          |--"rollingMeanWindowSize"
+                 -- "alpha2" --"vwap"
+                          |--"amount"
+                          |--"rollingStdWindowSize"
+    ```
 
 
 2. 数据清洗
 
-2.1. 0-1表清洗(stTable, tradeDay)
-清洗tradeDay或者stDay表格，以tradeDay为例，目的是在给定时间长度#days中，对于所有可能交易的公司#companies，得到如下两种情况之一的结果：已知观测矩阵大小为#days $\times$ #companies,观测者位于N#days天的位置试图做出决策，根据一个给定的规则，如（要求最近90个交易日内不能连续non-tradable超过7天，最近30个交易日内不能有任何non-tradable day）,有两种返回情况（flag =0或1），第一种是返回一个同等大小（#days $\times$ #companies）的矩阵，其中前89条观测(1:89)为offset,自第90天起，每天返回一个股票池数据（为0-1行向量）,第二种是返回一个行向量（1 $\times$ #companies），它的值来源于对第一种情况的每一行（row-wise）取交集运算。默认返回情况1（flag=0）
+    2.1. 0-1表清洗(stTable, tradeDay)
+    
+    清洗tradeDay或者stDay表格，以tradeDay为例，目的是在给定时间长度#days中，对于所有可能交易的公司#companies，得到如下两种情况之一的结果：已知观测矩阵大小为#days $\times$ #companies,观测者位于N#days天的位置试图做出决策，根据一个给定的规则，如（要求最近90个交易日内不能连续non-tradable超过7天，最近30个交易日内不能有任何non-tradable day）,有两种返回情况（flag =0或1），第一种是返回一个同等大小（#days $\times$ #companies）的矩阵，其中前89条观测(1:89)为offset,自第90天起，每天返回一个股票池数据（为0-1行向量）,第二种是返回一个行向量（1 $\times$ #companies），它的值来源于对第一种情况的每一行（row-wise）取交集运算。默认返回情况1（flag=0）
 
-2.2.其余步骤
---  **step1：** 使用0-1表的处理结果应用于所有需要清洗的表格（利用结构体相对索引位置），返回一个相同结构的新结构体，用step1中的默认返回值（flag=0）处理所有表格对应的位置，返回此情况下是否仍然存在的nan(nan总数，表格总记录数，nan占比)
+    2.2.其余步骤
+    --  **step1：** 使用0-1表的处理结果应用于所有需要清洗的表格（利用结构体相对索引位置），返回一个相同结构的新结构体，用step1中的默认返回值（flag=0）处理所有表格对应的位置，返回此情况下是否仍然存在的nan(nan总数，表格总记录数，nan占比)
 
--- **step2：** 若在step1之后仍然存在nan,则应该检查数据缺失的原因（问wind客服），如果数据被证实缺失，存在两种选择：1.该位置在所有表格中被取消，即改股票在改日被踢出可交易的股票池，2.使用fillData模块填充缺失值，在进行检查（若数据头采用"nearest"，数据中间使用"linear"可以完成最简单的填充，注意，这个操作对对应nan会引入未来函数）
+    -- **step2：** 若在step1之后仍然存在nan,则应该检查数据缺失的原因（问wind客服），如果数据被证实缺失，存在两种选择：1.该位置在所有表格中被取消，即改股票在改日被踢出可交易的股票池，2.使用fillData模块填充缺失值，在进行检查（若数据头采用"nearest"，数据中间使用"linear"可以完成最简单的填充，注意，这个操作对对应nan会引入未来函数）
 
-2.3.函数结构封装
+    2.3.函数结构封装
 
-**clean01Table**
+    **clean01Table**
 
-**cloneStruct**
+    **cloneStruct**
 
-**fillData**
+    **fillData**
 
 
 
-2.4.模块类封装
+    2.4.模块类封装
 
-**class: @CleanDataModule**
-```
-input = structData, structParams
+    **class: @CleanDataModule**
+    ```
+    input = structData, structParams
 
-structParams -- settingClean01         |-- maxConsecutiveInvalidLength
-                                       |-- maxConsecutiveRollingSize
-                                       |-- maxCumulativeInvalidLength     
-                                       |-- maxCumulativeRollingSize
-                                       |-- noToleranceRollingSize
-                                       |-- flag
-                                       
-             -- settingRefer01Table    |-- table1's relative location   
-                                       |-- table2's relative location 
-                                       
-             -- settingValidIndicator  |-- table1's valid data indicator
-                                       |-- table2's valid data indicator
-                    
-```
+    structParams -- settingClean01         |-- maxConsecutiveInvalidLength
+                                           |-- maxConsecutiveRollingSize
+                                           |-- maxCumulativeInvalidLength     
+                                           |-- maxCumulativeRollingSize
+                                           |-- noToleranceRollingSize
+                                           |-- flag
+
+                 -- settingRefer01Table    |-- table1's relative location   
+                                           |-- table2's relative location 
+
+                 -- settingValidIndicator  |-- table1's valid data indicator
+                                           |-- table2's valid data indicator
+
+    ```
 
 ### dicussion log(Dec.11/2019)
 1. 函数規範更新
@@ -257,15 +258,38 @@ document in 002 src/03 dailyFactorCreation/02 alphaFactoryModule
 
 3. 数据清洗类@CleanDataModule说明
 
-[@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/blob/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule/CleanDataModule.md)
+    [@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/blob/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule/CleanDataModule.md)
+    
+    清洗过后的数据说明：
+    - feature1:在准备数据清洗表时，表格命名不应该存在PE_TTM的情况，应使用renameFieldName(内置函数)修改为类似于PETTM的情况，导致该情况的原因在于内置jsondecoder会将"."解析为"_",导致相对位置索引"stock.PE_TTM"失效
+    - feature2:nan在数据清洗结果中表明数据点不应该被使用，清洗完的数据在obj.updateRows之前会全部表现为nan,此为清洗数据时正常的offset
 
+4. 对于统计检验方法的推进和改善
+    对于来源于data mining的因子，应该更加注意其统计上的显著性，对于存在逻辑的因子，可以减少这方面的要求，但特别的，对于一个因子，应该有如下的检验来发掘因子的预测能力：
+    
+    定义： $X_{k}(T)$ 表明T时刻因子k的因子暴露，其为一个行向量，长度为T时刻被计算因子k的公司总数，$R_{T+d}$为对应公司第T+d时刻的收益率，$IC_k(T,d) = corr(R_{T+d},X_{k}(T))$.
+    
+    如此得到一个 $IC$ 序列，我们希望找到一个在这样的d位移情况下一直有效的因子，即 $IC$ 值总能显著的大于0或者小于0.
+    
+    
+5. 构建数据存储结构和整理文档格式
 
+    ```
+     data     _ 00 description
+             |_ 01 cleaneData
+             |_ 02 styleFactor
+             |_ 03 factorExposure
+             |_ 04 factorNormalization
+             |_ 05 singleFactorTest
+             |_ 06 singleFactorReturn
+    ```
+    命名格式： XXXX_YYYYmmdd
 ---
 
 ### 流程1：因子数据清洗
 #### a.公司删除以及缺失值填补
 
-[@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/blob/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule/CleanDataModule.md)
+[@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/tree/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule)
 <!-- 方法：
 - i. 检查数据缺失原因决定是否填补或删去
 - ii. 填补可使用前一天的数值进行填补
