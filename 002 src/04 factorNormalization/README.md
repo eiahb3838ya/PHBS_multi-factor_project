@@ -1,6 +1,6 @@
 ### 04 factorNormalization
 
-1. This module receives alpha loadings from the "03 dailyFactorCreation" module, which is a three dimensional matrix, with its first dimension as dates, second dimension as factors and third dimension as stocks.
+1. This module receives alpha loadings from the "03 dailyFactorCreation" module, which is a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors.
 
 2. This module's process contains two steps:
 
@@ -24,7 +24,7 @@
 
    - Variable
 
-     factorCube, a three dimensional matrix, with its first dimension as dates, second dimension as factors and third dimension as stocks.
+     factorCube, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors.
 
      Already calculated by Evan Hu.
 

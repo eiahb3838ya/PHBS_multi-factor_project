@@ -1,5 +1,5 @@
-function [normFactor, meanValue, medianValue, skewnessValue, kurtosisValue] = normalizeProcess(factorMatrix, date)
-% NORMALIZEPROCESS returns the normalized version of feedStruct with
+function [normFactor, meanValue, medianValue, skewnessValue, kurtosisValue] = normalizeProcess(factorMatrix, factorName)
+% NORMALIZEPROCESS returns the normalized version of factorMatrix with
 % z-score method and the statistical figures and histogram of the factors
 % The normalization will be cross-sectional, which means row-wise
 % x_i = (x_i - mean(x_i))/std(x_i)
@@ -20,7 +20,7 @@ function [normFactor, meanValue, medianValue, skewnessValue, kurtosisValue] = no
     h = figure;
     xlim([-5, 5]);
     histogram(figure_data);
-    filename = num2str(date) + ".fig";
+    filename = factorName + ".fig";
     savefig(h, filename)
 end
 
