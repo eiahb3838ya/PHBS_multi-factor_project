@@ -14,9 +14,9 @@ classdef factorNormalization < handle
             extremeFactor = zeros(m1, m2, m3);
             normFactor =zeros(m1, m2, m3);
             for i = 1: m3
-                extremeFactor(:, :, i) = extremeProcess(factorCube(:, :, i));
+                extremeFactor(:, :, i) = extremeProcess(reshape(factorCube(:, :, i), m1, m2));
                 [normFactor(:, :, i), meanMatrix(:, i), medianMatrix(:, i), skewnessMatrix(:, i), kurtosisMatrix(:, i)] ...
-                    = normalizeProcess(extremeFactor(:, :, i), i); 
+                    = normalizeProcess(reshape(extremeFactor(:, :, i), m1, m2), i); 
             end
             
             processedFactor = normFactor;
@@ -31,7 +31,7 @@ classdef factorNormalization < handle
             [l1, m1, n1] = size(factorCube);
             existFactor = cat(3, styleFactorCube, industryFactorCube);
             [l2, m2, n2] = size(existFactor);
-            if (l1 ~= l2) && (m1 ~= m2)
+            if (l1 ~= l2) || (m1 ~= m2)
                 error 'Dimension does not match.'
             end
             
