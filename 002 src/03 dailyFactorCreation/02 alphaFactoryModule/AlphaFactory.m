@@ -23,12 +23,7 @@ classdef AlphaFactory < handle
         end
         
         function cleanedData = getCleanedData(rawData)
-%             cleanedData.high = stock.high;
-%             cleanedData.close = stock.close;
-%             cleanedData.low = stock.low;
-%             cleanedData.open = stock.open;
-%             cleanedData.volume = stock.volume;
-            
+         
             CDM = CleanDataModule(rawData);
             CDM.runHistory();
             cleanedData = CDM.getResult();
@@ -39,6 +34,30 @@ classdef AlphaFactory < handle
             
             if isstruct(alphaPara)
                 alpha = feval(alphaName, alphaPara);
+            end
+        end
+        function out = saveAlpha(obj, exposure, exposureName, fileName, incrementalFlag)
+            if ~incrementalFlag
+                try
+                    matobj = matfile(fileName,'Writable',true);
+                    matobj.(exposureName) = exposure;
+                    out = 1;
+                    return
+                catch
+                    out = 0;
+                    return
+                end
+            else
+                %    prepare for incremental
+                try
+                    matobj = matfile(fileName,'Writable',true);
+                    matobj.(exposureName) = cat(1,matobj.(exposureName),exposure);
+                    out = 1;
+                    return
+                catch
+                    out = 0;
+                    return
+                end
             end
         end
             
@@ -90,55 +109,105 @@ classdef AlphaFactory < handle
             alphaPara.updateFlag = incrementalFlag;          
         end
 
-%         function alpha = getAlphaUpdate(obj, alphaName)
-%             %           check valid
-%             aPara = obj.getAlphaPara(obj.paraStruct.(alphaName), 1);
-%             alpha = obj.getAlpha(alphaName, aPara);
-%         end
+        function alpha = getAlphaIncrement(obj, alphaName)
+            %           check valid
+            aPara = obj.getAlphaPara(obj.paraStruct.(alphaName), 1);
+            alpha = obj.getAlpha(alphaName, aPara);
+        end
 
         function alpha = getAlphaHistory(obj, alphaName)
             %           check valid
             aPara = obj.getAlphaPara(obj.paraStruct.(alphaName), 0);
             alpha = obj.getAlpha(alphaName, aPara);
         end
- 
-        function out = saveAlpha(obj, exposure, exposureName, fileName, incrementalFlag)
-            if ~incrementalFlag
-                try
-                    matobj = matfile(fileName,'Writable',true);
-                    matobj.(exposureName) = exposure;
-                    out = 1;
-                    return
-                catch
-                    out = 0;
-                    return
-                end
-            else
-                %    prepare for update: not yet ready
 
-%                 toSaveString = inputname(2);
-%                 m = matfile(fileName,'Writable',true);
-%                 m.(toSaveString) = exposure;
-            end
-        end
-        
         function success = saveAlphaHistory(obj, alphaName)
             exposure = obj.getAlphaHistory(alphaName);
             success = obj.saveAlpha(exposure, alphaName, alphaName, 0);
         end
+        
+        function success = saveAlphaIncrement(obj, alphaName)
+            exposure = obj.getAlphaIncrement(alphaName);
+            success = obj.saveAlpha(exposure, alphaName, alphaName, 1);
+        end
             
-
-%         function updateAllAlpha(obj, folderDir, timeSlide)
-%         end
-
-        function saveAllAlphaHistory(obj, saveStucture)
-            if nargin<1
+        function saveAllAlphaIncrement(obj, oldVersionDate, saveStucture)
+            if nargin<3
                 saveStucture = 0;
             end
+            targetAlphas = fieldnames(obj.paraStruct);
+            
+            %    get the old alphaCube with oldVersoin date
+            oldfileName = strcat('factorExposure_', oldVersionDate);
+            oldmatobj = matfile(oldfileName, 'Writable', true);
+            rowCount = size(oldmatobj.(targetAlphas{1}), 1);
+            disp(strcat('the size of old exposure is:',string(rowCount)));
+            
+            %    create a new version with today date
+            fileName = strcat('factorExposure_', datestr(now, 'yyyymmdd'));
+            matobj = matfile(fileName, 'Writable', true);
+            
+            %    save as struct
+            if saveStucture
+                for k=1:length(targetAlphas)
+                    alphaName=targetAlphas{k};
+                    disp("start process:"+ alphaName);
+                    try
+                        exposure = obj.getAlphaIncrement(alphaName);
+                        matobj.(alphaName) = cat(1, oldmatobj.(alphaName),exposure);
+                        disp("success")
+                    catch
+                        disp("fail")
+                    end
+                end
+                rowCount = size(matobj.(targetAlphas{1}), 1);
+                disp(strcat('the size of old exposure is:',string(rowCount)));
+                
+            %    save as 3 dim mat
+            else
+                %   get old exposure
+                oldExposure = oldmatobj.('exposure');
+                oldAlphaNameList = oldmatobj.('alphaNameList');
+                
+                %   new exposure to append
+                exposure = [];
+                alphaNameList = [];
+                
+                %    iter through all targetAlphas and app
+                for k=1:length(targetAlphas)
+                    alphaName=targetAlphas{k};
+                    disp("start process:"+ alphaName);
+                    try
+                        exposure = cat(3,exposure,obj.getAlphaIncrement(alphaName));
+                        alphaNameList = [alphaNameList, alphaName];
+                        disp("success")
+                    catch
+                        disp("fail")
+                    end
+                end
+                
+                %    check new alphaname order
+                %    append to old exposure
+                newExposure = cat(1,oldExposure,exposure);
+                
+                %    save to new file
+                matobj.('exposure') = newExposure;
+                matobj.('alphaNameList') = alphaNameList;
+                rowCount = size(matobj.exposure, 1);
+                disp(strcat('the size of new exposure is:',string(rowCount)));
+            end
+        end
+
+        function saveAllAlphaHistory(obj, saveStucture)
+            if nargin<2
+                saveStucture = 0;
+            end
+            targetAlphas = fieldnames(obj.paraStruct);
+            fileName = strcat('factorExposure_', datestr(now, 'yyyymmdd'));
+            matobj = matfile(fileName, 'Writable', true);
             
             if saveStucture
-                targetAlphas = fieldnames(obj.paraStruct);
-                matobj = matfile('factorExposure','Writable',true);
+            %    save as struct
                 for k=1:length(targetAlphas)
                     alphaName=targetAlphas{k};
                     disp("start process:"+ alphaName);
@@ -151,9 +220,23 @@ classdef AlphaFactory < handle
                     end
                 end
             else
-%                 save as 3 dim mat
+            %    save as 3 dim mat
+                exposure = [];
+                alphaNameList = [];
+                for k=1:length(targetAlphas)
+                    alphaName=targetAlphas{k};
+                    disp("start process:"+ alphaName);
+                    try
+                        exposure = cat(3,exposure,obj.getAlphaHistory(alphaName));
+                        alphaNameList = [alphaNameList, alphaName];
+                        disp("success")
+                    catch
+                        disp("fail")
+                    end
+                end
+                matobj.('exposure') = exposure;
+                matobj.('alphaNameList') = alphaNameList;
             end
         end 
-        
     end
 end
