@@ -1,11 +1,13 @@
-{"settingClean01":{
+{
+    "settingClean01":{
                     "maxConsecutiveInvalidLength":[0,0],
                     "maxConsecutiveRollingSize":[0,0],
-                    "maxCumulativeInvalidLength":[30,30],
-                    "maxCumulativeRollingSize":[90,90],
-                    "noToleranceRollingSize":[30,30],
+                    "maxCumulativeInvalidLength":[60,100],
+                    "maxCumulativeRollingSize":[200,200],
+                    "noToleranceRollingSize":[100,100],
                     "flag":0
                     },
     "settingRefer01Table":["stock.tradeDayTable",
                             "stock.stTable"],
-    "settingValidIndicator":[1,0]}
+    "settingValidIndicator":[1,0]
+}

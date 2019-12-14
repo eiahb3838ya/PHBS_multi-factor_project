@@ -1,9 +1,9 @@
-{"stock.properties.close":[],
+{
+    "stock.properties.close":[],
     "stock.properties.high":[],
     "stock.properties.low":[],
     "stock.properties.open":[],
     "stock.properties.amount":[],
-    "stock.properties.volume":[],
     "stock.tradeDayTable":[],
     "stock.stTable":[]
 }

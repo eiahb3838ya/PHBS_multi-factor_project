@@ -17,8 +17,8 @@ function structRows = getStructToCleanUpdate(obj)
     structRows = struct();
     fN = fieldnames(fNs);
     for count =1: length(fN)
-        fN_array = strsplit(fN{count},'_');
-        rawFieldData = obj.parseStringToStructPath(obj.rawStruct,strjoin(strsplit(fN{count},'_'),'.'));
+        fN_array = strsplit(fN{count},'_'); %'_'
+        rawFieldData = obj.parseStringToStructPath(obj.rawStruct,strjoin(strsplit(fN{count},'_'),'.')); %'_'
         try
             structRows.(fN_array{end}) = rawFieldData(end - minimumSliceSize + 1:end,:);
         catch

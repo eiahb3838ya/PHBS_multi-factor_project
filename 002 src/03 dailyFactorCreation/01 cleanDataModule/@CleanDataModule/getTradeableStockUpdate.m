@@ -11,6 +11,8 @@ function tradeableStocksRow = getTradeableStockUpdate(obj)
     updateCriteria = obj.jsonDecoder(obj.defaultUpdateCriteria);
     
     % step 0: check updateCriteria validity
+    
+    % following codes will raise error in R2018a
 %     try
 %         if ~isequal(fieldnames(updateCriteria)',{"settingClean01","settingRefer01Table","settingValidIndicator"})
 %             error 'bad defined fieldnames';        

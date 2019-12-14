@@ -12,6 +12,7 @@ function tradeableStocksMatrix = getTradeableStockHistory(obj)
 %     historyCriteria = obj.jsonDecoder(obj, obj.defaultHistoryCriteria);
     
     % step 0: check updateCriteria validity
+    % following codes will raise error in R2018a
 %     try
 %         if ~isequal(fieldnames(updateCriteria)',{"settingClean01","settingRefer01Table","settingValidIndicator"})
 %             error 'bad defined fieldnames';        

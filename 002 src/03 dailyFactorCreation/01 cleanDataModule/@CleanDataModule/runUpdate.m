@@ -15,6 +15,7 @@ function [] = runUpdate(obj, warningSwitch)
     disp(['mode: Update, warningMode:', char(warningSwitch)]);
     T = obj.getTradeableStockUpdate();
     T = obj.checkStructAfterSelectionUpdate();
+    obj.getStructLastRow();
     clear T;
 
     warning('on');
