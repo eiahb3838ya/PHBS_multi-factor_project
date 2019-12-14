@@ -1,5 +1,5 @@
 classdef CleanDataModule < handle
-    %CLEANDATAMODULE document not finished.
+    %CLEANDATAMODULE document @ github.com
     
     % struct below
     properties(SetAccess = protected, GetAccess = public) %should be protected and public
@@ -19,6 +19,7 @@ classdef CleanDataModule < handle
     properties(Constant)
         defaultUpdateCriteria = 'tradeableStocksSelectionCriteria.json';
         defaultTableNamesToSelect = 'tableNamesToSelect.json';
+        defaultFillDataMethod = 'fillDataMethod.json';
     end
     
     
@@ -76,9 +77,18 @@ classdef CleanDataModule < handle
             % GETRESULT should by called after runUpdate or runHistory
             outS = obj.selectedStruct;
         end
+        
+        % get specific properties
+        function outM = getOHLC(obj, tableName)
+            try 
+                outM = obj.selectedStruct.(tableName);
+            catch
+                error 'invalid tableName';
+            end
+        end
     end
     
-    methods(Access = public) %tshould be public 
+    methods(Access = protected)%proteced 
         %------------------------------------------------------
         %utils
         %------------------------------------------------------
@@ -86,8 +96,9 @@ classdef CleanDataModule < handle
         
         dynamicPointer = parseStringToStructPath(obj, S, fieldlist);
         
-        % not finished yet!
-%         fillDataUpdate(obj, tableNames);
+        filled = fillDataPlugIns(obj, workingTable);
+        
+        getStructLastRow(obj);
         
         %------------------------------------------------------
         %callable methods -------------------------------------
@@ -103,6 +114,7 @@ classdef CleanDataModule < handle
         checkSummary = checkStructAfterSelectionUpdate(obj);
         
         checkSummary = checkStructAfterSelectionHistory(obj);
+        
     end
 end
 

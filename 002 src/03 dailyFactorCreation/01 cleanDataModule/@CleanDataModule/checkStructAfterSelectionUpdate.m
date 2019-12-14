@@ -27,28 +27,37 @@ function checkSummary = checkStructAfterSelectionUpdate(obj)
     % But, if for history, the situation is different,
     % From updateRows - minUpdateRows + 1:end, for all small rolling
     % window, get a matrix of size updateRows - minUpdateRows + 1*#cols,
-    % give the value to a zeros(0 means no data/don't use) matrix, sum over
+    % give the value to a zeros(nan means don't use) matrix, sum over
     % all small windows(keep their location still), make all zeros in the
-    % given zeros matrix to 0 and check no nan of all non-zero position(exclude those in the beginning)
+    % given zeros matrix to nan and check no-nan of all non-zero position(exclude those in the beginning)
     fNs = fieldnames(structToCheck);
     rollingSelectionCriteria = repmat(dataIndexToUse(end,:),minUpdateRows,1);
     for count = 1:length(fNs)
+        % if table is a table for stock screening, skip it
         if contains(fNs{count}, excludeTableName)
             continue;
         end
+        
+        % get current working table
         currentWorkingTable = structToCheck.(fNs{count});
         dataRowStartIndx = size(currentWorkingTable,1) - minUpdateRows + 1;
         rollingSelectionArea = currentWorkingTable(dataRowStartIndx:end,:);
         
         if sum(sum(isnan(rollingSelectionArea(find(rollingSelectionCriteria==1)))))~=0
-            %also can throw error here
-            nanTotalNumber = sum(sum(isnan(rollingSelectionArea(find(rollingSelectionCriteria==1)))));
-            warning("unexpected nans exist, %s nans in total, clean of data: %s continues!",num2str(nanTotalNumber), fNs{count});
+            %if unexpected nan found, call fill data method by default
+            rollingSelectionArea = obj.fillDataPlugIns(rollingSelectionArea);
+            
+            % check again
+            if sum(sum(isnan(rollingSelectionArea(find(rollingSelectionCriteria==1)))))~=0
+                %also can throw error here
+                nanTotalNumber = sum(sum(isnan(rollingSelectionArea(find(rollingSelectionCriteria==1)))));
+                warning("after filling data, unexpected nans still exist, %s nans in total, clean of data: %s continues! Consider other fillMethod",num2str(nanTotalNumber), fNs{count});
+            end
         end
         
-        rollingSelectionArea(find(rollingSelectionCriteria==0)) = 0;
+        rollingSelectionArea(find(rollingSelectionCriteria==0)) = nan; %nan means don't use
         currentWorkingTable(dataRowStartIndx:end,:) = rollingSelectionArea;
-        currentWorkingTable(1:dataRowStartIndx - 1,:) = 0;
+        currentWorkingTable(1:dataRowStartIndx - 1,:) = nan; %nan means don't use
         obj.selectedStruct.(fNs{count}) = currentWorkingTable;
     end
     

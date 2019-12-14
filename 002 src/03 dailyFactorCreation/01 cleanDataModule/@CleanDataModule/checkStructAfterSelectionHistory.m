@@ -4,7 +4,7 @@ function checkSummary = checkStructAfterSelectionHistory(obj)
 %NOTE: in this method, every time the method will look back to the maximum
 %length given by obj.updateRows.
 
-       %step 1: get preSelectedStruct and selectionRecord, get minUpdateRows
+   %step 1: get preSelectedStruct and selectionRecord, get minUpdateRows
     updateCriteria = obj.jsonDecoder(obj.defaultUpdateCriteria);
     structToCheck = obj.preSelectedStruct;
     dataIndexToUse = obj.selectionRecord;
@@ -48,13 +48,18 @@ function checkSummary = checkStructAfterSelectionHistory(obj)
         totalSelectionCriteria = totalSelectionCriteria ~= 0;
         
         if sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))))~=0
-            %also can throw error here
-            nanTotalNumber = sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))));
-            warning("unexpected nans exist, %s nans in total, clean of table: %s continues",num2str(nanTotalNumber), fNs{count});
+            %if unexpected nan found, call fill data method by default
+            currentWorkingTable = obj.fillDataPlugIns(currentWorkingTable);
+            
+            if sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))))~=0
+                %also can throw error here
+                nanTotalNumber = sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))));
+                warning("after filling data, unexpected nans exist, %s nans in total, clean of table: %s continues",num2str(nanTotalNumber), fNs{count});
+            end
         end
         
-        currentWorkingTable(find(totalSelectionCriteria == 0)) = 0;
-        currentWorkingTable(1:updateRows- minUpdateRows,:) = 0;
+        currentWorkingTable(find(totalSelectionCriteria == 0)) = nan; %0
+        currentWorkingTable(1:updateRows- minUpdateRows,:) = nan; %0
         obj.selectedStruct.(fNs{count}) = currentWorkingTable;
     end
     
