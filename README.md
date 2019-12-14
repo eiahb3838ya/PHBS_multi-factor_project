@@ -258,7 +258,7 @@ document in 002 src/03 dailyFactorCreation/02 alphaFactoryModule
 
 3. 数据清洗类@CleanDataModule说明
 
-    [@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/blob/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule/CleanDataModule.md)
+    [@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/blob/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule/README.md)
     
     清洗过后的数据说明：
     - feature1:在准备数据清洗表时，表格命名不应该存在PE_TTM的情况，应使用renameFieldName(内置函数)修改为类似于PETTM的情况，导致该情况的原因在于内置jsondecoder会将"."解析为"_",导致相对位置索引"stock.PE_TTM"失效
@@ -284,12 +284,22 @@ document in 002 src/03 dailyFactorCreation/02 alphaFactoryModule
              |_ 06 singleFactorReturn
     ```
     命名格式： XXXX_YYYYmmdd
+    
+6. 日常检测出现的问题
+    时间：12:35am,Dec.15/2019
+    预计更新模块：CleanDataModule
+    预计更新时间不晚于Dec.16/2019,4pm
+    更新功能：
+    - 重新抛出清洗数据warning
+    - 抛出每日selection record，存进cleanedData文件夹，记录为selectionRuleResult_YYYYmmdd.mat矩阵
+    - 补充额外的util函数，主要红能为实现快速过滤，将selectionRuleResult_YYYYmmdd.mat（必须指定该变量,否则默认为系统当日日期定义的该变量）作为mask作用与所有计算矩阵上，指定mask返回inf，计算时将所有inf使用find(~isinf(row))抛弃
+    
 ---
 
 ### 流程1：因子数据清洗
 #### a.公司删除以及缺失值填补
 
-[@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/tree/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule)
+[@CleanDataModule说明](https://github.com/eiahb3838ya/PHBS_multi-factor_project/blob/master/002%20src/03%20dailyFactorCreation/01%20cleanDataModule/README.md)
 <!-- 方法：
 - i. 检查数据缺失原因决定是否填补或删去
 - ii. 填补可使用前一天的数值进行填补
