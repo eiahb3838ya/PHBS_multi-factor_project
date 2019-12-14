@@ -19,29 +19,37 @@
    - Normalize
 
      Using z-score to normalize the processed factor loadings. Record the mean, median, skewness and kurtosis of the distribution for further examination.
+     
+   - Orthogonalize (optional)
 
-3. Function: factorNormalization
+     Use the normalized factor loadings to do regression with the style and industry factors to get the residuals. Returns the orthogonalized factor loadings.
+
+3. Class: factorNormalization
 
    - Variable
 
-     factorCube, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors.
-
-     Already calculated by Evan Hu.
+     - factorCube, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors.
+    - Already calculated by Evan Hu.
+   
+  - styleFactorCube, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors.
+     - industryFactorMatrix, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as industries. If one stock belongs to a certain industry, the value will be 1, otherwise it is 0.
 
    - Return
 
-     Processed three dimensional factor loadings.
+     Processed (either just normalized or plus orthogonalized) three dimensional factor loadings.
 
    - Save
 
      normFactor: the processed factor loadings;
+
+     orthedNormFactor: the orthogonalized processed factor loadings;
 
      meanMatrix: the all-time mean of the distribution for all factors;
 
      medianMatrix: the all-time median of the distribution for all factors;
 
      skewnessMatrix: the all-time skewness of the distribution for all factors;
-
+   
      kurtosisMatrix: the all-time kurtosis of the distribution for all factors;
-
+     
      date.fig: the histogram of the normFactor distribution on all dates.
