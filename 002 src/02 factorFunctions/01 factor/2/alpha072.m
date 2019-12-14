@@ -27,10 +27,10 @@ function [X, offsetSize] = alpha072(alphaPara)
 end
 
 function [exposure,offsetSize] = getAlpha(high,close,low)
-    left = movmax(high,[6 ],1) - close
-    right = movmax(high,[6 ],1) - movmin(low,[6 ],1)
+    left = movmax(high,[6 ],1) - close;
+    right = movmax(high,[6 ],1) - movmin(low,[6 ],1);
     
-    exposure = sma(left./(right+eps) * 100 ,15,1)
+    exposure = sma(left./(right+eps) * 100 ,15,1);
     offsetSize = 21;
 end
 
