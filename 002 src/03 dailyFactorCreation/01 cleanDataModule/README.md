@@ -20,19 +20,25 @@ compatible with: MATLAB R2018a+
                  __ /Methods/utils
                 |__ parseStringToStructPath
                 |__ jsonDecoder
+                |__ fillDataPlugIns
+                |__ getStrcutLastRow
                 
                  __ /configFiles
                 |__ tableNamesToSelect.json
                 |__ tradeableStocksSelectionCriteria.json
 ```
 
-## proposed changes
+## quick start
 
+example ```./examples```
 
+sample data ```./examples/getDataToUse.txt```
 
 ## configuration
 
 ### specify who to work with
+
+```./cleanDataConfig```
 
 文件名（constant properties）:
 tableNamesToSelect.json
@@ -78,3 +84,9 @@ minUpdateRows: 对noToleranceRollingSize取最小值，在这个区间内，检�
 最多连续累计无效数据点量：在每次回顾时间区间中，如果一个股票要在now被认为是可交易的，他所能积累的连续无效数据点量上限。
 
 无容忍数据区间长度：在每次回顾的时间区间中，如果一个股票要在now被认为是可交易的，他必须在无容忍数据区间长度中不存在任何无效数据点。
+
+
+### specify how to fill data
+
+文件名（constant properties）: 
+fillDataMathod.json
