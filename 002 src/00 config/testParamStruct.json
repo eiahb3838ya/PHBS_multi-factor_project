@@ -32,35 +32,59 @@
     },
 	"alpha189":{
         "datasets":["close"]
-    }
+    },
     	"alpha002":{
         "datasets":["high", "low","close"]
-    }
+    },
 	"alpha022":{
         "datasets":["close"]
-    }
+    },
 	"alpha042":{
         "datasets":["high", "volume"]
-    }
+    },
 	"alpha052":{
         "datasets":["high", "low","close"]
-    }
+    },
 	"alpha072":{
         "datasets":["high", "low","close"]
-    }
+    },
 	"alpha102":{
         "datasets":["volume"]
-    }
+    },
 	"alpha112":{
         "datasets":["close"]
-    }
+    },
 	"alpha122":{
         "datasets":["close"]
-    }
+    },
 	"alpha132":{
         "datasets":["amount"]
-    }
+    },
 	"alpha152":{
         "datasets":["close"]
+    },
+	"alpha10":{
+	"datasets":["close"]
+    },
+	"alpha20":{
+	"datasets":["close"]
+    },
+	"alpha70":{
+	"datasets":["amount"]
+    },
+	"alpha80":{
+	"datasets":["volume"]
+    },
+	"alpha100":{
+	"datasets":["volume"]
+    },
+	"alpha110":{
+	"datasets":["close","high","low"]
+    },
+	"alpha150":{
+	"datasets":["close","high","low","volume"]
+    },
+	"alpha160":{
+	"datasets":["close"]
     }
 }
