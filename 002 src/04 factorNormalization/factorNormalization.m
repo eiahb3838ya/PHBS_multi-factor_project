@@ -2,6 +2,7 @@ classdef factorNormalization < handle
     properties
         factorCube
         processedFactor
+        orthedFactor
     end
     
     methods(Static)
@@ -60,7 +61,6 @@ classdef factorNormalization < handle
         end
         
         function res = calculateNorm(obj)
-%             processedFactor = getProcessedFactor(obj.rawData);
             try
                 obj.processedFactor = getProcessedFactor(obj.factorCube);
                 res = 1;
