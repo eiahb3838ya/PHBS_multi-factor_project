@@ -27,13 +27,19 @@
 3. Class: factorNormalization
 
    - Variable
-- factorCube, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors.
+   
+     - factorCube, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors。
        - Already calculated by Evan Hu.
      - styleFactorCube, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors.
+   
      - industryFactorMatrix, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as industries. If one stock belongs to a certain industry, the value will be 1, otherwise it is 0.
+   
    - Return
+   
      - Processed (either just normalized or plus orthogonalized) three dimensional factor loadings.
+   
    - Save
+   
      - normFactor: the processed factor loadings;
      - orthedNormFactor: the orthogonalized processed factor loadings;
      - meanMatrix: the all-time mean of the distribution for all factors;
@@ -41,4 +47,3 @@
      - skewnessMatrix: the all-time skewness of the distribution for all factors;
      - kurtosisMatrix: the all-time kurtosis of the distribution for all factors;
      - date.fig: the histogram of the normFactor distribution on all dates.
-   
