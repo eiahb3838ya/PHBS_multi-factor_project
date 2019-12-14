@@ -120,17 +120,21 @@ classdef AlphaFactory < handle
             aPara = obj.getAlphaPara(obj.paraStruct.(alphaName), 0);
             alpha = obj.getAlpha(alphaName, aPara);
         end
-
+ 
+        
+        
         function success = saveAlphaHistory(obj, alphaName)
             exposure = obj.getAlphaHistory(alphaName);
             success = obj.saveAlpha(exposure, alphaName, alphaName, 0);
         end
+        
         
         function success = saveAlphaIncrement(obj, alphaName)
             exposure = obj.getAlphaIncrement(alphaName);
             success = obj.saveAlpha(exposure, alphaName, alphaName, 1);
         end
             
+
         function saveAllAlphaIncrement(obj, oldVersionDate, saveStucture)
             if nargin<3
                 saveStucture = 0;
