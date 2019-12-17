@@ -4,6 +4,11 @@
     "stock.properties.low":[],
     "stock.properties.open":[],
     "stock.properties.amount":[],
+    "stock.properties.PETTM":[],
+    "stock.properties.PE":[],
+    "stock.totalReturn":[],
+    "stock.properties.totalMktCap":[],
+    "stock.properties.floatingShares":[],
     "stock.tradeDayTable":[],
     "stock.stTable":[]
 }

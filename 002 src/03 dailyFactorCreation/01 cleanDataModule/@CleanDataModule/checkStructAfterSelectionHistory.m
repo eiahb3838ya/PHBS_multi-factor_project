@@ -49,6 +49,8 @@ function checkSummary = checkStructAfterSelectionHistory(obj)
         
         if sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))))~=0
             %if unexpected nan found, call fill data method by default
+            nanTotalNumber = sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))));
+            warning("before filling, unexpected nans still exist, %s nans in total, clean of data: %s continues!",num2str(nanTotalNumber), fNs{count});
             currentWorkingTable = obj.fillDataPlugIns(currentWorkingTable);
             
             if sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))))~=0

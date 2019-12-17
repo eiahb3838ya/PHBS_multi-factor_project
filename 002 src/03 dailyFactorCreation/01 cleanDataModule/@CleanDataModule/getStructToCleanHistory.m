@@ -1,5 +1,4 @@
 function structMatrix = getStructToCleanHistory(obj)
-% []= getStructToCleanHistory(obj)
 %GETSTRUCTTOCLEANHISTORY  make a new copy of structure that is used to feed 
 %to stock selection process.
 %   NOTE: depend on defaultTableNamesToSelect = 'tableNamesToSelect.json';
@@ -18,7 +17,13 @@ function structMatrix = getStructToCleanHistory(obj)
     fN = fieldnames(fNs);
     for count =1: length(fN)
         fN_array = strsplit(fN{count},'_');
-        rawFieldData = obj.parseStringToStructPath(obj.rawStruct,strjoin(strsplit(fN{count},'_'),'.'));
+        
+        % try to fetch specified field from data structure
+        try
+            rawFieldData = obj.parseStringToStructPath(obj.rawStruct,strjoin(strsplit(fN{count},'_'),'.'));
+        catch
+            error('%s can not be fetched from existing data struct, may be incorrect table name in cleanDataConfig/tableNamesToSelect.json',strjoin(strsplit(fN{count},'_'),'.'));
+        end
         
         structMatrix.(fN_array{end}) = rawFieldData;
 

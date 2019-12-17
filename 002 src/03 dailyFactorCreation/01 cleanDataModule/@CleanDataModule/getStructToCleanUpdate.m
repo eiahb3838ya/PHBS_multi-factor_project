@@ -1,5 +1,4 @@
 function structRows = getStructToCleanUpdate(obj)
-% function structRows = getStructToCleanUpdate(obj)
 %GETSTRUCTTOCLEANUPDATE from obj.updateRows to get slice size and make a
 %new copy of structure that is used to feed to stock selection process.
 %   NOTE: depend on defaultTableNamesToSelect = 'tableNamesToSelect.json';
@@ -18,7 +17,14 @@ function structRows = getStructToCleanUpdate(obj)
     fN = fieldnames(fNs);
     for count =1: length(fN)
         fN_array = strsplit(fN{count},'_'); %'_'
-        rawFieldData = obj.parseStringToStructPath(obj.rawStruct,strjoin(strsplit(fN{count},'_'),'.')); %'_'
+        % try to fetch data from data struct
+        try
+            rawFieldData = obj.parseStringToStructPath(obj.rawStruct,strjoin(strsplit(fN{count},'_'),'.')); %'_'
+        catch
+            error('%s can not be fetched from existing data struct, may be incorrect table name in cleanDataConfig/tableNamesToSelect.json',strjoin(strsplit(fN{count},'_'),'.'));
+        end
+        
+        % get lastest data
         try
             structRows.(fN_array{end}) = rawFieldData(end - minimumSliceSize + 1:end,:);
         catch
