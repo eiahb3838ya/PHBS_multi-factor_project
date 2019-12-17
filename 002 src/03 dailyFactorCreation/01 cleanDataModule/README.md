@@ -1,7 +1,7 @@
 # CleanDataModule Document
 
 ``` 
-version: 0.1 beta
+version: 0.3
 compatible with: MATLAB R2018a+
 ```
 ## current structure
@@ -22,13 +22,21 @@ compatible with: MATLAB R2018a+
                 |__ jsonDecoder
                 |__ fillDataPlugIns
                 |__ getStrcutLastRow
+                |__ saveResult
+                
+                 __ /Methods/getSetPlot
+                |__ getResult
+                |__ getOHLC
+                |__ getStockScreenMatrix
+                |__ setRawSTR
+                |__ plotNumTradeableStock
                 
                  __ /configFiles
                 |__ tableNamesToSelect.json
                 |__ tradeableStocksSelectionCriteria.json
 ```
-## proposed updates
-更新0.2beta
+## updates
+更新0.3
 
     预期时间：4pm,Dec.16/2019
     预计更新模块：CleanDataModule
@@ -36,7 +44,10 @@ compatible with: MATLAB R2018a+
     更新功能：
     - 重新抛出清洗数据warning
     - 抛出每日selection record，存进cleanedData文件夹，记录为selectionRuleResult_YYYYmmdd.mat矩阵
-    - 补充额外的util函数，主要红能为实现快速过滤，将selectionRuleResult_YYYYmmdd.mat（必须指定该变量,否则默认为系统当日日期定义的该变量）作为mask作用与所有计算矩阵上，指定mask返回inf，计算时将所有inf使用find(~isinf(row))抛弃
+    - 补充额外的util函数，主要红能为实现快速过滤，将selectionRuleResult_YYYYmmdd.mat（必须指定该变量,否则默认为系统当日日期定义的该变量）作为mask作用与所有计算矩阵上，指定mask返回inf，计算时将所有inf使用find(~isinf(row))抛弃(没有加入)
+    — 存储数据模块嵌入
+    
+    
 
 ## quick start
 
@@ -46,9 +57,11 @@ sample data ```./examples/getDataToUse.txt```
 
 ## configuration
 
+```./cleanDataConfig```
+
 ### specify who to work with
 
-```./cleanDataConfig```
+
 
 文件名（constant properties）:
 tableNamesToSelect.json
