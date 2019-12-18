@@ -39,9 +39,9 @@ function [alphaArray,offsetSize] = getAlpha(dailyClose, dailyHigh, dailyLow, dai
     [m4, n4] = size(dailyVolume);
     
     %--------------------error dealing part start-----------------------
-    if sum(isnan([dailyClose, dailyHigh, dailyLow, dailyVolume]))~=0
-        error 'nan exists!please check the data!'
-    end
+%     if sum(isnan([dailyClose, dailyHigh, dailyLow, dailyVolume]))~=0
+%         error 'nan exists!please check the data!'
+%     end
 
     if ~(m1==m2 && m2==m3 && m3==m4 && n1==n2 && n2==n3 && n3==n4)
         error 'size of all input matrix must match!';

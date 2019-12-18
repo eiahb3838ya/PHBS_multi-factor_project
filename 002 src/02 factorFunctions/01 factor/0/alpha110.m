@@ -53,9 +53,9 @@ function [alphaArray, offsetSize] = getAlpha(high, close, low, delay, rollingWin
     [m3,n3] = size(low);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnan([high,close,low]))~=0
-        error 'nan exists!check the raw data!';
-    end
+%     if sum(isnan([high,close,low]))~=0
+%         error 'nan exists!check the raw data!';
+%     end
 
     if ~(m1==m2 && m2==m3 && n1==n2 && n2==n3)
         error 'input matrix size must match';

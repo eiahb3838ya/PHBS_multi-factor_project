@@ -67,9 +67,9 @@ function [alphaArray, offsetSize] = getAlpha(dailyClose, rollingWindow, delay, n
         error 'delay number should be strictly smaller than rows of dailyClose!';
     end
 
-    if sum(isnan(dailyClose))~=0
-        error 'nan exists!please check dailyClose matrix!';
-    end
+%     if sum(isnan(dailyClose))~=0
+%         error 'nan exists!please check dailyClose matrix!';
+%     end
 
     if rollingWindow <= 0
         error 'rolling window should be strictly greater than 0!';

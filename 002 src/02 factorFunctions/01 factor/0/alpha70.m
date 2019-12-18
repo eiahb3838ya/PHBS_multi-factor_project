@@ -45,9 +45,9 @@ function [alphaArray, offsetSize] = getAlpha(amount, rollingWindow)
     [m,n] = size(amount);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnan(amount))~=0
-        error 'nan exists!'
-    end
+%     if sum(isnan(amount))~=0
+%         error 'nan exists!'
+%     end
 
     if m <= rollingWindow || rollingWindow<=0
         error 'check input rows and rolling window size!'

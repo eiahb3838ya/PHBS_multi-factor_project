@@ -45,9 +45,9 @@ function [alphaArray,offsetSize] = getAlpha(vwap, dailyClose, rollingRankWindow)
     [m2, n2] = size(dailyClose);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnan([volume,vwap]))~=0
-        error 'nan exists!please check the data!';
-    end
+%     if sum(isnan([volume,vwap]))~=0
+%         error 'nan exists!please check the data!';
+%     end
 
     if ~(m1 == m2 && n1 == n2)
         error 'vwap and dailyClose should have the same size.';

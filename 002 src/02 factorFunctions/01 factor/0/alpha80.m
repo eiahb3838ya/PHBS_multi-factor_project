@@ -44,9 +44,9 @@ function [alphaArray, offsetSize] = getAlpha(volume, delay)
     [m,~] = size(volume);
     
     %--------------------error dealing part start-----------------------
-    if sum(isnan(volume))~=0
-        error 'nan exists!check the raw data!';
-    end
+%     if sum(isnan(volume))~=0
+%         error 'nan exists!check the raw data!';
+%     end
 
     if m < offsetSize
         error 'more than 5 days of observation is required!'

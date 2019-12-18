@@ -42,9 +42,9 @@ function [alphaArray,offsetSize] = getAlpha(volume, rollingWindow)
     [m,n] = size(volume);
 
     %--------------------error dealing part start-----------------------
-    if sum(isnan(volume))~=0
-        error 'nan exists!please check the data!';
-    end
+%     if sum(isnan(volume))~=0
+%         error 'nan exists!please check the data!';
+%     end
 
     if rollingWindow <= 0
         error 'rolling window should be greater than 0(strictly)';

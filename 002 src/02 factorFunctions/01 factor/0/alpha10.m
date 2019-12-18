@@ -65,9 +65,9 @@ function [alphaArray, offsetSize] = getAlpha( dailyClose, rollingStdWindow, roll
     offsetSize = rollingStdWindow;
     
     %--------------------error dealing part start-----------------------
-    if sum(isnan(dailyClose))~=0
-        error 'nan exists, please check raw data!';
-    end
+%     if sum(isnan(dailyClose))~=0
+%         error 'nan exists, please check raw data!';
+%     end
     
     if rollingStdWindow<=rollingMaxWindow
         error 'rolling standard deviation window must be strictly greater than rolling max window size';
