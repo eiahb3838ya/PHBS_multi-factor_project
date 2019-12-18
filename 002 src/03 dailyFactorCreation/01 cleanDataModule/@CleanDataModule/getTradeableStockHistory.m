@@ -1,6 +1,6 @@
 function tradeableStocksMatrix = getTradeableStockHistory(obj)
 %GETTRADEABLESTOCKHISTORY update all tradeable stocks with
-%minimum data required.
+%all given historical data required.
 %
 %   To disable a rule, please set rollingSize parameter to 0
 %   To distiguish 0 and 1's real-world meaning, use settingValidIndicator,

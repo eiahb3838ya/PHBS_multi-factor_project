@@ -1,5 +1,5 @@
 classdef CleanDataModule < handle
-    %CLEANDATAMODULE document @ github.com
+    %CLEANDATAMODULE document @ github
     
     % struct below
     properties(SetAccess = protected, GetAccess = public) %should be protected and public
@@ -26,18 +26,20 @@ classdef CleanDataModule < handle
     methods(Access = public)
         % constructor here
         function obj = CleanDataModule(dataStruct)
-            disp("One-click start, use obj.runHistory()");
+            disp("CleanDataModule start: please check cleanDataConfig first, read document for start up.");
             % read config.json and cut it into sub json files stored in
             % default names
             % step 1: get data!
             if nargin == 0
                 try
                     disp('hello, struct is loading data, please wait...');
+                    %load data
                     projectData = load('projectData.mat');
-
                     obj.rawStruct = projectData.projectData;
-
+                    %clear temp var
                     clear projectData;
+                    %check field names validity
+                    obj.fieldNameCheck();
                     disp('okay :), the data is loaded successfully.');
                 catch
                     error 'default data projectData is not in matlab path!';
@@ -45,18 +47,25 @@ classdef CleanDataModule < handle
             elseif isstring(dataStruct)
                 try
                     disp('hello, struct is loading data, please wait...');
+                    
+                    %load data
                     projectData = load(dataStruct);
-                    
                     obj.rawStruct = projectData.projectData;
-                    
+                    %clear temp var
                     clear projectData;
+                    %rename invalid names
+                    obj.fieldNameCheck();
                     disp('okay :), the data is loaded successfully.');
                 catch
                     error('cannot load %s ',dataStruct);
                 end
             elseif isstruct(dataStruct)
                 try
+                    disp('hello, struct is loading data, please wait...');
                     obj.rawStruct = dataStruct; 
+                    %rename invalid names
+                    obj.fieldNameCheck();
+                    disp('okay :), the data is loaded successfully.');
                 catch
                     error 'read struct error!';
                 end
@@ -67,10 +76,10 @@ classdef CleanDataModule < handle
         end
         
         % run update one-time
-        runUpdate(obj);
+        runUpdate(obj, warningSwitch);
         
         % run update for history
-        runHistory(obj);
+        runHistory(obj, warningSwitch);
         
         % get result
         function outS = getResult(obj)
@@ -86,6 +95,64 @@ classdef CleanDataModule < handle
                 error 'invalid tableName';
             end
         end
+        
+        % get selection Rule
+        function outRule = getStockScreenMatrix(obj)
+            try
+                outRule = obj.selectionRecord;
+            catch
+                error 'no rule exists, please runUpdate/runHistory first!';
+            end
+        end
+        
+        % set raw STR
+        function [] = setRawSTR(obj, STR)
+            if isstruct(STR)
+                try
+                    warning('this is a dangerous operation! making all results using CleanDataModule before this line is inaccurate!');
+                    obj.rawStruct = STR;
+                catch
+                    error 'invalid STR input!';
+                end
+            else
+                error 'input STR must be a struct!';
+            end
+        end
+        
+        % plot number of stocks tradeable
+        function [] = plotNumTradeableStock(obj)
+            try
+                disp("plot tradeable stocks, history");
+                plot(sum(obj.selectionRecord(obj.updateRows:end,:),2));
+                title("counts of tradeable stocks by trading days");
+                ylabel("count");
+            catch
+                error('no data to plot!');
+            end
+        end
+        
+        % save result
+        function [] = saveResult(obj, keyword)
+            % SAVERESULT is used to save result from getResult();
+            %       the data is named by "cleanedData_" + keyword + "_YYYYmmdd.mat"
+            try
+                if nargin == 1
+                    keyword = 'saveTagNotSpecified';
+                end
+                %generate saving names
+                fileName = strcat('cleanedData_', keyword, '_', datestr(now, 'yyyymmdd'));
+                
+                %loop over fieldnames and save them
+                fNs = fieldnames(obj.selectedStruct);
+                for count = 1:length(fNs)
+                    matObj = matfile(fileName, 'Writable', true);
+                    matObj.(fNs{count}) = obj.selectedStruct.(fNs{count});
+                end
+                
+            catch
+                error 'error in saving data';
+            end
+        end
     end
     
     methods(Access = protected)%proteced 
@@ -99,6 +166,8 @@ classdef CleanDataModule < handle
         filled = fillDataPlugIns(obj, workingTable);
         
         getStructLastRow(obj);
+        
+        fieldNameCheck(obj);
         
         %------------------------------------------------------
         %callable methods -------------------------------------

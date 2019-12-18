@@ -1,7 +1,7 @@
 # CleanDataModule Document
 
 ``` 
-version: 0.1 beta
+version: 0.3
 compatible with: MATLAB R2018a+
 ```
 ## current structure
@@ -20,19 +20,48 @@ compatible with: MATLAB R2018a+
                  __ /Methods/utils
                 |__ parseStringToStructPath
                 |__ jsonDecoder
+                |__ fillDataPlugIns
+                |__ getStrcutLastRow
+                |__ saveResult
+                
+                 __ /Methods/getSetPlot
+                |__ getResult
+                |__ getOHLC
+                |__ getStockScreenMatrix
+                |__ setRawSTR
+                |__ plotNumTradeableStock
                 
                  __ /configFiles
                 |__ tableNamesToSelect.json
                 |__ tradeableStocksSelectionCriteria.json
 ```
+## updates
+更新0.3
 
-## proposed changes
+    预期时间：4pm,Dec.16/2019
+    预计更新模块：CleanDataModule
+    预计更新时间不晚于Dec.16/2019,4pm
+    更新功能：
+    - 重新抛出清洗数据warning
+    - 抛出每日selection record，存进cleanedData文件夹，记录为selectionRuleResult_YYYYmmdd.mat矩阵
+    - 补充额外的util函数，主要红能为实现快速过滤，将selectionRuleResult_YYYYmmdd.mat（必须指定该变量,否则默认为系统当日日期定义的该变量）作为mask作用与所有计算矩阵上，指定mask返回inf，计算时将所有inf使用find(~isinf(row))抛弃(没有加入)
+    — 存储数据模块嵌入
+    
+    
 
+## quick start
 
+example ```./examples```
+
+sample data ```./examples/getDataToUse.txt```
 
 ## configuration
 
+```./cleanDataConfig```
+
 ### specify who to work with
+
+
 
 文件名（constant properties）:
 tableNamesToSelect.json
@@ -78,3 +107,9 @@ minUpdateRows: 对noToleranceRollingSize取最小值，在这个区间内，检�
 最多连续累计无效数据点量：在每次回顾时间区间中，如果一个股票要在now被认为是可交易的，他所能积累的连续无效数据点量上限。
 
 无容忍数据区间长度：在每次回顾的时间区间中，如果一个股票要在now被认为是可交易的，他必须在无容忍数据区间长度中不存在任何无效数据点。
+
+
+### specify how to fill data
+
+文件名（constant properties）: 
+fillDataMathod.json

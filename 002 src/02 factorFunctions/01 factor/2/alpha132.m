@@ -25,7 +25,7 @@ function [X, offsetSize] = alpha132(alphaPara)
 end
 
 function [exposure, offsetSize] = getAlpha(amount)
-    exposure = movmean(amount,[20 ],1)
+    exposure = movmean(amount,[20 ],1);
     offsetSize = 20;
 end
 

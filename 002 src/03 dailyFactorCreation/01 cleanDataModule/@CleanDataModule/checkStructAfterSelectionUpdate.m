@@ -45,6 +45,9 @@ function checkSummary = checkStructAfterSelectionUpdate(obj)
         
         if sum(sum(isnan(rollingSelectionArea(find(rollingSelectionCriteria==1)))))~=0
             %if unexpected nan found, call fill data method by default
+            nanTotalNumber = sum(sum(isnan(rollingSelectionArea(find(rollingSelectionCriteria==1)))));
+            warning("before filling, unexpected nans still exist, %s nans in total, clean of data: %s continues!",num2str(nanTotalNumber), fNs{count});
+            
             rollingSelectionArea = obj.fillDataPlugIns(rollingSelectionArea);
             
             % check again
