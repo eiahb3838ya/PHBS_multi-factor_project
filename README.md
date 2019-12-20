@@ -25,7 +25,6 @@ View the book with "<i class="fa fa-book fa-fw"></i> Book Mode".
 [Dec.6/2019](#dicussion-logDec62019)
 [Dec.9&11/2019](#dicussion-logDec112019)
 
-
 ---
 
 
@@ -52,7 +51,6 @@ ddl**Dec.6,8am**
 - Prof.Chen: 極端值處理函數、標準化函數
 - Yuting.F: Pass CFA test 、請大家吃飯
 - Zhangjie L.:清洗数据(你要加油了哈哈)
-
 
 ---
 
@@ -186,24 +184,24 @@ ddl**Dec.6,8am**
 
 
     2.4.模块类封装
-
+    
     **class: @CleanDataModule**
     ```
     input = structData, structParams
-
+    
     structParams -- settingClean01         |-- maxConsecutiveInvalidLength
                                            |-- maxConsecutiveRollingSize
                                            |-- maxCumulativeInvalidLength     
                                            |-- maxCumulativeRollingSize
                                            |-- noToleranceRollingSize
                                            |-- flag
-
+    
                  -- settingRefer01Table    |-- table1's relative location   
                                            |-- table2's relative location 
-
+    
                  -- settingValidIndicator  |-- table1's valid data indicator
                                            |-- table2's valid data indicator
-
+    
     ```
 
 ### dicussion log(Dec.11/2019)
@@ -271,7 +269,6 @@ document in 002 src/03 dailyFactorCreation/02 alphaFactoryModule
     
     如此得到一个 $IC$ 序列，我们希望找到一个在这样的d位移情况下一直有效的因子，即 $IC$ 值总能显著的大于0或者小于0.
     
-    
 5. 构建数据存储结构和整理文档格式
 
     ```
@@ -290,6 +287,7 @@ document in 002 src/03 dailyFactorCreation/02 alphaFactoryModule
     预计更新模块：CleanDataModule
     预计更新时间不晚于Dec.16/2019,4pm
     更新功能：
+    
     - 重新抛出清洗数据warning
     - 抛出每日selection record，存进cleanedData文件夹，记录为selectionRuleResult_YYYYmmdd.mat矩阵
     - 补充额外的util函数，主要红能为实现快速过滤，将selectionRuleResult_YYYYmmdd.mat（必须指定该变量,否则默认为系统当日日期定义的该变量）作为mask作用与所有计算矩阵上，指定mask返回inf，计算时将所有inf使用find(~isinf(row))抛弃
@@ -434,7 +432,7 @@ Xindustry是申万一级行业。一共是34个行业。
 
 Xstyle根据barra的风险因子选取9大类，目前因子分为Beta，动量，规模，盈利性，波动性，成长性，价值，杠杆率，流动性这９大类。Xstyle因子的每个大类参照Barra_CNE5里，每个大类下小类因子可以进行合成，得到9个Style因子。
 
-**step2**:计算回归系数矩阵的时候，用分块矩阵的办法 beta=(X’X)^-1(X’Y),X是稀疏矩阵
+**step2**:计算回归系数矩阵的时候，用分块矩阵的办法 $\beta=(X’X)^{-1}(X’Y)$,X是稀疏矩阵
 e.g.
 $$\begin{bmatrix}y_{1,1}\\y_{1,2}\\...\\y_{1,n_1}\\ y_{2,1}\\...\\y_{2,n_2}\end{bmatrix} = \begin{bmatrix}X1&0\\0&X2\end{bmatrix}\begin{bmatrix}\beta_1 \\ \beta_2 \end{bmatrix} + \epsilon$$
 

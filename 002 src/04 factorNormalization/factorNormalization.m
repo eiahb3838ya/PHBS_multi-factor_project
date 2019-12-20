@@ -1,4 +1,4 @@
-classdef factorNormalization < handle
+classdef FactorNormalization < handle
     properties
         factorCube
         processedFactor
@@ -56,7 +56,7 @@ classdef factorNormalization < handle
     end
     
     methods
-        function obj = factorNormalization(factorCube)
+        function obj = FactorNormalization(factorCube)
             obj.factorCube = factorCube;
         end
         
