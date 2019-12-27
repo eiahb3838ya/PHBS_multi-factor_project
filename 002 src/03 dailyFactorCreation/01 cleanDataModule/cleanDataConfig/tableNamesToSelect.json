@@ -4,6 +4,7 @@
     "stock.properties.low":[],
     "stock.properties.open":[],
     "stock.properties.amount":[],
+    "stock.properties.volume":[],
     "stock.properties.PETTM":[],
     "stock.properties.PE":[],
     "stock.totalReturn":[],
