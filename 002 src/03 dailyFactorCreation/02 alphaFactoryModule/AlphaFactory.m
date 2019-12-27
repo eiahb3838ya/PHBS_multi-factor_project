@@ -63,11 +63,11 @@ classdef AlphaFactory < handle
             
     end
     methods
-        function obj = AlphaFactory(rawData, cleanDataPlz, cleanedData, paraJsonDir)
+        function obj = AlphaFactory(rawData, paraJsonDir, cleanedData)
             obj.rawData = rawData;
             
             %    default paraJsonDir is "testParamStruct.json"
-            if nargin>3
+            if nargin>1
                 obj.paraJsonDir = paraJsonDir;
             else
                 obj.paraJsonDir = "testParamStruct.json";
@@ -82,10 +82,11 @@ classdef AlphaFactory < handle
             end
             
             %    clean data from rawdata
-            if cleanDataPlz
-                obj.cleanedData = obj.getCleanedData(obj.rawData);
-            else
+            if nargin > 2
                 obj.cleanedData = cleanedData;
+            else
+                obj.cleanedData = obj.getCleanedData(obj.rawData);
+                
             end
         end
        
@@ -222,17 +223,22 @@ classdef AlphaFactory < handle
             else
             %    save as 3 dim mat
                 exposure = [];
-                alphaNameList = [];
+                alphaNameList = {};
+
+                %alphaNameList = [];
                 for k=1:length(targetAlphas)
                     alphaName=targetAlphas{k};
                     disp("start process:"+ alphaName);
+                    disp(size(exposure,3));
                     try
                         exposure = cat(3,exposure,obj.getAlphaHistory(alphaName));
-                        alphaNameList = [alphaNameList, alphaName];
+                        alphaNameList{end+1} = alphaName;
+                        %alphaNameList = [alphaNameList alphaName];
                         disp("success")
                     catch
                         disp("fail")
                     end
+                    disp(size(exposure,3));
                 end
                 matobj.('exposure') = exposure;
                 matobj.('alphaNameList') = alphaNameList;
