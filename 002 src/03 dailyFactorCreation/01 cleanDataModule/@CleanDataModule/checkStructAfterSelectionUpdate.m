@@ -1,4 +1,4 @@
-function checkSummary = checkStructAfterSelectionUpdate(obj)
+function checkSummary = checkStructAfterSelectionUpdate(obj, forceNotUsedDataToNan)
 %CHECKSTRUCTAFTERSELECTION use selection record to check preSelectedStruct
 %   print nan report and call fillData method according to configuration
 %NOTE: in this method, the method will look back to the maximum
@@ -58,9 +58,11 @@ function checkSummary = checkStructAfterSelectionUpdate(obj)
             end
         end
         
-        rollingSelectionArea(find(rollingSelectionCriteria==0)) = nan; %nan means don't use
-        currentWorkingTable(dataRowStartIndx:end,:) = rollingSelectionArea;
-        currentWorkingTable(1:dataRowStartIndx - 1,:) = nan; %nan means don't use
+        if forceNotUsedDataToNan
+            rollingSelectionArea(find(rollingSelectionCriteria==0)) = nan; %nan means don't use
+            currentWorkingTable(dataRowStartIndx:end,:) = rollingSelectionArea;
+            currentWorkingTable(1:dataRowStartIndx - 1,:) = nan; %nan means don't use
+        end
         obj.selectedStruct.(fNs{count}) = currentWorkingTable;
     end
     
