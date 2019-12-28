@@ -3,7 +3,7 @@ try
 catch
     disp('load data')
     load('projectData.mat');
-    Klass = AlphaFactory(projectData);
+    Klass = AlphaFactory(projectData, 1, []);
 end
     
 

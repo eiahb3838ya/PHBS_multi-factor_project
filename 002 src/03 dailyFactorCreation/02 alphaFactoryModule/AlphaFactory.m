@@ -235,7 +235,12 @@ classdef AlphaFactory < handle
                         alphaNameList{end+1} = alphaName;
                         %alphaNameList = [alphaNameList alphaName];
                         disp("success")
-                    catch
+                    catch ErrorInfo
+                        disp(ErrorInfo);  
+                        disp(ErrorInfo.identifier);  
+                        disp(ErrorInfo.message);  
+                        disp(ErrorInfo.stack);  
+                        disp(ErrorInfo.cause);
                         disp("fail")
                     end
                     disp(size(exposure,3));

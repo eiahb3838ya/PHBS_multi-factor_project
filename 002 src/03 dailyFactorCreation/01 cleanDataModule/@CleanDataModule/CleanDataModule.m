@@ -22,20 +22,6 @@ classdef CleanDataModule < handle
         defaultFillDataMethod = 'fillDataMethod.json';
     end
     
-    methods(Static)
-        function S = getStructSlice(STR, rowIndxToStartSlice)
-            fNs = fieldnames(STR);
-            for count = 1:length(fNs)
-                currentTable = STR.(fNs{count});
-                try
-                    S.(fNs{count}) = currentTable(rowIndxToStartSlice:end,:);
-                catch
-                    disp([fNs{count}, " doesn't have sufficient observations!"]);
-                    continue;
-                end
-            end
-        end
-    end
     
     methods(Access = public)
         % constructor here
@@ -84,17 +70,16 @@ classdef CleanDataModule < handle
                     error 'read struct error!';
                 end
             else
-                disp('NOT DETECT EFFECTIVE INPUT OF RAW DATA, INIT WITH EMPTY RAW DATA');
-                obj.rawStruct = [];
+                error 'invalid struct name or struct not in path';
             end
             
         end
         
         % run update one-time
-        runUpdate(obj, warningSwitch, forceNotUsedDataToNan);
+        runUpdate(obj, warningSwitch);
         
         % run update for history
-        runHistory(obj, warningSwitch, forceNotUsedDataToNan);
+        runHistory(obj, warningSwitch);
         
         % get result
         function outS = getResult(obj)
@@ -168,41 +153,6 @@ classdef CleanDataModule < handle
                 error 'error in saving data';
             end
         end
-        
-        % check nans
-        function S = reportNanExistence(obj, verbose)
-            % REPORTNANEXISTENCE stockScreenMatrix is of same size with
-            % table prior to slicing.
-            STR = obj.selectedStruct;
-            stockScreenMatrix = obj.selectionRecord;
-            startScreenRowIndx = obj.updateRows;
-            
-            structSlice = obj.getStructSlice(STR, startScreenRowIndx);
-            try
-                stockScreenMatrixSlice = stockScreenMatrix(startScreenRowIndx:end,:);
-            catch
-                error("invalid stock screen matrix, not have sufficient observations");
-            end
-            
-            %apply stockScreen slice as a mask on struct slice, check nans
-            if verbose
-                fNs = fieldnames(structSlice);
-                for count = 1:length(fNs)
-                    currentTable = structSlice.(fNs{count});
-                    nanCurrent = sum(sum(isnan(currentTable(find(stockScreenMatrixSlice == 1)))));
-                    S.(fNs{count}) = nanCurrent;
-                end
-            else
-                S = 0;
-                fNs = fieldnames(structSlice);
-                for count = 1:length(fNs)
-                    currentTable = structSlice.(fNs{count});
-                    nanCurrent = sum(sum(isnan(currentTable(find(stockScreenMatrixSlice == 1)))));
-                    S = S + (nanCurrent~=0);
-                end
-            end
-        end
-        
     end
     
     methods(Access = protected)%proteced 
@@ -230,9 +180,9 @@ classdef CleanDataModule < handle
         
         structMatrix = getStructToCleanHistory(obj); %checked,Elapsed time is 0.008368 seconds.
         
-        checkSummary = checkStructAfterSelectionUpdate(obj, forceNotUsedDataToNan);
+        checkSummary = checkStructAfterSelectionUpdate(obj);
         
-        checkSummary = checkStructAfterSelectionHistory(obj, forceNotUsedDataToNan);
+        checkSummary = checkStructAfterSelectionHistory(obj);
         
     end
 end
