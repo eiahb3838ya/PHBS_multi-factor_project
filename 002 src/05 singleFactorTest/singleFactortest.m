@@ -27,7 +27,11 @@ classdef singleFactortest < handle
         function obj = singleFactortest(processedAlphas, processedClose, startTime,ICpredictDays,ICmode)
             %constructor
             obj.processedAlphas = processedAlphas;
-            obj.processedClose = processedClose;
+            if nargin >1
+                obj.processedClose = processedClose;
+            else
+                obj.processedClose = load('cleanedData_stock_20191217.mat');
+            end
             
             if nargin >2
                 obj.startTime = startTime;
@@ -58,7 +62,7 @@ classdef singleFactortest < handle
             %Normal IC:IC mode ==0
             if obj.ICmode == 0
                 for i =  1: obj.startTime - obj.ICpredictDays
-                    BigMatrix = [getAlpha(i,:);obj.returnClose(i + obj.ICpredictDays,:)]
+                    BigMatrix = [getAlpha(i,:);obj.returnClose(i + obj.ICpredictDays,:)];
                     BigMatrix = rmmissing(BigMatrix,2);
                     corrMatrix = corrcoef(BigMatrix(1,:),BigMatrix(2,:));
                     IC(i) = corrMatrix(1,2);
@@ -67,7 +71,7 @@ classdef singleFactortest < handle
                 %rank IC:IC mode ==1
             else obj.ICmode == 1
                 for i =  1: obj.startTime - obj.ICpredictDays
-                    BigMatrix = [getAlpha(i,:);obj.returnClose(i + obj.ICpredictDays,:)]
+                    BigMatrix = [getAlpha(i,:);obj.returnClose(i + obj.ICpredictDays,:)];
                     BigMatrix = rmmissing(BigMatrix,2);
                     [~,Alpharank] = sort(BigMatrix(1,:));
                     [~,Returnrank] = sort(BigMatrix(2,:));
@@ -82,7 +86,7 @@ classdef singleFactortest < handle
         function ICTable = calAllFactorIC(obj)
             [~,~,alphaCount] = size(obj.processedAlphas);
             for j = 1: alphaCount
-                ICTable(j,:) = ICValue(obj,obj.processedAlphas(:,:,j),obj.ICpredictDays,obj.ICmode)
+                ICTable(j,:) = ICValue(obj,obj.processedAlphas(:,:,j),obj.ICpredictDays,obj.ICmode);
             end
         end
         
@@ -92,7 +96,7 @@ classdef singleFactortest < handle
             
             for i = 1: alphaCount
                 pic = figure(); %'visible','off'
-                IC = ICTable(i,:)
+                IC = ICTable(i,:);
                 plot(movmean(IC,5));
                 xlabel('startTime');
                 
