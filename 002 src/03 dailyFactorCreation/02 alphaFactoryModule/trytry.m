@@ -1,9 +1,9 @@
 try 
-    Klass = AlphaFactory(projectData, 0, filledCells);
+    Klass = AlphaFactory(projectData,'testParamStruct.json', cleanedData);
 catch
     disp('load data')
     load('projectData.mat');
-    Klass = AlphaFactory(projectData, 1, []);
+    Klass = AlphaFactory(projectData);
 end
     
 
