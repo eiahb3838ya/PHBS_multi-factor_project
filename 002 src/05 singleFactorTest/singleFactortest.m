@@ -1,4 +1,4 @@
-classdef singleFactortest < handle
+classdef singleFactorTest < handle
     properties
         %private
         %cube
@@ -24,7 +24,7 @@ classdef singleFactortest < handle
     end
     
     methods
-        function obj = singleFactortest(processedAlphas, processedClose, startTime,ICpredictDays,ICmode)
+        function obj = singleFactorTest(processedAlphas, processedClose, startTime,ICpredictDays,ICmode)
             %constructor
             obj.processedAlphas = processedAlphas;
             if nargin >1
@@ -79,7 +79,7 @@ classdef singleFactortest < handle
                     IC(i) = corrMatrix(1,2);
                 end
             end
-            disp("cal IC")
+            %disp("cal IC")
         end
         
         %Calculate AllFactor(number = m) IC and the result is a ICTable (m * starttime)
@@ -119,20 +119,106 @@ classdef singleFactortest < handle
         end
         
         %cumFactorReturnPlot
-        function factorReturn = calFactorReturn(obj,alphaTable)
+        function [factorReturn,tValue] = calFactorReturn(obj,alphaTable)
             getAlpha = alphaTable(end-obj.startTime +1:end,:);
-            [m,~] = size(getAlpha);     
+            [m,~] = size(getAlpha);
             for i = 1:m-1
                 BigMatrix = [getAlpha(i,:);obj.returnClose(i+1,:)];
                 BigMatrix = rmmissing(BigMatrix,2);
                 factorReturn(i) = regress((BigMatrix(2,:))',(BigMatrix(1,:))');
+                factorRegTvalue= regstats((BigMatrix(2,:))',(BigMatrix(1,:))','linear','tstat');
+                tValue(i) = factorRegTvalue.tstat.t(2);
             end
-            disp("cal factor Return")
+            %disp("cal factor Return")
+        end
+        
+        function summary = statTest(obj,alphaTable)
+            [~,tValue] = calFactorReturn(obj,alphaTable);
+            %t Signaficance
+            %H0: mean(|t_{f_k}(T)|)=0
+            summary.tSignaficance(1) = absMeanTest(tValue,10000);
+            
+            %t Stationarity
+            % mode 1: H0:|t| > 2
+            threshold = 0.5;  %over threshold=0.5, |t|>2  Stationary
+            ratio = sum(abs(tValue)>2)/sum(length(tValue));
+            if ratio > threshold
+                summary.tStationarity(1) =1;
+            else summary.tStationarity(1) =0;
+            end
+            
+            % mode 2: ADF test
+            % H0: the series is not stationary.
+            summary.tStationarity(2) = ADFTest(abs(tValue));
+            
+            %f_k Signaficance
+            % mode 1:test f_k t statistics  H0:mean(f_k) = 0
+            [h,p,ci,stats] = ttest(obj.factorReturn);
+            if p < 0.05
+                summary.fkSignaficance(1) = 1;
+            else summary.fkSignaficance(1) = 0;
+            end
+            % mode 2: H0:|mean(f_k)| = 0
+            summary.fkSignaficance(2) = absMeanTest(abs(obj.factorReturn),10000);
+            
+            %f_k Stationarity
+            % mode1:std(f_k) = 0
+            summary.fkStationarity(1) = stdTest(obj.factorReturn,10000,0.02);
+            % mode2:ADF test
+            summary.fkStationarity(2) = ADFTest(obj.factorReturn);
+            
+            IC = ICValue(obj,alphaTable);
+            % IC Signaficance
+            % mode1: H0:mean(IC) = 0
+            [h,p,ci,stats] = ttest(IC);
+            if p < 0.05
+                summary.ICSignaficance(1) = 1;
+            else summary.ICSignaficance(2) = 0;
+            end
+            
+            % mode2: H0:|mean(IC)| = 0
+            summary.ICSignaficance(2) = absMeanTest(IC,10000);
+            
+            %IC Stationarity
+            %mode1:std(IC) = 0
+            [h,p] = vartest(IC,0,'Tail','right');
+            if p < 0.05
+                summary.ICStationarity(1) =1;
+            else summary.ICStationarity(1) =0;
+            end
+            
+            %mode2: ADF test
+            summary.ICStationarity(2) = ADFTest(IC);
+            
+            %mode3: IC > 0 or IC <0
+            if sum(IC >0) == length(IC) || sum(IC <0) == length(IC);
+                summary.ICStationarity(3) =1;
+            else summary.ICStationarity(3) =0;
+            end
+            summary.totalNumber = sumsummary(summary);
+        end
+        
+        function allAlphaStatResult = sumAlphaStatResult(obj)
+            [~,~,alphaCount] = size(obj.processedAlphas);
+            for j = 1: alphaCount
+                allAlphaStatResult(j) = statTest(obj,obj.processedAlphas(:,:,j));
+            end
+        end
+        
+        function saveResult = saveAllAlphaStatResult(obj)
+            AlphaStatResult = sumAlphaStatResult(obj);
+            dt = datestr(now,'yyyymmdd');
+            filepath = pwd;
+            cd('/Users/mac/Documents/local_PHBS_multi-factor_project/002 src/05 singleFactorTest/singleFactorReturn_testResult');
+            savePath = strcat('SingleAlphaTest_result_',dt,'.mat'); % 拼接路径和文件名
+            save(savePath,'AlphaStatResult'); % 保存变量val1,val2到1_result.mat中
+            %eval(['save','resultStruct',dt])
+            cd(filepath);
         end
         
         function cumFactorReturn = calCumFactorReturn(obj,alphaTable)
-            factorReturn = calFactorReturn(obj,alphaTable);
-            cumFactorReturn = cumprod(factorReturn + 1) /(1+factorReturn(1));
+            [factorReturn,~] = calFactorReturn(obj,alphaTable)
+            cumFactorReturn = cumprod(factorReturn + 1) /(1+ factorReturn(1));
         end
         
         function cumFactorReturnTable = calAllCumFactorReturn(obj)
@@ -141,7 +227,7 @@ classdef singleFactortest < handle
                 cumFactorReturnTable(j,:) = calCumFactorReturn(obj,obj.processedAlphas(:,:,j));
             end
         end
-        
+           
         function plotAllCumFactorReturn(obj)
             cumFactorReturnTable = calAllCumFactorReturn(obj);
             [~,~,alphaCount] = size(obj.processedAlphas);
