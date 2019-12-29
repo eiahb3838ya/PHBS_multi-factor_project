@@ -56,7 +56,7 @@ C4---D9[PE_TTM]
 
 Figure 3. the structure of the data struct
 
-## 3. BARRA model
+## 3. BARRA Model
 
 The BARRA multi-factor model is one of the two commonly used multi-factor models, providing countless new alpha factors with different patterns, giving remarkable annual returns for daily investments (T+1, trade based on yesterday's data).
 
@@ -86,11 +86,11 @@ For all the factors that pass the single factor test, we conduct a multi-factor 
 
 At last, for every $t$, we use these alpha factors to estimate the stock returns the next few days. Then we can establish the portfolio with good performances.
 
-## 3. Project framework
+## 3. Project Framework
 
 We use MATLAB as the data processing language and divide the project into several modules, as listed as follows.
 
-1. **Setting the configuration file**
+1. **Setting the Configuration File**
 
    In this project, we implement 30 alpha factors, 34 industry factors and 10 style factors, each of which demands different market information. Therefore, we need to set a JSON configuration file to only call the information the factor needs every time instead of loading the whole dataset to process the data more efficiently.
 
@@ -113,7 +113,7 @@ We use MATLAB as the data processing language and divide the project into severa
    
    Figure 4. Contents and format of "config.json" (part)
    
-2. **Writing the alpha factor functions**
+2. **Writing the Alpha Factor Functions**
 
    We choose to make the framework suitable for all circumstances, so it should be able to process the two situations - receiving data of a single date and calculating the factor exposures and returns of that day or receiving data of a certain period of time and calculating the exposures and returns throughout the period. Hence, we set the format of the factor functions as follows.
 
@@ -158,7 +158,7 @@ We use MATLAB as the data processing language and divide the project into severa
    
    All the information the factor needs will be stored in the struct alphaPara so that when following procedures call the factor, the function will first load the corresponding information and catch errors if the information is not found. There is a specific indicator in alphaPara which is the updateFlag. It is a boolean value that leads the function to either call the sub-function to perform the daily calculation or the calculation of a period.
    
-3. **Cleaning the data**
+3. **Cleaning the Data**
 
    The dataset contains the following data.
 
@@ -197,11 +197,11 @@ We use MATLAB as the data processing language and divide the project into severa
    
    This module contains several steps.
    
-4. **Alpha factory**
+4. **Alpha Factory**
 
    This module calculate all the factor exposures in batches using the cleaned data from the latter phase.
 
-5. **Normalizing exposures**
+5. **Normalizing Exposures**
 
    **a.** This module receives alpha loadings from the latter phase, which is a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors.
 
@@ -251,7 +251,7 @@ We use MATLAB as the data processing language and divide the project into severa
      - kurtosisMatrix: the all-time kurtosis of the distribution for all factors;
      - date.fig: the histogram of the normFactor distribution on all dates.
 
-6. **Single factor testing**
+6. **Single Factor Testing**
 
    **a.**This phase uses the normalized factor exposures to run regression to acquire each factor return and test whether they are significantly effective and stable. 
 
@@ -317,11 +317,11 @@ We use MATLAB as the data processing language and divide the project into severa
      - singleFactorReturn_ICplot
      - singleFactorReturn_cumFactorReturnPlot
 
-7. **Multi-factor testing**
+7. **Multi-Factor Testing**
 
    This module tests all the factors that pass the single factor test to eliminate collinearity and estimate future returns to determine the portfolio.
 
-8. **Framework structure**
+8. **Framework Structure**
 
    As introduced above, the whole structure of the framework is
 
@@ -335,7 +335,7 @@ We use MATLAB as the data processing language and divide the project into severa
    ```
    
 
-## 4. Time line
+## 4. Time Line
 
 29 November    Practice MATLAB;
 
@@ -363,7 +363,7 @@ We use MATLAB as the data processing language and divide the project into severa
 
 ​							Write the whole single factor test framework and debug.
 
-## 5. A few thoughts
+## 5. A Few Thoughts
 
 Conducting a complete framework for multi-factor models seems to be a basic work. Considering to make it applicable in as many circumstances as possible, however, makes it a systematic engineering to require developers to structure and restructure again and again to meet the demands.
 
@@ -380,8 +380,42 @@ In this project, we take into consideration these aspects:
 Nevertheless, due to limited time, there are still aspects yet to explore, which can be considered as a future perspective of this project. Below are some of the interesting things we can look into.
 
 - Rule of synthesis and reserve: What is the rule to solve two high correlated factors? And why?
+
 - How to create new alpha factors: The BARRA factors are all quantitative factors hard to find economic explanations. So, how to create reasonable factors? And how to explain their effectiveness?
+
 - Back test of grouping layers: Though, unlike Fama-French model,  it is unnecessary for BARRA models to implement this, it may still be helpful in determining the effectiveness of alpha factors on different group of stocks. Then, how many groups should we divide the stocks into? How to divide? What should we do to abnormal stocks?
-- How to combine with machine learning: There are many modules of this project that can consider implementing machine learning. The grouping in the back test can be connected with machine learning classification and clustering. Moreover, the establishment of new alpha factors can also be achieved through this method. Hence, what models of machine learning can be applied? Which features are important? How to reach a better fine-tuning?
+
+- How to combine with machine learning: There are many modules of this project that can consider implementing machine learning. The grouping in the back test can be connected with machine learning in both supervised and unsupervised classification and clustering. The grouping function has taken into consideration many circumstances, but how to set interfaces for machine learning method is still yet to develop.
+
+  ```
+  function groupedCube = grouping(factorCube, mktSize, groupRule)
+  % GROUPING returns the Cube of the rank for stocks under the scoring points
+  %   of each factor under certain rules.
+  % factorCube is the raw m x n x l cube with its first dimension as dates, 
+  %   second dimension as stocks and third dimension as factors.
+  % mktSize is a m x n matrix with its first dimension as dates and second dimension
+  %   as stocks, the values in it are the sizes of companies on different dates.
+  % groupRule is a struct with rules for the grouping.
+  % groupRule.delOpt = {method, value}, default = {'percent', 0.3} is a cell
+  %   if method is 'percent', then value should be in [0, 1] as the
+  %       percentage of the smallest sizes that we drop;
+  %   if method is 'threshold', then value should be the threshold if the
+  %       sizes of the stock is smaller than which then we drop;
+  % groupRule.bracket = {nLayer, method}, default = {5, {'quantile', [0.2, 
+  % 0.2, 0.2, 0.2, 0.2]}} is a cell
+  %   nLayer is the number of layers we need to group into;
+  %   method is a cell to determine the method for grouping
+  %       if method{1} is 'quantile', method{2} inputs the percent of each
+  %           group;
+  %       if method{1} is 'threshold', method{2} inputs the thresholds for
+  %           each group;
+  % groupRule.reserveOpt = 0/1, default is 0 is a boolean
+  %   0 means stocks with NaN value will not be considered in the grouping;
+  %   1 means stocks with NaN value will be considered in the grouping.
+  ```
+  
+  Figure 5. Settings for the grouping function
+  
+  Moreover, the establishment of new alpha factors can also be achieved through this method. Hence, what models of machine learning can be applied? Which features are important? How to reach a better fine-tuning?
 
 What we have seen in this project is an even larger world of unknown for us, and these thoughts are precious because they give us directions.
