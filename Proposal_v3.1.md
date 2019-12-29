@@ -253,7 +253,69 @@ We use MATLAB as the data processing language and divide the project into severa
 
 6. **Single factor testing**
 
-   This module uses the normalized factor exposures to run regression to acquire the stock returns of each factor and test whether they are significantly effective and stable.
+   **a.**This phase uses the normalized factor exposures to run regression to acquire each factor return and test whether they are significantly effective and stable. 
+
+   **b.**This module's process contains three steps:
+
+   - run regression to acquire the factor return
+
+     $r_k^{t+1}=f_{industry}^{(t)}X_{industry}^{(t)}+f_{style}^{(t)}X_{style}^{(t)}+f_{factorReturn}^{(t)}\varepsilon_k^{(t)},k=1,2,...,N$
+
+   - test the factor return
+
+     For each t, the alpha k has its unique $f_k$. For a given period of time, we can get time series of $f_k$. To test the validity of factors, each factor need to pass a series of statistical tests.
+
+     1.Test the  t-statistics of the regression : test the significance and stability of factor return‘ coefficient in regression.
+
+     - t Signaficance
+
+     ​	$H0: mean(|t_{f_k}(T)|)=0$
+
+     - t Stationarity
+
+     ​	$H0:|t| > 2$   or $ADF test$: H0: the series is not stationary.
+
+     2.Test the $f_k$ factor return : test the significance and stability of the return series of factors
+
+     - $f_k$ Significance
+
+     ​	$H0:mean(f_k) = 0$ or $H0:|mean(f_k)| = 0$
+
+     - $f_k$ Stationarity
+
+     ​	$std(f_k) = 0$ or $ADF test$
+
+     3.Test the the IC: test the significance and stability of factors to the future expectation ability
+
+     First calculate the IC series and then do the test.
+
+     - IC Significance
+
+     ​	$H0:mean(IC) = 0$ or $H0:|mean(IC)| = 0$
+
+     - IC Stationary
+
+        $std(IC) = 0$ or $ADF test$
+
+     After one factor done over the below test, we can get a summary result of this factor. After whole factors done over the statistics test, we can save the whole result as a struct.
+
+   -  plot IC and plot cum-product factor return
+
+     plot the IC of all the factors and plot the compared factor return to see the contribution of a certain factor in this period of time. 
+
+   **c.**Class: singleFactorTest
+
+   - Variable
+  - factorCube, a three dimensional matrix, with its first dimension as dates, second dimension as stocks and third dimension as factors after Normalizing  and Orthogonalizing process in the last step.
+     - styleFactorCube, the same as last step.
+     - industryFactorMatrix, the same as last step.
+     - processedCloseMatrix, a two dimensional matrix, with its first dimension as dates, second dimension as stocksClosePrice.
+   - Return
+     - Return statistics test result of each factor as a struct and return each factor's ICplot, cumFactorReturnPlot as fig. The number of fig is the same as the location tag of factors.
+   - Save
+     - singleFactorReturn_testResult
+     - singleFactorReturn_ICplot
+     - singleFactorReturn_cumFactorReturnPlot
 
 7. **Multi-factor testing**
 
@@ -270,7 +332,6 @@ We use MATLAB as the data processing language and divide the project into severa
          |_ 03 factorExposure
          |_ 04 factorNormalization
          |_ 05 singleFactorTest
-         |_ 06 singleFactorReturn
    ```
    
 
@@ -288,7 +349,7 @@ We use MATLAB as the data processing language and divide the project into severa
 
 ​						    Write industry factors and data cleaning module;
 
-​							Write style factors: market $\beta$, momentum, volatility, CMRA, 							liquidity, size, E/P, DASTD;
+​							Write style factors: market $\beta$, momentum, volatility, CMRA, liquidity, size, E/P, DASTD;
 
 11 December    Alpha factory module;
 
