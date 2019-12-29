@@ -5,9 +5,10 @@ classdef FactorNormalization < handle
         orthedFactor
     end
     
+    
     methods(Static)
-        function processedFactor = getProcessedFactor(factorCube)           
-            [m1, ~, m3] = size(factorCube);
+        function normFactor = getProcessedFactor(factorCube)           
+            [m1, m2, m3] = size(factorCube);
             meanMatrix = zeros(m1, m3);
             medianMatrix = zeros(m1, m3);
             skewnessMatrix = zeros(m1, m3);
@@ -19,14 +20,13 @@ classdef FactorNormalization < handle
                 [normFactor(:, :, i), meanMatrix(:, i), medianMatrix(:, i), skewnessMatrix(:, i), kurtosisMatrix(:, i)] ...
                     = normalizeProcess(reshape(extremeFactor(:, :, i), m1, m2), i); 
             end
-            
-            processedFactor = normFactor;
-            save('normFactor', processedFactor);
-            save('meanMatrix', meanMatrix);
-            save('medianMatrix', medianMatrix);
-            save('skewnessMatrix', skewnessMatrix);
-            save('kurtosisMatrix', kurtosisMatrix);
+            save('normFactor', 'normFactor');
+            save('meanMatrix', 'meanMatrix');
+            save('medianMatrix', 'medianMatrix');
+            save('skewnessMatrix', 'skewnessMatrix');
+            save('kurtosisMatrix', 'kurtosisMatrix');
         end
+        
         
         function orthedFactor = getOrthFactor(factorCube, styleFactorCube, industryFactorCube)
             [l1, m1, n1] = size(factorCube);
@@ -55,6 +55,7 @@ classdef FactorNormalization < handle
         end
     end
     
+    
     methods
         function obj = FactorNormalization(factorCube)
             obj.factorCube = factorCube;
@@ -62,13 +63,18 @@ classdef FactorNormalization < handle
         
         function res = calculateNorm(obj)
             try
-                obj.processedFactor = getProcessedFactor(obj.factorCube);
+                obj.processedFactor = obj.getProcessedFactor(obj.factorCube);
                 res = 1;
-            catch
+            catch ErrorInfo
+                disp(ErrorInfo);  
+                disp(ErrorInfo.identifier);  
+                disp(ErrorInfo.message);  
+                
                 res =0;
                 return
             end                
         end
+        
         
         function res2 = calculateOrth(obj, styleFactorCube, industryFactorCube)
             try

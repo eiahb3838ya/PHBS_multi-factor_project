@@ -9,19 +9,33 @@ function processedFactor = extremeProcess(factorMatrix, paraStruct)
 % paraStruct.choice sets the DMad type of the formula, it has 2 choices
 %       |'mean'  | DMad will be the mean of the sequence |x - xMadian|
 %       |'median'| DMad will be the median of the sequence |x - xMadian|
+%     try
+%         n = paraStruct.n;
+%         choice = paraStruct.choice;
+%     catch
+%         error 'Parameter error';
+%     end
+    
     try
         n = paraStruct.n;
+    catch
+        n = 3;
+        disp('Using default n = 3.')
+    end
+    
+    try
         choice = paraStruct.choice;
     catch
-        error 'Parameter error';
+        choice = 'mean';
+        disp('Using default choice mean.')
     end
     
     processedFactor = factorMatrix;
     xMedian = median(processedFactor, 2, 'omitnan');
     lag = abs(processedFactor - xMedian);
-    if choice == "mean"
+    if strcmp(choice, 'mean')
         DMad = mean(lag, 2, 'omitnan');
-    elseif choice == "median"
+    elseif strcmp(choice, 'median')
         DMad = median(lag, 2, 'omitnan');
     else
         error 'Wrong choice';
