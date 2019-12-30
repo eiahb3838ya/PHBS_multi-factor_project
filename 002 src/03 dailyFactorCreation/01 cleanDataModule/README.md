@@ -1,7 +1,7 @@
 # CleanDataModule Document
 
 ``` 
-version: 0.3
+version: 0.4
 compatible with: MATLAB R2018a+
 ```
 ## current structure
@@ -38,16 +38,19 @@ compatible with: MATLAB R2018a+
 ## updates
 更新0.3
 
-    预期时间：4pm,Dec.16/2019
-    预计更新模块：CleanDataModule
-    预计更新时间不晚于Dec.16/2019,4pm
+    
     更新功能：
     - 重新抛出清洗数据warning
     - 抛出每日selection record，存进cleanedData文件夹，记录为selectionRuleResult_YYYYmmdd.mat矩阵
     - 补充额外的util函数，主要红能为实现快速过滤，将selectionRuleResult_YYYYmmdd.mat（必须指定该变量,否则默认为系统当日日期定义的该变量）作为mask作用与所有计算矩阵上，指定mask返回inf，计算时将所有inf使用find(~isinf(row))抛弃(没有加入)
     — 存储数据模块嵌入
     
+
+更新0.4
     
+    更新功能：
+    - 更新forceNotUsedDataToNan选择支
+    — 更新utils
 
 ## quick start
 
