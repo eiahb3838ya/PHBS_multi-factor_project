@@ -27,6 +27,7 @@ function cube = mat2CubeOneHotEncoding(mat, fillNan)
         % in case all nan in a column
         if sum(sum(isnan(mat)))~=0
             mat = fillmissing(mat,'constant',0);
+            nanFlag = 1;
         end
     end
     
@@ -39,6 +40,10 @@ function cube = mat2CubeOneHotEncoding(mat, fillNan)
     % loop over and do one-hot encoding
     for indx = 1:length(uniqueInMat)
         cube(:,:,indx) = mat == uniqueInMat(indx);
+    end
+    
+    if nanFlag == 1
+        cube(:,:,1) = [];
     end
 
 end
