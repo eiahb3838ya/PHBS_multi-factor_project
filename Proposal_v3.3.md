@@ -160,8 +160,83 @@ We use MATLAB as the data processing language and divide the project into severa
    
 3. **Cleaning the Data**
 
-   The dataset contains the following data.
+   ```CleanDataModule```  is a MATLAB class specially for transforming input data structure to ready-to-use data which can be processed by ```AlphaFactory``` or used separately.
 
+   The module should be deployed with its configuration(.json) files. Several minor changes can be applied to the clean data module, please refer to [Methods](####Methods) part.
+   
+   
+   
+   **CONTENTS**
+   
+   [General information](####General-information)
+   
+   [Configuration](####Configuration)
+   
+   [Methods](####Methods)
+   
+   
+   
+   #### General information
+   
+   **Can be** working with multiple matrices with SAME size, your input MUST contain:
+   
+   1. at least one dummy table as stock screen rule(if no rule, use a all ones table)
+   2. in configuration file, fieldnames 'A_B'  should be expressed as 'AB'
+   3. avoid same fieldnames under different keys if more than one of them are referred at the same time, e.g. DON'T use names like 'f1.f2.f3' and 'f1.f4.f3' at the same time, if you wanna clean 2 tables at the same time, please rename them as 'f1.f4.f4f3'(or other names that are convenient to you) in advance
+   
+   **Cannot ** work with matrices with INCONSISTENT size, if you would like to add table of different size, e.g. you wanna add a index return table(of size n by 1) to stock tables(all of size n by k), please add them manually
+   
+   
+   
+   **What is doing**
+   
+   Generally, according to stock screen rule, screen data locally(means, use rolling window to simulate situations on different days), check corresponding location's nan, fill data if necessary, return cleaned data and selection record(a 0-1 dummy table)
+   
+   
+   
+   #### Configuration
+   
+   ```./cleanDataConfig```
+   
+   
+   
+   #### Methods
+   
+   ```R
+   @CleanDataModule __ /Methods/majors
+                   |__ constructor
+                   |__ getStructToCleanUpdate
+                   |__ getStructToCleanHistory
+                   |__ getTradeableStockUpdate
+                   |__ getTradeableStockHistory
+                   |__ checkStructAfterSelectionUpdate
+                   |__ checkStructAfterSelectionHistory
+                   |__ runUpdate
+                   |__ runHistory
+                   
+                    __ /Methods/utils
+                   |__ parseStringToStructPath
+                   |__ jsonDecoder
+                   |__ fillDataPlugIns
+                   |__ getStrcutLastRow
+                   |__ saveResult
+                   
+                    __ /Methods/getSetPlot
+                   |__ getResult
+                   |__ getOHLC
+                   |__ getStockScreenMatrix
+                   |__ setRawSTR
+                   |__ plotNumTradeableStock
+                   
+                    __ /configFiles
+                   |__ tableNamesToSelect.json
+                   |__ tradeableStocksSelectionCriteria.json
+   ```
+   
+   
+   
+   The dataset contains the following data.
+   
    | Item                                          | Range                                       | Frequency |
    | --------------------------------------------- | ------------------------------------------- | --------- |
    | **alpha factors**                             |                                             |           |
