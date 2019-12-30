@@ -39,7 +39,7 @@ classdef FactorNormalization < handle
             % regression to get projected Y, with OLS method
             orthedFactor = zeros(l1, m1, n1);
             for i = 1: l1
-                X = reshape(existFactor(i, :, :), n2, m2);
+                X = reshape(existFactor(i, :, :), m2, n2);
                 for j = 1: n1
                     Y = reshape(factorCube(i, :, j), m1, 1);
                     beta = (X'* X)\(X'* Y); %one way to express inv(X'X)X'Y
@@ -51,7 +51,7 @@ classdef FactorNormalization < handle
                     orthedFactor(i, :, j) = Y - X * beta;
                 end
             end
-            save('orthedNormFactor', orthedFactor);
+            save('orthedNormFactor', 'orthedFactor');
         end
     end
     
@@ -78,10 +78,14 @@ classdef FactorNormalization < handle
         
         function res2 = calculateOrth(obj, styleFactorCube, industryFactorCube)
             try
-                obj.orthedFactor = getOrthFactor(obj.processedFactor, styleFactorCube, industryFactorCube);
+                obj.orthedFactor = obj.getOrthFactor(obj.processedFactor, styleFactorCube, industryFactorCube);
                 res2 = 1;
-            catch
-                res2 = 0;
+            catch ErrorInfo
+                disp(ErrorInfo);  
+                disp(ErrorInfo.identifier);  
+                disp(ErrorInfo.message);  
+                
+                res2 =0;
                 return
             end
         end
