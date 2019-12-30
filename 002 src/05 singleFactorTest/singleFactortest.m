@@ -3,7 +3,10 @@ classdef singleFactorTest < handle
         %private
         %cube
         processedAlphas;
-        
+        industryCube;
+        styleCube;
+        alphaNameList;
+                
         %mat
         processedClose;
         returnClose;
@@ -24,9 +27,13 @@ classdef singleFactorTest < handle
     end
     
     methods
-        function obj = singleFactorTest(processedAlphas, processedClose, startTime,ICpredictDays,ICmode)
+        function obj = singleFactorTest(processedAlphas, processedClose, startTime,ICpredictDays,ICmode,industryFactor,styleFactor, alphaNameList)
             %constructor
+            obj.alphaNameList = alphaNameList;
             obj.processedAlphas = processedAlphas;
+            obj.industryCube = industryFactor;
+            obj.styleCube = styleFactor;
+            
             if nargin >1
                 obj.processedClose = processedClose;
             else
@@ -49,8 +56,7 @@ classdef singleFactorTest < handle
                 obj.ICmode = ICmode;
             else
                 obj.ICmode = 1;
-            end
-            
+            end    
             obj.returnClose = obj.calRts(obj.processedClose, obj.startTime);
             disp("cal return close")
         end
@@ -113,27 +119,37 @@ classdef singleFactorTest < handle
                 dt = datestr(now,'yyyymmdd');
                 filepath = pwd;
                 cd('/Users/mac/Documents/local_PHBS_multi-factor_project/002 src/05 singleFactorTest/singleFactorReturn_ICplot');
-                savefig(pic, strcat('singleFactorPlot_',num2str(i),'_ICmode=',num2str(obj.ICmode),'_',dt,'.fig'));
+                savefig(pic, strcat('singleFactorPlot_',obj.alphaNameList{i},'_ICmode=',num2str(obj.ICmode),'_',dt,'.fig'));
                 cd(filepath);
             end
+        end
+        
+        function BigCubeSlice = catIndustryStyleCube(obj)
+            BigCube = cat(3,obj.industryCube, obj.styleCube);
+            BigCubeSlice = BigCube(end-obj.startTime +1:end,:,:);
         end
         
         %cumFactorReturnPlot
         function [factorReturn,tValue] = calFactorReturn(obj,alphaTable)
             getAlpha = alphaTable(end-obj.startTime +1:end,:);
             [m,~] = size(getAlpha);
+            BigCubeSlice = catIndustryStyleCube(obj);
             for i = 1:m-1
-                BigMatrix = [getAlpha(i,:);obj.returnClose(i+1,:)];
-                BigMatrix = rmmissing(BigMatrix,2);
-                factorReturn(i) = regress((BigMatrix(2,:))',(BigMatrix(1,:))');
-                factorRegTvalue= regstats((BigMatrix(2,:))',(BigMatrix(1,:))','linear','tstat');
+                ReshapeBigCubeSlice = BigCubeSlice(i,:,:);
+                reshapeBigCube = reshape(ReshapeBigCubeSlice,size(ReshapeBigCubeSlice,2),size(ReshapeBigCubeSlice,3),1);
+                BigMatrix =[reshapeBigCube,getAlpha(i,:)',obj.returnClose(i+1,:)'];
+                BigMatrix = rmmissing(BigMatrix,1);
+                
+                factorReturnAll = regress((BigMatrix(:,end)),(BigMatrix(:,1:end-1)));
+                factorReturn(i) = factorReturnAll(end);
+                factorRegTvalue= regstats((BigMatrix(:,end)),(BigMatrix(:,1:end-1)),'linear','tstat');
                 tValue(i) = factorRegTvalue.tstat.t(2);
             end
             %disp("cal factor Return")
         end
         
         function summary = statTest(obj,alphaTable)
-            [~,tValue] = calFactorReturn(obj,alphaTable);
+            [factorReturn,tValue] = calFactorReturn(obj,alphaTable);
             %t Signaficance
             %H0: mean(|t_{f_k}(T)|)=0
             summary.tSignaficance(1) = absMeanTest(tValue,10000);
@@ -159,13 +175,13 @@ classdef singleFactorTest < handle
             else summary.fkSignaficance(1) = 0;
             end
             % mode 2: H0:|mean(f_k)| = 0
-            summary.fkSignaficance(2) = absMeanTest(abs(obj.factorReturn),10000);
+            summary.fkSignaficance(2) = absMeanTest(abs(factorReturn),10000);
             
             %f_k Stationarity
             % mode1:std(f_k) = 0
-            summary.fkStationarity(1) = stdTest(obj.factorReturn,10000,0.02);
+            summary.fkStationarity(1) = stdTest(factorReturn,10000,0.02);
             % mode2:ADF test
-            summary.fkStationarity(2) = ADFTest(obj.factorReturn);
+            summary.fkStationarity(2) = ADFTest(factorReturn);
             
             IC = ICValue(obj,alphaTable);
             % IC Signaficance
@@ -210,14 +226,13 @@ classdef singleFactorTest < handle
             dt = datestr(now,'yyyymmdd');
             filepath = pwd;
             cd('/Users/mac/Documents/local_PHBS_multi-factor_project/002 src/05 singleFactorTest/singleFactorReturn_testResult');
-            savePath = strcat('SingleAlphaTest_result_',dt,'.mat'); % 拼接路径和文件名
-            save(savePath,'AlphaStatResult'); % 保存变量val1,val2到1_result.mat中
-            %eval(['save','resultStruct',dt])
+            savePath = strcat('SingleAlphaTest_result_',dt,'.mat'); 
+            save(savePath,'AlphaStatResult'); 
             cd(filepath);
         end
         
         function cumFactorReturn = calCumFactorReturn(obj,alphaTable)
-            [factorReturn,~] = calFactorReturn(obj,alphaTable)
+            [factorReturn,~] = calFactorReturn(obj,alphaTable);
             cumFactorReturn = cumprod(factorReturn + 1) /(1+ factorReturn(1));
         end
         
@@ -244,7 +259,7 @@ classdef singleFactorTest < handle
                 dt = datestr(now,'yyyymmdd');
                 filepath = pwd;
                 cd('/Users/mac/Documents/local_PHBS_multi-factor_project/002 src/05 singleFactorTest/singleFactorReturn_cumFactorReturnPlot');
-                savefig(pic, strcat('singleFactorReturn_cumFactorReturnPlot_',num2str(i),'_',dt,'.fig'));
+                savefig(pic, strcat('singleFactorReturn_cumFactorReturnPlot_',obj.alphaNameList{i},'_',dt,'.fig'));
                 cd(filepath);
             end
             
