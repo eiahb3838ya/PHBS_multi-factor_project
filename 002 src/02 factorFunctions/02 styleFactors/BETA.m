@@ -28,7 +28,7 @@ closeYesterday = [zeros(1,n);close(1:end-1,:)];
 rts = close ./ closeYesterday -1;
 end
         
-function [bata, offsetSize] = getBETA(close,indexReturn)
+function [beta, offsetSize] = getBETA(close,indexReturn)
 warning('off')
 % function compute factor exposure of style factor
 rts = calRts(close);
@@ -42,17 +42,13 @@ for i = 251:m %days
     sliceIndexReturn = indexReturn(i-250+1:i);
     sliceRts = w.*sliceRts;
     sliceIndexReturn = w.*sliceIndexReturn;
-%     if i==267
-%         disp('haha')
-%     end
+
     for j =1:n %stocks
         BigMatrix = [sliceRts(:,j),sliceIndexReturn];
-        
         BigMatrix = rmmissing(BigMatrix,1);
         [infRow,~] = find(isinf(BigMatrix));
         BigMatrix(infRow, :) = [];
         thisBeta = regress(BigMatrix(:,2),BigMatrix(:,1));
-        
         beta(i,j) = thisBeta;
     end
 end
@@ -72,12 +68,10 @@ function [beta, offsetSize] = getBETAUpdate(close,indexReturn)
     tic
     for j =1:n %stocks
         BigMatrix = [sliceRts(:,j),sliceIndexReturn];
-
         BigMatrix = rmmissing(BigMatrix,1);
         [infRow,~] = find(isinf(BigMatrix));
         BigMatrix(infRow, :) = [];
         thisBeta = regress(BigMatrix(:,2),BigMatrix(:,1));
-
         beta(m,j) = thisBeta;
     end
     offsetSize = 252;
