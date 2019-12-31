@@ -5,7 +5,7 @@ function [X, offsetSize] = ETOP(alphaPara)
 % min data size: 1
 % alphaPara is a structure
     try
-        PE_TTM = alphaPara.PE_TTM;
+        PE_TTM = alphaPara.PETTM;
         updateFlag  = alphaPara.updateFlag;
     catch
         error 'para error';

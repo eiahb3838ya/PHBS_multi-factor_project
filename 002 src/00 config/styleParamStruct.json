@@ -1,0 +1,30 @@
+{   
+    "RSTR":{
+	"datasets":["totalReturn"]
+    },
+	"BETA":{
+	"datasets":["totalReturn","indexTotalReturn"]
+    },
+	"DASTD":{
+	"datasets":["close"]
+    },
+	"ETOP":{
+	"datasets":["PETTM"]
+    },
+	"HSIGMA":{
+	"datasets":["totalReturn","indexTotalReturn"]
+    },
+	"LNCAP":{
+	"datasets":["totalMktCap"]
+    },
+	
+	"STOA":{
+	"datasets":["volume","floatingShares"]
+    },
+    "STOM":{
+	"datasets":["volume","floatingShares"]
+    },
+	"STOQ":{
+	"datasets":["volume","floatingShares"]
+    }
+}

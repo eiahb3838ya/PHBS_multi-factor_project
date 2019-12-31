@@ -229,7 +229,7 @@ classdef AlphaFactory < handle
                 for k=1:length(targetAlphas)
                     alphaName=targetAlphas{k};
                     disp("start process:"+ alphaName);
-                    disp(size(exposure,3));
+                    
                     try
                         exposure = cat(3,exposure,obj.getAlphaHistory(alphaName));
                         alphaNameList{end+1} = alphaName;
@@ -243,7 +243,7 @@ classdef AlphaFactory < handle
                         disp(ErrorInfo.cause);
                         disp("fail")
                     end
-                    disp(size(exposure,3));
+                    disp(strcat("Processed factor count:", int2str(size(exposure,3))));
                 end
                 matobj.('exposure') = exposure;
                 matobj.('alphaNameList') = alphaNameList;

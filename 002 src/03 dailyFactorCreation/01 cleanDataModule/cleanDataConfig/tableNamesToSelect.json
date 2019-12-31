@@ -3,6 +3,7 @@
     "stock.properties.high":[],
     "stock.properties.low":[],
     "stock.properties.open":[],
+    "stock.properties.volume":[],
     "stock.properties.amount":[],
     "stock.properties.PETTM":[],
     "stock.properties.PE":[],
