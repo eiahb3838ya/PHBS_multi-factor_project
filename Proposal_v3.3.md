@@ -74,9 +74,9 @@ $r_t=X_{Industry}^tf_{Industry}^t+X_{Style}^tf_{Style}^t+\alpha_tf_{\alpha}^t+u_
 
 After the factor exposures are calculated, the factor return can be naturally acquired. For estimating stock returns at time $t+1$, we use the exposures at time $t$ and factor returns at time $t+1$ to run regression. For batch processing, we combine these factor exposures and returns together
 
-$r_{t+1}=X^tf^t+u_t.$
+$r_{t+1}=X^tf^{t+1}+u_{t+1}.$
 
-$X^t=(X_{Industry}^t\quad{X_{Style}^t\quad \alpha^t})$, $f^t=((f_{Industry}^t)^T\quad{(f_{Style}^t)^T\quad{(f_{\alpha}^t)^T}})^T.$
+$X^t=(X_{Industry}^t\quad{X_{Style}^t\quad \alpha^t})$, $f^t=((f_{Industry}^{t+1})^T\quad{(f_{Style}^{t+1})^T\quad{(f_{\alpha}^{t+1})^T}})^T.$
 
 For every single factor, we normalize its exposures cross-sectionally and orthogonalize them with industry factor exposures and style factor exposures. Then we add them into the $X^t$ matrix to test its significance of estimating capacity - information coefficient ($IC$). $IC$ of a factor is defined as
 
