@@ -14,7 +14,16 @@ function [corrMatrix, VIFMatrix] = EDA(orthFactor, alphaName)
     saveas(gcf, sprintf('corrHeatmap.jpg'), 'bmp');
     
     % calculate VIF matrix
-    
+    [~, n] = size(orthFactor);
+    VIFMatrix = zeros(n, 1);
+    for i = 1: n
+        Y = orthFactor(:, i);
+        X = [orthFactor(:, 1: (i - 1)), orthFactor(:, (i + 1): n)];
+        beta = (X' * X) \ (X' * Y);
+        YHat = X * beta - mean(Y);
+        rSquare = YHat'* YHat / ((Y - mean(Y))' * (Y - mean(Y)));
+        VIFMatrix(i) = 1 / (1 - rSquare);
+    end
     % draw the heatmap of VIFs
 end
     
