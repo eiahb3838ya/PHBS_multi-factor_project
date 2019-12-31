@@ -1,44 +1,11 @@
-% function [X, offsetSize] = BETA(stock)
-% % Computed as the slope coefficient in a time-series reg of excess stock return.
-% % the benchmark is zz500.
-% % r_t = alpha + beta * R_t +eplison
-% % stock is a structure
-% 
-% % clean data module here
-% 
-% % get factor module here
-%     [X, offsetSize] = getAlpha(stock.properties.totalReturn;
-%                               stock.index.totalReturn[:,7]);
-% end
-% 
-% %-------------------------------------------------------------------------
-% function [exposure, offsetSize] = getAlpha(stockrts,ZZ500rts)
-%     [m,n]= size(stockrts);
-%     w = ExponentialWeight(252, 63);
-%     wMatrix = repmat(w,1,n); 
-%     
-%     for i = 252:m
-%         wStockRts = stockrts(i-251:i,:) .* wMatrix;
-%         wZZ500Rts = ZZ500rts(i-251:i,:) .* w;
-%         toCell =mat2cell(wStockRts,252,[ones(1,n)]);
-%         B =blkdiag(toCell{:});%diag each column of the wStockRts
-%         Y = repmat(wZZ500Rts,n,1);
-%         beta(i,:) = ( B' * B \( B' * Y ))';
-%     end
-%     
-%     exposure = beta;
-%     offsetSize = 521;
-% end
-
 function [X, offsetSize] = BETA(alphaPara)
-% Returns the historical EP,which is the net revenue of the past 12 months 
-% of single stocks divided by their current market capital, 
-% earnings_ttm / mkt_freeshares
+% Returns the log value of the total market capital of single stocks
+% log(total market capital)
 % min data size: 1
 % alphaPara is a structure
     try
-        totalReturn = alphaPara.totalReturn;
-        indexTotalReturn  = alphaPara.indexTotalReturn;
+        close = alphaPara.close;
+        indexReturn = alphaPara.indexReturn;
         updateFlag  = alphaPara.updateFlag;
     catch
         error 'para error';
@@ -47,39 +14,72 @@ function [X, offsetSize] = BETA(alphaPara)
 % calculate and return all history factor
 % controled by updateFlag, call getAlpha if TRUE
     if ~updateFlag
-        [X, offsetSize] = getBETA(totalReturn, indexTotalReturn);
+        [X, offsetSize] = getBETA(close,indexReturn);
         return
     else
-        [X, offsetSize] = getBETAUpdate(totalReturn, indexTotalReturn);
+        [X, offsetSize] = getBETAUpdate(close,indexReturn);
     end
 end
 
 %-------------------------------------------------------------------------
-
-function [exposure, offsetSize] = getBETA(stockrts,ZZ500rts)
+function rts = calRts(close)
+[~,n] = size(close);
+closeYesterday = [zeros(1,n);close(1:end-1,:)];
+rts = close ./ closeYesterday -1;
+end
+        
+function [bata, offsetSize] = getBETA(close,indexReturn)
+warning('off')
 % function compute factor exposure of style factor
-    [m,n]= size(stockrts);
-    w = ExponentialWeight(252, 63);
-    wMatrix = repmat(w,1,n); 
-    
-    for i = 252:m
-        wStockRts = stockrts(i-251:i,:) .* wMatrix;
-        wZZ500Rts = ZZ500rts(i-251:i,:) .* w;
-        toCell =mat2cell(wStockRts,252,[ones(1,n)]);
+rts = calRts(close);
+[m,n] = size(close);
+w = ExponentialWeight(250, 60);
+%beta = zeros(m,n);
+
+for i = 251:m %days
+    disp(strcat('start process day :', int2str(i)));
+    sliceRts = rts(i-250+1:i,:);
+    sliceIndexReturn = indexReturn(i-250+1:i);
+    sliceRts = w.*sliceRts;
+    sliceIndexReturn = w.*sliceIndexReturn;
+%     if i==267
+%         disp('haha')
+%     end
+    for j =1:n %stocks
+        BigMatrix = [sliceRts(:,j),sliceIndexReturn];
         
-        B =blkdiag(toCell{:});%diag each column of the wStockRts
+        BigMatrix = rmmissing(BigMatrix,1);
+        [infRow,~] = find(isinf(BigMatrix));
+        BigMatrix(infRow, :) = [];
+        thisBeta = regress(BigMatrix(:,2),BigMatrix(:,1));
         
-        Y = repmat(wZZ500Rts,n,1);
-        beta(i,:) = ( B' * B \( B' * Y ))';
+        beta(i,j) = thisBeta;
     end
-    
-    exposure = beta;
-    offsetSize = 521;
+end
+offsetSize = 252;
 end
 
-function [exposure, offsetSize] = getBETAUpdate(stockrts,ZZ500rts)
-    [X, offsetSize] = getBETA(stockrts,ZZ500rts);
-    exposure = X(end,:);
+function [beta, offsetSize] = getBETAUpdate(close,indexReturn)
+    % function compute factor exposure of style factor
+    disp(strcat('process the last day'));
+    rts = calRts(close);
+    w = ExponentialWeight(250, 60);
+    [m, n] = size(close);
+    sliceRts = rts(m-250+1:m,:);
+    sliceIndexReturn = indexReturn(m-250+1:m);
+    sliceRts = w.*sliceRts;
+    sliceIndexReturn = w.*sliceIndexReturn;
+    tic
+    for j =1:n %stocks
+        BigMatrix = [sliceRts(:,j),sliceIndexReturn];
+
+        BigMatrix = rmmissing(BigMatrix,1);
+        [infRow,~] = find(isinf(BigMatrix));
+        BigMatrix(infRow, :) = [];
+        thisBeta = regress(BigMatrix(:,2),BigMatrix(:,1));
+
+        beta(m,j) = thisBeta;
+    end
+    offsetSize = 252;
+    toc
 end
-        
-    

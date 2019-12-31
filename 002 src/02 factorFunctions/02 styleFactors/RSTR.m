@@ -56,17 +56,21 @@ function [exposure, offsetSize] = getRSTR(rt)
     [m,n]= size(rt);
     w = ExponentialWeight(500, 126);
     w = [w ; zeros(21,1)]; %get a large vector, first 500  is exponentialWeight, last 21 is zero.
-    wMatrix =  repmat(w,1,n); %rep the w, n times, the ExponentialWeight of each column is the same.
-    
+    %wMatrix =  repmat(w,1,n); %rep the w, n times, the ExponentialWeight of each column is the same.
+    moment = zeros(m, n);
     for i = 521:m
-        
-        
+        disp(strcat('start process day :', int2str(i)));
+        tic
         logrts = log(1+rt(i-520:i,:));
-        cal = wMatrix .* logrts;
+        cal = w .* logrts;
         toSum = cal(end-520:end, :);
 %         sum500Days = sumPast(cal,521);
-        moment(i,:) = sum(toSum, 1);
-        
+        toAppend = sum(toSum, 1);
+        if i==800
+            disp('gift from amy <3')
+        end
+        moment(i,:) = toAppend;
+        toc
     end
     
     exposure = moment;
@@ -75,6 +79,6 @@ end
 
 function [exposure, offsetSize] = getRSTRUpdate(rt)
     [X, offsetSize] = getRSTR(rt);
-    exposure = X(end,:);
+     exposure = X(end,:);
 end
     
