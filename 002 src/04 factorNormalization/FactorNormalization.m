@@ -7,7 +7,11 @@ classdef FactorNormalization < handle
     
     
     methods(Static)
-        function normFactor = getProcessedFactor(factorCube)           
+        function normFactor = getProcessedFactor(factorCube, saveOption)           
+            if nargin == 1
+                saveOption = 0;
+            end
+            
             [m1, m2, m3] = size(factorCube);
             meanMatrix = zeros(m1, m3);
             medianMatrix = zeros(m1, m3);
@@ -20,15 +24,22 @@ classdef FactorNormalization < handle
                 [normFactor(:, :, i), meanMatrix(:, i), medianMatrix(:, i), skewnessMatrix(:, i), kurtosisMatrix(:, i)] ...
                     = normalizeProcess(reshape(extremeFactor(:, :, i), m1, m2), i); 
             end
-            save('normFactor', 'normFactor');
-            save('meanMatrix', 'meanMatrix');
-            save('medianMatrix', 'medianMatrix');
-            save('skewnessMatrix', 'skewnessMatrix');
-            save('kurtosisMatrix', 'kurtosisMatrix');
+            
+            if saveOption
+                save('normFactor', 'normFactor');
+                save('meanMatrix', 'meanMatrix');
+                save('medianMatrix', 'medianMatrix');
+                save('skewnessMatrix', 'skewnessMatrix');
+                save('kurtosisMatrix', 'kurtosisMatrix');
+            end
         end
         
         
-        function orthedFactor = getOrthFactor(factorCube, styleFactorCube, industryFactorCube)
+        function orthedFactor = getOrthFactor(factorCube, styleFactorCube, industryFactorCube, saveOption)
+            if nargin <= 3
+                saveOption = 0;
+            end
+            
             [l1, m1, n1] = size(factorCube);
             existFactor = cat(3, styleFactorCube, industryFactorCube);
             [l2, m2, n2] = size(existFactor);
@@ -51,7 +62,10 @@ classdef FactorNormalization < handle
                     orthedFactor(i, :, j) = Y - X * beta;
                 end
             end
-            save('orthedNormFactor', 'orthedFactor');
+            
+            if saveOption
+                save('orthedNormFactor', 'orthedFactor');
+            end
         end
     end
     
