@@ -1,4 +1,4 @@
-normProcess = factorNormalization(factorCube);
+normProcess = FactorNormalization(factorCube);
 normProcess.calculateNorm();
 normProcess.calculateOrth(styleFactorCube, industryFactorCube);
 
