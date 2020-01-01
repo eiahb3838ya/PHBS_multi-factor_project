@@ -54,6 +54,6 @@ function processedFactor = extremeProcess(factorMatrix, paraStruct)
     
     % calculate the percentage of processed values
     percent = sumProcessed * 100 / (row * col);
-    disp(["There are ",num2str(sumProcessed),"extreme values processed."])
-    disp([num2str(percent),"% of the values are extreme values processed."])
+    disp(['There are ',num2str(sumProcessed),' extreme values processed.'])
+    disp([num2str(percent),'% of the values are extreme values processed.'])
 end

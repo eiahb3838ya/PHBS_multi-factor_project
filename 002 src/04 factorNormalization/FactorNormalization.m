@@ -48,20 +48,48 @@ classdef FactorNormalization < handle
             end
             
             % regression to get projected Y, with OLS method
+            pinvCount = 0;
             orthedFactor = zeros(l1, m1, n1);
-            for i = 1: l1
-                X = reshape(existFactor(i, :, :), m2, n2);
+            for i = 700: l1
+                rawX = reshape(existFactor(i, :, :), m2, n2);
+                disp(['processday:', num2str(i)]);
                 for j = 1: n1
-                    Y = reshape(factorCube(i, :, j), m1, 1);
+                    rawY = reshape(factorCube(i, :, j), m1, 1);
+                    [nanIndex1, ~] = find(isnan(rawX));
+                    nanIndex1 = unique(nanIndex1);
+                    nanIndex2 = find(isnan(rawY));
+                    [infIndex1, ~] = find(isinf(rawX));
+                    infIndex1 = unique(infIndex1);
+                    infIndex2 = find(isinf(rawY));
+                    nanIndex = unique([nanIndex1; nanIndex2]);
+                    infIndex = unique([infIndex1; infIndex2]);
+                    omitIndex = unique([nanIndex; infIndex]);
+                    nonOmitIndex = setdiff(1:m1, omitIndex)';
+                    X = rawX(nonOmitIndex, :);
+                    Y = rawY(nonOmitIndex);
+                    if length(omitIndex) == m1
+                        disp('All stocks have NaN alpha or style factor exposure.')
+                        orthedFactor(i, :, j) = NaN * ones(m1, 1);
+                        continue
+                    end
+                    
                     beta = (X'* X)\(X'* Y); %one way to express inv(X'X)X'Y
 
                     [~, msgid] = lastwarn(); %catch warning
-                    if strcmp(msgid, 'MATLAB:nearlySingularMatrix')
+                    if strcmp(msgid, 'MATLAB:singularMatrix')
                         beta = pinv(X'* X)* X'* Y; % in case conditional number of the matrix is too large
+                        pinvCount = pinvCount+1;
                     end
-                    orthedFactor(i, :, j) = Y - X * beta;
+                                       
+                    orthRawExposure = zeros(m1, 1);
+                    orthRawExposure(nonOmitIndex) = Y - X * beta;
+                    orthRawExposure(nanIndex) = NaN;
+                    orthRawExposure(infIndex) = inf;
+                    orthedFactor(i, :, j) = orthRawExposure;
+                    
                 end
             end
+            disp(['total pinv', num2str(pinvCount)]);
             
             if saveOption
                 save('orthedNormFactor', 'orthedFactor');

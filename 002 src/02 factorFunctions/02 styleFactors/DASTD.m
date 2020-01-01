@@ -28,7 +28,7 @@ function [exposure, offsetSize] = getDASTD(close, halfLife, T)
     [m, n] = size(close);
     delay = [zeros(1, n);close(1: m - 1,:)];
     r = close ./ delay - 1;
-    rAdjusted = r - mean(r);
+    rAdjusted = r - mean(r, 2, 'omitnan');
     w = ExponentialWeight(T, halfLife);
     exposure = zeros(m, n);
     for i = 1: 249
@@ -49,7 +49,7 @@ function [exposure, offsetSize] = getDASTDUpdate(close, halfLife, T)
     delay = close(m - offsetSize : m - 1,:);
     closeTable = close(m - offsetSize + 1: m, :);
     r = closeTable ./ delay - 1;
-    rAdjusted = r - mean(r);
+    rAdjusted = r - mean(r, 2, 'omitnan');
     w = ExponentialWeight(T, halfLife);
     exposure = sum((w .* rAdjusted.^2).^0.5);
 end
