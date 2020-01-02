@@ -73,6 +73,8 @@ classdef FactorNormalization < handle
                         continue
                     end
                     
+                    [~, col] = find(sum(abs(X)) ~= 0);
+                    X = X(:, unique(col));
                     beta = (X'* X)\(X'* Y); %one way to express inv(X'X)X'Y
 
                     [~, msgid] = lastwarn(); %catch warning
