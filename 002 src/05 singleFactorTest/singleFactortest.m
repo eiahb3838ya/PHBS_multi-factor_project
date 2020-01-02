@@ -58,7 +58,7 @@ classdef singleFactorTest < handle
                 obj.ICmode = 1;
             end    
             obj.returnClose = obj.calRts(obj.processedClose, obj.startTime);
-            disp("cal return close")
+            %disp("cal return close")
         end
         
         %calculate the IC for singleFactor
@@ -67,8 +67,10 @@ classdef singleFactorTest < handle
             
             %Normal IC:IC mode ==0
             if obj.ICmode == 0
+                [factorReturn,tValue] = calFactorReturn(obj,alphaTable);
                 for i =  1: obj.startTime - obj.ICpredictDays
-                    BigMatrix = [getAlpha(i,:);obj.returnClose(i + obj.ICpredictDays,:)];
+                    BigMatrix = [getAlpha(i,:).*factorReturn(i);obj.returnClose(i + obj.ICpredictDays,:)];
+                    %BigMatrix = [getAlpha(i,:);obj.returnClose(i + obj.ICpredictDays,:)];
                     BigMatrix = rmmissing(BigMatrix,2);
                     corrMatrix = corrcoef(BigMatrix(1,:),BigMatrix(2,:));
                     IC(i) = corrMatrix(1,2);
@@ -76,8 +78,9 @@ classdef singleFactorTest < handle
                 
                 %rank IC:IC mode ==1
             else obj.ICmode == 1
+                 [factorReturn,tValue] = calFactorReturn(obj,alphaTable);
                 for i =  1: obj.startTime - obj.ICpredictDays
-                    BigMatrix = [getAlpha(i,:);obj.returnClose(i + obj.ICpredictDays,:)];
+                    BigMatrix = [getAlpha(i,:).*factorReturn(i);obj.returnClose(i + obj.ICpredictDays,:)];
                     BigMatrix = rmmissing(BigMatrix,2);
                     [~,Alpharank] = sort(BigMatrix(1,:));
                     [~,Returnrank] = sort(BigMatrix(2,:));
@@ -85,13 +88,13 @@ classdef singleFactorTest < handle
                     IC(i) = corrMatrix(1,2);
                 end
             end
-            %disp("cal IC")
         end
         
         %Calculate AllFactor(number = m) IC and the result is a ICTable (m * starttime)
         function ICTable = calAllFactorIC(obj)
             [~,~,alphaCount] = size(obj.processedAlphas);
             for j = 1: alphaCount
+                disp(strcat('This is_',num2str(j),'_alpha'));
                 ICTable(j,:) = ICValue(obj,obj.processedAlphas(:,:,j),obj.ICpredictDays,obj.ICmode);
             end
         end
@@ -103,7 +106,7 @@ classdef singleFactorTest < handle
             for i = 1: alphaCount
                 pic = figure(); %'visible','off'
                 IC = ICTable(i,:);
-                plot(movmean(IC,5));
+                plot(IC);
                 xlabel('startTime');
                 
                 if obj.ICmode ==0
@@ -139,6 +142,7 @@ classdef singleFactorTest < handle
                 reshapeBigCube = reshape(ReshapeBigCubeSlice,size(ReshapeBigCubeSlice,2),size(ReshapeBigCubeSlice,3),1);
                 BigMatrix =[reshapeBigCube,getAlpha(i,:)',obj.returnClose(i+1,:)'];
                 BigMatrix = rmmissing(BigMatrix,1);
+                BigMatrix(:,36)=[];
                 
                 factorReturnAll = regress((BigMatrix(:,end)),(BigMatrix(:,1:end-1)));
                 factorReturn(i) = factorReturnAll(end);
@@ -262,7 +266,6 @@ classdef singleFactorTest < handle
                 savefig(pic, strcat('singleFactorReturn_cumFactorReturnPlot_',obj.alphaNameList{i},'_',dt,'.fig'));
                 cd(filepath);
             end
-            
         end
     end
 end
