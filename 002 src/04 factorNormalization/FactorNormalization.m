@@ -91,7 +91,7 @@ classdef FactorNormalization < handle
                     
                 end
             end
-            disp(['total pinv', num2str(pinvCount)]);
+            disp(['total pinv ', num2str(pinvCount)]);
             
             if saveOption
                 save('orthedNormFactor', 'orthedFactor');
