@@ -5,9 +5,8 @@ load('styleSTR');
 styleFactor = styleSTR.styleFactor;
 exposure = orthFactors.orthFactors;
 alphaNameList = orthFactors.factorName;
-alphaName
 
-haha = singleFactorTest(exposure, processedClose,100,1,1,industryFactor,styleFactor,alphaNameList);
+haha = singleFactorTest(exposure, processedClose,200,1,0,industryFactor,styleFactor,alphaNameList);
 
 tic
 haha.plotIC();
@@ -17,5 +16,10 @@ tic
 haha.plotAllCumFactorReturn();
 toc
 
-haha.saveAllAlphaStatResult();
+tic
+haha.plotAllcumlongShortReturnTable()
+toc
 
+tic
+haha.saveAllAlphaStatResult();
+toc
