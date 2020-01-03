@@ -1,0 +1,356 @@
+classdef MultiFactorTest < handle
+    %MULTIFACTORTEST Summary of this class goes here
+    %   Detailed explanation goes here
+    
+    properties
+        %cube
+        orthFactorCube;
+        interceptFactorCube;
+        combinedCube;
+        
+        %mat
+        rtMat;
+        
+        %int
+        startIndx;
+        predictionDays;
+        smoothingDays;
+        icTestForwardDays;
+        
+        %bool
+        isRankIC;
+    end
+    
+    methods(Static)
+        function [validIndx, nanIndx, infIndx] = preprocessEntry(mat, axis)
+            %PREPROCESSENTRY 
+            %   mat is 2d, axis, default = 1, means selecting row index
+            if nargin == 1
+                axis = 1;
+            end
+            
+            if axis == 1
+                rowLength = size(mat,1);
+                nanIndx = find(sum(isnan(mat),2)~=0);
+                infIndx = find(sum(isinf(mat),2)~=0);
+                indxNotUse = unique([nanIndx; infIndx]);
+                
+                if ~isempty(indxNotUse)
+                    validIndx = setdiff(1:rowLength, indxNotUse);
+                else
+                    validIndx = 1:rowLength;
+                end
+                
+            elseif axis == 2
+                columnLength = size(mat,2);
+                nanIndx = find(sum(isnan(mat),1)~=0);
+                infIndx = find(sum(isinf(mat),1)~=0);
+                indxNotUse = unique([nanIndx, infIndx]);
+                
+                if ~isempty(indxNotUse)
+                    validIndx = setdiff(1:columnLength, indxNotUse);
+                else
+                    validIndx = 1:columnLength;
+                end
+            else
+                error("axis can only be 1 or 2.");
+            end
+        end
+        
+        function X = cube2Mat(cube, indx, axis)
+        %CUBE2MAT return a mat
+            if nargin == 2
+                axis = 1;
+            end
+            
+            try
+                if axis == 1
+                    cubeToUse = cube(indx,:,:);
+                    
+                    depth = size(cubeToUse,3);
+                    dim2Length = size(cubeToUse,2);
+                    
+                    %permute table and reshape
+                    cubeToUseTranspose = permute(cubeToUse, [2,1,3]);
+                    X = reshape(cubeToUseTranspose, [dim2Length, depth]);
+                    X = X';
+                    
+                elseif axis == 2
+                    cubeToUse = cube(:,indx,:);
+                    
+                    depth = size(cubeToUse,3);
+                    dim1Length = size(cubeToUse,1);
+                    
+                    %reshape
+                    X = reshape(cubeToUse, [dim1Length, depth]);
+                    
+                else
+                    error("invalid axis, can only be 1 or 2");
+                end
+            catch
+                error("indx excess maximum length of given axis");
+            end
+        end
+        
+        function factorRts = computeOneDayFtRts(rtMat, cube, currentDayIndx, recordStartIndx, dayIndxAxis, predictionDays)
+            %COMPUTEONEDAYFTRTS 
+            % note how the matrix look like
+            if nargin == 4
+                dayIndxAxis = 1;
+                predictionDays = 1;
+            end
+            
+            try
+                if dayIndxAxis == 1 %means cube like days by stocks by features
+                    mat = MultiFactorTest.cube2Mat(cube, currentDayIndx, dayIndxAxis); %mat: features by stocks
+                    dayRts = rtMat(currentDayIndx + predictionDays,:); %dayRts: 1 by stocks
+
+                    % preprocess data
+                    disp(['process day: ', num2str(currentDayIndx)]);
+                    preprocessData = [dayRts',mat']; % [stock by 1, stock by features]
+                    [validIndx, ~, ~] = MultiFactorTest.preprocessEntry(preprocessData, dayIndxAxis);%pick by stock's num
+                    
+                    % get x, y for regression
+                    allZeroColumn = find(sum(abs(preprocessData(validIndx,2:end)))==0);% is any feature is empty
+                    if ~isempty(allZeroColumn)
+                        notAllZeroColumn = setdiff(1:size(preprocessData,2)-1, allZeroColumn);
+                        shiftDummy = 1;
+                    else
+                        notAllZeroColumn = 2:size(preprocessData,2);
+                        shiftDummy = 0;
+                    end
+                    
+                    X = preprocessData(validIndx,notAllZeroColumn+shiftDummy);
+                    Y = preprocessData(validIndx,1);
+                    
+                    beta = pinv(X'*X)*(X'*Y);
+                    
+                    factorRts = zeros(1, size(mat,1));
+                    factorRts(notAllZeroColumn+shiftDummy-1) = beta;
+                    factorRts(allZeroColumn) = nan;
+                    factorRts = factorRts(recordStartIndx:end);
+                    
+                elseif dayIndxAxis ==2
+                    mat = MultiFactorTest.cube2Mat(cube, currentDayIndx, dayIndxAxis); %stocks by feature
+                    dayRts = rtMat(:,currentDayIndx + predictionDays); %stocks by 1
+                    
+                    % preprocess data
+                    disp(['process day: ', num2str(currentDayIndx)]);
+                    preprocessData = [dayRts,mat]; %[stock by 1, stock by features]
+                    [validIndx, ~, ~] = MultiFactorTest.preprocessEntry(preprocessData', dayIndxAxis);
+                    
+                    % get x, y for regression
+                    allZeroColumn = find(sum(abs(preprocessData(validIndex,2:end)))==0);
+                    if ~isempty(allZeroColumn)
+                        notAllZeroColumn = setdiff(1:size(preprocessData,2)-1, allZeroColumn);
+                        shiftDummy = 1;
+                    else
+                        notAllZeroColumn = 2:size(preprocessData,2);
+                        shiftDummy = 0;
+                    end
+                    
+                    X = preprocessData(validIndx,notAllZeroColumn+shiftDummy);
+                    Y = preprocessData(validIndx,1);
+                    
+                    beta = (X'*X)\(X'*Y);
+                    
+                    factorRts = zeros(size(mat,2),1);
+                    factorRts(notAllZeroColumn+shiftDummy-1) = beta;
+                    factorRts(allZeroColumn) = nan;
+                    factorRts = factorRts(recordStartIndx:end);
+                    
+                else
+                    error("dayIndxAxis can only be 1 or 2.");
+                end
+            catch
+                error("dayIndx excess maximum length limit.");
+            end          
+        end
+        
+        function corr = rankCorr(arr1, arr2)
+            sortArr1 = sort(arr1);
+            sortArr2 = sort(arr2);
+            
+            corrMat = corrcoef(sortArr1(:), sortArr2(:));
+            corr = corrMat(1,2);
+        end
+        
+        function corr = commonCorr(arr1, arr2)
+            corrMat = corrcoef(arr1(:), arr2(:));
+            corr = corrMat(1,2);
+        end
+        
+        function [oneDayModelIC, validIndx] = computeOneDayIC(stockRtMat, mixCube, currentDayIndx, recordStartIndx, dayIndxAxis, predictionDays, isRankIC, icTestForwardDays)
+            if nargin == 5
+                dayIndxAxis = 1;
+                predictionDays = 1;
+                isRankIC = 1;
+            end
+            
+            try
+                % factor rts, length is #features
+                factorRts = MultiFactorTest.computeOneDayFtRts(stockRtMat, mixCube, currentDayIndx, recordStartIndx, dayIndxAxis, predictionDays);
+                
+                % get stock return ready to test IC
+                % get stock exposure of size stocks by features
+                if dayIndxAxis == 1
+                    icDayForwardStockRt = stockRtMat(currentDayIndx + icTestForwardDays,:); %1 by stocks
+                    oneDayFactorExposure = MultiFactorTest.cube2Mat(mixCube(:,:,recordStartIndx:end), currentDayIndx, dayIndxAxis); %features by stocks
+                    rtsContributedByFts = oneDayFactorExposure'*factorRts'; %column vector
+                else
+                    icDayForwardStockRt = stockRtMat(:,currentDayIndx + icTestForwardDays); %stocks by 1
+                    oneDayFactorExposure = MultiFactorTest.cube2Mat(mixCube(:,:,recordStartIndx:end), currentDayIndx, dayIndxAxis); %stocks by features
+                    rtsContributedByFts = oneDayFactorExposure*factorRts; %column vector
+                end
+                
+                dataToCorr = [icDayForwardStockRt(:), rtsContributedByFts(:)];
+                [validIndx, ~, ~] = MultiFactorTest.preprocessEntry(dataToCorr, dayIndxAxis);
+                
+                icStockRts = dataToCorr(validIndx,1);
+                icFtRts = dataToCorr(validIndx,2);
+                
+                if isRankIC == 1
+                    oneDayModelIC = MultiFactorTest.rankCorr(icStockRts, icFtRts);
+                elseif isRankIC == 0
+                    oneDayModelIC = MultiFactorTest.commonCorr(icStockRts, icFtRts);
+                elseif isRankIC == -1
+                    oneDayModelIC = icFtRts;
+                else
+                    error("isRankIC can only be 0 or 1 or -1");
+                end
+            catch
+                error("dayIndxAxis can only be 1 or 2; currentDayIndx + predictionDays should not excess maximum length.");
+            end
+        end
+    end
+    
+    methods(Access = public)
+        function obj = MultiFactorTest(rtMat, interceptFactorCube, orthFactorCube, startIndx, predictionDays, smoothingDays, isRankIC, icTestFdDays)
+            %MULTIFACTORTEST Construct an instance of this class
+            
+            %an empty start up
+            if nargin == 0
+                disp("an empty constructor starts!");
+                return;
+            end
+            
+            if nargin == 3
+                % give a default version
+                startIndx = 800;
+                predictionDays = 1;
+                smoothingDays = 50;
+                isRankIC = 1;
+            end
+            
+            try
+                obj.rtMat = rtMat;
+                obj.interceptFactorCube = interceptFactorCube;
+                obj.orthFactorCube = orthFactorCube;
+                obj.startIndx = startIndx;
+                obj.predictionDays = predictionDays;
+                obj.smoothingDays = smoothingDays;
+                obj.isRankIC = isRankIC;
+                obj.icTestForwardDays = icTestFdDays;
+                
+                disp('multiFactor Module start:');
+                disp(['start index is: ', num2str(obj.startIndx)]);
+                disp(['to predict ', num2str(obj.predictionDays), ' day afterforwards']);
+                disp(['compare IC with stock returns ', num2str(obj.icTestForwardDays), ' day later.']);
+                disp(['factor return moving average period is ', num2str(obj.smoothingDays)]);
+                disp(['rank IC status ', num2str(obj.isRankIC)]);
+                
+                obj.combinedCube = cat(3,obj.interceptFactorCube, obj.orthFactorCube);
+            catch
+                error("not enough input Args, the #input Args can only be 2 or 8");
+            end
+        end
+        
+        function factorRtMat = computeAllFtRts(obj, dayIndxAxis)
+            recordStartIndx = size(obj.interceptFactorCube,3)+1;
+            rtsMat = obj.rtMat;
+            cube = obj.combinedCube;
+            pDays = obj.predictionDays;
+            
+            try
+                totalDays = size(rtsMat,dayIndxAxis);
+                totalFeatures = size(cube,3) - recordStartIndx + 1;
+            catch
+                error("dayIndxAxis can only be 1 or 2");
+            end
+            
+            if dayIndxAxis == 1
+                factorRtMat = zeros(totalDays-pDays, totalFeatures);
+            else
+                factorRtMat = zeros(totalFeatures, totalDays-pDays);
+            end
+            
+            for dayIndx = 1:totalDays - pDays
+                % rtMat, cube, currentDayIndx, recordStartIndx, dayIndxAxis, predictionDays
+                oneDayFtRts = MultiFactorTest.computeOneDayFtRts(rtsMat, cube, dayIndx, recordStartIndx, dayIndxAxis, pDays);
+                if dayIndxAxis == 1
+                    factorRtMat(dayIndx,:) = oneDayFtRts;
+                else
+                    factorRtMat(:,dayIndx) = oneDayFtRts;
+                end
+            end
+                
+        end
+        
+        function modelICSeries = computeICTimeSeries(obj, dayIndxAxis)
+            pDays = obj.predictionDays;
+            recordStartIndx = size(obj.interceptFactorCube,3)+1;
+            stockRtMat = obj.rtMat;
+            mixCube = obj.combinedCube;
+            rankICSTatus = obj.isRankIC;
+            movSmoothing = obj.smoothingDays;
+            icFdDays = obj.icTestForwardDays;
+            startIdx = obj.startIndx;
+            
+            %total days
+            try
+                totalDays = size(stockRtMat, dayIndxAxis);
+            catch
+                error("dayIndxAxis can only be 1 or 2.");
+            end
+            
+            tsIC = zeros(totalDays - pDays - startIdx + 1,1);
+            goBackDays = max(pDays, icFdDays);
+            if rankICSTatus >= 0
+                for currentDayIndx = startIdx : totalDays -  goBackDays
+                    [oneDayModelIC,~] = MultiFactorTest.computeOneDayIC(stockRtMat, mixCube, currentDayIndx, recordStartIndx, dayIndxAxis, pDays, rankICSTatus, icFdDays);
+                    tsIC(currentDayIndx - startIdx + 1) = oneDayModelIC;
+                end
+            elseif rankICSTatus == -1
+                for currentDayIndx = startIdx : totalDays - goBackDays
+                    %stockRtMat, mixCube, currentDayIndx, recordStartIndx, dayIndxAxis, predictionDays, isRankIC, icTestForwardDays
+                    [oneDayModelIC,validIndx] = MultiFactorTest.computeOneDayIC(stockRtMat, mixCube, currentDayIndx, recordStartIndx, dayIndxAxis, pDays, rankICSTatus, icFdDays);
+                    stockRtCS = stockRtMat(currentDayIndx+icFdDays,validIndx);
+                    tsIC(currentDayIndx - startIdx + 1) = MultiFactorTest.commonCorr(oneDayModelIC/movSmoothing, stockRtCS);                    
+                end
+            else
+                error("isRankIC can only be -1 or 0 or 1.");
+            end
+            
+            modelICSeries = tsIC;
+            % 0 means no moving average
+%             if movSmoothing == 0
+%                 modelICSeries = tsIC;
+%             elseif movSmoothing > 0
+%                 stockRtMat = stockRtMat((startIdx + pDays):(totalDays- goBackDays + pDays),validIndx);
+%                 tsIC = movsum(tsIC, [movSmoothing-1,0]);
+%                 modelICSeries = movmean(tsIC, [movSmoothing-1,0]);
+%                 
+%                 for row = 1:size(tsIC,1)
+%                     MultiFactorTest.rankCorr(stockRtMat(row,:), modelICSeries)
+%                 end
+%                 
+%                 
+%                 disp(["only record latter than idx ", num2str(movSmoothing), ' is valid.']);
+%             else
+%                 error("moving smoothing period must be greater than 0.");
+%             end          
+        end
+        
+    end
+end
+
