@@ -1,8 +1,10 @@
-function [corrMatrix, VIFVector] = EDA(orthFactor, alphaName)
+function [corrMatrix, VIFVector] = EDA(orthFactor, alphaName, date)
 % EDA receives the orthogonalized factor exposure of a day and calculates 
 % the correlation and VIF vector of factors, it also saves the
 % matrix, vector and the heatmap.
 % orthFactor is a matrix with its row as stocks and columns as factors.
+% alphaName are the ordered names of the alpha factors.
+% date is the date string of the orthFactor matrix.
     
     % calculate the correlation matrix
     corrMatrix = corr(orthFactor);
@@ -11,7 +13,7 @@ function [corrMatrix, VIFVector] = EDA(orthFactor, alphaName)
     h = heatmap(alphaName, alphaName, corrMatrix, 'FontSize', 10, 'FontName', 'Consolas');
     h.Title = 'Correlation Coefficients of Orthed Factors';
     colormap(jet)
-    saveas(gcf, sprintf('corrHeatmap.jpg'), 'bmp');
+    saveas(gcf, sprintf(['corrHeatmap', date, '.jpg']), 'bmp');
     
     % calculate VIF matrix
     [~, n] = size(orthFactor);
