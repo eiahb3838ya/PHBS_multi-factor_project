@@ -70,7 +70,7 @@ classdef AlphaFactory < handle
             if nargin>1
                 obj.paraJsonDir = paraJsonDir;
             else
-                obj.paraJsonDir = "testParamStruct.json";
+                obj.paraJsonDir = "factorExposureParamStruct.json";
             end
                  
             %    load json to struct and show result

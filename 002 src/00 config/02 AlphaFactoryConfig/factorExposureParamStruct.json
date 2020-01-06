@@ -85,5 +85,12 @@
     },
 	"alpha160":{
 	"datasets":["close"]
+    },
+    "alphaEx2":{
+	"datasets":["open", "close"]
+    },
+    "alphaEx3":{
+    "datasets":["volume"]
     }
+
 }
