@@ -1,7 +1,18 @@
-%按天循环
-%每天算29个因子之间的corr,得到 29 * 29 的 Matrix
-%1. 计算自变量两两之间的相关系数及其对应的P值，一般认为相关系数>0.7，且P<0.05时可考虑自变量之间存在共线性，可以作为初步判断多重共线性的一种方法。
-%2. 共线性诊断统计量，即Tolerance（容忍度）和VIF（方差膨胀因子）。一般认为如果Tolerance<0.2或VIF>5（Tolerance和VIF呈倒数关系），则提示要考虑自变量之间存在多重共线性的问题。
+function getPassAlphaEDA(exposure, alphaName,startTime)
+passNumber = alphaEDA(exposure, alphaName,startTime);
+[m,n,p] = size(exposure);
+for i = m-startTime +1:m
+    saveSelectAlpha{i - (m-startTime)} = alphaName(passNumber(i,:));
+end
+           
+dt = datestr(now,'yyyymmdd');
+filepath = pwd;
+cd('/Users/mac/Documents/local_PHBS_multi-factor_project/002 src/06 multiFactorTest');
+savePath = strcat('corrAlphaTest_result_',dt,'.mat');
+save(savePath,'saveSelectAlpha');
+cd(filepath);
+end
+
 function passNumber = alphaEDA(exposure, alphaName,startTime)
 [m,n,p] = size(exposure);
 
