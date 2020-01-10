@@ -1,17 +1,18 @@
-function getPassAlphaLR(exposure, alphaName,close,startTime,mode)
-% mode 1 = LASSO  mode 2 = Ridge
-passAlphaNumber = alphaSelect(exposure,close,alphaName,startTime,mode);
-[m,n,p] = size(exposure);
-for i = 2 : startTime
-    saveSelectAlpha{i} = alphaName(passAlphaNumber(:,i));
-end
+% getTotalAlpha.exposure = exposure;
+% getTotalAlpha.alphaName = alphaNameList;
+% getTotalAlpha.stockReturn = stockReturn;
+% getTotalAlpha.startTime = 200;
+% getTotalAlpha.mode = 1; 1 is LASSO, 2 is Lidge.
+function passAlpha = getPassAlphaLR(getTotalAlpha)
+exposure = getTotalAlpha.exposure;
+alphaName = getTotalAlpha.alphaName;
+startTime = getTotalAlpha.startTime ;
+stockReturn = getTotalAlpha.stockReturn;
+mode = getTotalAlpha.mode;
+passNumber = alphaLR(exposure,stockReturn,startTime,mode);
 
-dt = datestr(now,'yyyymmdd');
-filepath = pwd;
-cd('/Users/mac/Documents/local_PHBS_multi-factor_project/002 src/06 multiFactorTest/LinearMethod');
-savePath = strcat('corrAlphaTest_result_','mode=',num2str(mode),'_',dt,'.mat');
-save(savePath,'saveSelectAlpha');
-cd(filepath);
+passAlpha.alphaName = alphaName;
+passAlpha.matrix = passNumber;
 end
 
 %for time loop
@@ -20,22 +21,19 @@ function alphaSmallCube = getAlphaTable(exposure,startTime)
 alphaSmallCube = exposure(m-startTime +1:m,:,:);
 end
 
-function rts = calRts(close, startTime)
-[time,~] = size(close);
-targetClose = close(time-startTime +1:time,:);
-closeYesterday = close(time-startTime:time-1,:);
-rts = targetClose ./ closeYesterday -1;
-rts = rts';
-end
-
-
 % get one alphaTable
-function passAlphaNumber = alphaSelect(exposure,close,alphaName,startTime,mode)
+function passAlphaNumber = alphaLR(exposure,stockReturn,startTime,mode)
 alphaSmallCube = getAlphaTable(exposure,startTime);
-rts = calRts(close, startTime);
 
 for i = 2 : startTime
-    everyDayRts = rts(:,i);  % 2 to 100, 1 to 99
+    everyDayRts = stockReturn(:,i);  % 2 to 100, 1 to 99
+    try
+        stockReturn;
+    catch
+        stockReturn = stockReturn';
+    end
+    
+    %stockReturn = stockReturn'; %3842 * 200days
     reshapeAlphaTable = reshape(alphaSmallCube(i-1,:,:),[size(exposure,2),size(exposure,3),1]);
     bigMatrix = [everyDayRts , reshapeAlphaTable];
     bigMatrix = rmmissing(bigMatrix,1);
@@ -48,7 +46,7 @@ for i = 2 : startTime
         %     legend('show');
         idxLambda1SE = FitInfo.Index1SE;
         coef = B(:,idxLambda1SE);
-        passAlphaNumber(:,i) = coef~=0
+        passAlphaNumber(:,i) = coef~=0;
         
     else mode == 2 %Ridge
         disp('the calculation of Ridge is really quick~')
@@ -59,10 +57,8 @@ for i = 2 : startTime
         %     hold on
         %     plot(xlim,[0,0],'m--'); %abline y = 0
         %     xlabel('alphaIndex');
-        passAlphaNumber(:,i) = B(1:29,:) > abs(2e-04);
+        toMask = B(1:size(exposure,3),:) > abs(2e-04);
+        passAlphaNumber(i,:) = toMask';
     end
 end
 end
-
-
-

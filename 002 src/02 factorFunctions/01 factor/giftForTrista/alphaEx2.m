@@ -32,7 +32,7 @@ end
 
 function [exposure, offsetSize] = getAlpha(open, close)
     
-    exposure = open - [zeros(1, size(close, 2));close(1:end-1,:)];
+    exposure = open ./ [zeros(1, size(close, 2));close(1:end-1,:)];
     offsetSize = 1;
 end
 
