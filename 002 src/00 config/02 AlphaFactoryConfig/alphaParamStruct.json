@@ -1,0 +1,29 @@
+{
+	"alpha003":{
+	"datasets":["high", "low", "close"]
+	},
+	"alpha043":{
+	"datasets":["close", "volume"]
+	},
+	"alpha053":{
+	"datasets":["close"]
+	},
+	"alpha063":{
+	"datasets":["close"]
+	},
+	"alpha093":{
+	"datasets":["open", "low"]
+	},
+	"alpha103":{
+	"datasets":["volume"]
+	},
+	"alpha133":{
+	"datasets":["high", "low"]
+	},
+	"alpha153":{
+	"datasets":["close"]
+	},
+	"alpha189":{
+	"datasets":["close"]
+	},
+}
