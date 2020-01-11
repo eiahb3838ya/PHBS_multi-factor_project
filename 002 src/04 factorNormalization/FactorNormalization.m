@@ -50,7 +50,7 @@ classdef FactorNormalization < handle
             % regression to get projected Y, with OLS method
             pinvCount = 0;
             orthedFactor = zeros(l1, m1, n1);
-            for i = 700: l1
+            for i = 522: l1
                 rawX = reshape(existFactor(i, :, :), m2, n2);
                 disp(['processday:', num2str(i)]);
                 for j = 1: n1
