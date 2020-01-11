@@ -132,20 +132,25 @@ classdef AlphaFactory < handle
             success = obj.saveAlpha(exposure, alphaName, alphaName, 1);
         end
             
-        function saveAllAlphaIncrement(obj, oldVersionDate, saveStucture)
+        function saveAllAlphaIncrement(obj, oldVersionDate,filePrefix ,saveStucture)
             if nargin<3
+                filePrefix = 'factorExposure';
+            end
+            if nargin<4
                 saveStucture = 0;
             end
             targetAlphas = fieldnames(obj.paraStruct);
             
             %    get the old alphaCube with oldVersoin date
-            oldfileName = strcat('factorExposure_', oldVersionDate);
+            oldfileName = strcat(filePrefix, '_', oldVersionDate);
             oldmatobj = matfile(oldfileName, 'Writable', true);
             rowCount = size(oldmatobj.(targetAlphas{1}), 1);
             disp(strcat('the size of old exposure is:',string(rowCount)));
             
             %    create a new version with today date
-            fileName = strcat('factorExposure_', datestr(now, 'yyyymmdd'));
+            fileName = strcat(filePrefix, '_', datestr(now, 'yyyymmdd'));
+            
+            %fileName = strcat('factorExposure_', datestr(now, 'yyyymmdd'));
             matobj = matfile(fileName, 'Writable', true);
             
             %    save as struct
@@ -199,12 +204,15 @@ classdef AlphaFactory < handle
             end
         end
 
-        function saveAllAlphaHistory(obj, saveStucture)
+        function saveAllAlphaHistory(obj,filePrefix ,saveStucture)
             if nargin<2
+                filePrefix = "factorExposure";
+            end
+            if nargin<3
                 saveStucture = 0;
             end
             targetAlphas = fieldnames(obj.paraStruct);
-            fileName = strcat('factorExposure_', datestr(now, 'yyyymmdd'));
+            fileName = strcat(filePrefix, '_', datestr(now, 'yyyymmdd'));
             matobj = matfile(fileName, 'Writable', true);
             
             if saveStucture
