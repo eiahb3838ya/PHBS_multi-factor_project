@@ -1,9 +1,6 @@
 {   
-    "RSTR":{
-	"datasets":["totalReturn"]
-    },
 	"BETA":{
-	"datasets":["totalReturn","indexTotalReturn"]
+	"datasets":["close","indexTotalReturn"]
     },
 	"DASTD":{
 	"datasets":["close"]
@@ -12,19 +9,18 @@
 	"datasets":["PETTM"]
     },
 	"HSIGMA":{
-	"datasets":["totalReturn","indexTotalReturn"]
+	"datasets":["close","indexTotalReturn"]
     },
 	"LNCAP":{
 	"datasets":["totalMktCap"]
     },
-	
-	"STOA":{
+	"stoa":{
 	"datasets":["volume","floatingShares"]
     },
-    "STOM":{
+    "stom":{
 	"datasets":["volume","floatingShares"]
     },
-	"STOQ":{
+	"stoq":{
 	"datasets":["volume","floatingShares"]
     }
 }
