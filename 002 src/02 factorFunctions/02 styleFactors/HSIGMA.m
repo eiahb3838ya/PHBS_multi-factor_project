@@ -5,7 +5,7 @@ function [X, offsetSize] = HSIGMA(alphaPara)
 % alphaPara is a structure
 try
     close = alphaPara.close;
-    indexReturn = alphaPara.indexReturn;
+    indexReturn = alphaPara.indexTotalReturn;
     updateFlag  = alphaPara.updateFlag;
 catch
     error 'para error';
