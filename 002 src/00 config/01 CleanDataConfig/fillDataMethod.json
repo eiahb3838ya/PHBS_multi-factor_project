@@ -1,4 +1,4 @@
 {
     "fillHead":["nearest"],
-    "fillCommon":["linear"]
+    "fillCommon":["previous"]
 }

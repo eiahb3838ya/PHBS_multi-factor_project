@@ -1,6 +1,5 @@
 function filledTable = fillDataPlugIns(obj, workingTable)
 %FILLDATAPLUGINS a util, fill nan data
-% combines delete nan and fill nan
 % fillMethod, cell of size 1x2, first element: method fillna in the
 % beginning of table; second element: method fillna in the end of table,
 % e.g. fillMethod can be {["constant",0],["movmean",3]}. Following shows all

@@ -1,4 +1,4 @@
-function checkSummary = checkStructAfterSelectionHistory(obj)
+function checkSummary = checkStructAfterSelectionHistory(obj, forceNotUsedDataToNan)
 %CHECKSTRUCTAFTERSELECTIONHISTORY use selection record to check preSelectedStruct
 %   print nan report and call fillData method according to configuration
 %NOTE: in this method, every time the method will look back to the maximum
@@ -39,6 +39,11 @@ function checkSummary = checkStructAfterSelectionHistory(obj)
         currentWorkingTable = structToCheck.(fNs{count}); %size like 2166 x 3842
         totalSelectionCriteria = zeros(size(currentWorkingTable)); %size like 2166 x 3842
         
+        % find all data point that are used, and check if there is nan in
+        % this data points
+        % totalSelectionCriteria is a 0-1 table, 0 means the data is never
+        % used accoding to stock screen rule, while 1 means the data will
+        % be used at least once
         for rowWindowController = updateRows:size(currentWorkingTable,1)
             dataRowStartIndx = rowWindowController - minUpdateRows + 1;
             rollingSelectionCriteria = repmat(dataIndexToUse(rowWindowController,:),minUpdateRows,1);
@@ -47,12 +52,13 @@ function checkSummary = checkStructAfterSelectionHistory(obj)
         end
         totalSelectionCriteria = totalSelectionCriteria ~= 0;
         
+
         if sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))))~=0
             %if unexpected nan found, call fill data method by default
             nanTotalNumber = sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))));
             warning("before filling, unexpected nans still exist, %s nans in total, clean of data: %s continues!",num2str(nanTotalNumber), fNs{count});
             currentWorkingTable = obj.fillDataPlugIns(currentWorkingTable);
-            
+
             if sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))))~=0
                 %also can throw error here
                 nanTotalNumber = sum(sum(isnan(currentWorkingTable(find(totalSelectionCriteria==1)))));
@@ -60,8 +66,11 @@ function checkSummary = checkStructAfterSelectionHistory(obj)
             end
         end
         
-        currentWorkingTable(find(totalSelectionCriteria == 0)) = nan; %0
-        currentWorkingTable(1:updateRows- minUpdateRows,:) = nan; %0
+        if forceNotUsedDataToNan
+            currentWorkingTable(find(totalSelectionCriteria == 0)) = nan; %0
+            currentWorkingTable(1:updateRows- minUpdateRows,:) = nan; %0
+        end
+        
         obj.selectedStruct.(fNs{count}) = currentWorkingTable;
     end
     
