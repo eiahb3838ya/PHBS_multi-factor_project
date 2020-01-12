@@ -14,13 +14,13 @@
 	"LNCAP":{
 	"datasets":["totalMktCap"]
     },
-	"stoa":{
+	"STOA":{
 	"datasets":["volume","floatingShares"]
     },
-    "stom":{
+    	"STOM":{
 	"datasets":["volume","floatingShares"]
     },
-	"stoq":{
+	"STOQ":{
 	"datasets":["volume","floatingShares"]
     }
 }

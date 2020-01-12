@@ -59,8 +59,8 @@ function [exposure, offsetSize] = getRSTR(rt)
     %wMatrix =  repmat(w,1,n); %rep the w, n times, the ExponentialWeight of each column is the same.
     moment = zeros(m, n);
     for i = 521:m
-        disp(strcat('start process day :', int2str(i)));
-        tic
+        %disp(strcat('start process day :', int2str(i)));
+        %tic
         logrts = log(1+rt(i-520:i,:));
         cal = w .* logrts;
         toSum = cal(end-520:end, :);
@@ -70,7 +70,7 @@ function [exposure, offsetSize] = getRSTR(rt)
             disp('gift from amy <3')
         end
         moment(i,:) = toAppend;
-        toc
+        %toc
     end
     
     exposure = moment;

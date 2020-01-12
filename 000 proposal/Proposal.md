@@ -80,7 +80,7 @@ $X^t=(X_{Industry}^t\quad{X_{Style}^t\quad \alpha^t})$, $f^t=((f_{Industry}^{t+1
 
 For every single factor, we normalize its exposures cross-sectionally and orthogonalize them with industry factor exposures and style factor exposures. Then we add them into the $X^t$ matrix to test its significance of estimating capacity - information coefficient ($IC$). $IC$ of a factor is defined as
 
-$IC_{\alpha}^t=corr(\mathbb{E(u_{t+1})}, u_{t+1}).$
+$IC_{\alpha}^t=spearmanCorr(\mathbb{E(\epsilon_{t+1})}, \epsilon_{t+1}).$
 
 For all the factors that pass the single factor test, we conduct a multi-factor test to ensure that the factors are not correlated with each other. If two factors have high correlation, we can synthesize them into one or choose the one with higher returns.
 
