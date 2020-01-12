@@ -343,6 +343,7 @@ classdef MultiFactorTest < handle
 %             %total days
 %             totalDays = size(obj.rtMat, 1);
 %             totalStocks = size(obj.rtMat, 2);
+%             longShortRts = nan*ones(totalDays, 1));
 %             
 %             %store 2 things, valid index and stock returns separately
 %             longShortRts = nan*zeros(totalDays,1);
@@ -382,6 +383,7 @@ classdef MultiFactorTest < handle
 %         end
         
         function icSeries = plotDifferentICDays(obj, icPredictArray, isSmooth, isPlot)
+            disp(['is rank IC: ', num2str(obj.isRankIC)]);
             if nargin < 4
                 isPlot = 3;
             end
@@ -411,6 +413,52 @@ classdef MultiFactorTest < handle
             end
         end
         
+        function cumFtRtSeries = plotCumFtRtSeries(obj, plotMethod)
+            
+            % validate the input params
+            if ~contains(plotMethod, ["marketPortfolio","cumProd"])
+                error("plotMethod must be either marketPortfolio or cumProd");
+            else
+                disp(['plot method deployed is: ', convertCharsToStrings(plotMethod)]);
+            end
+            
+            if strcmp(plotMethod, "marketPortfolio")
+                %total days
+                totalDays = size(obj.rtMat, 1);
+
+                % init a new variable to store.
+                cumFtRtSeries = nan*zeros(totalDays, 1);
+
+                % init a wait bar
+                h=waitbar(0,'step 1 of 2,computing factor return:');
+
+                % calculate every day return
+                for dayIndx = obj.startIndx + obj.predictionDays:totalDays - obj.icTestForwardDays
+                    % get one day expected factor returns
+                    [oneDayExpectRts, ~] = MultiFactorTest.computeOneDayIC(obj.rtMat, obj.combinedCube, obj.stockScreen, dayIndx, obj.alphaStartIndex, obj.predictionDays, obj.icTestForwardDays, -1, obj.maskShift);
+                    cumFtRtSeries(dayIndx) = mean(oneDayExpectRts, 'omitnan');
+
+                    % wait bar information
+                    str=['factor return, process day: ',num2str(dayIndx),'/',num2str(totalDays - obj.icTestForwardDays)];
+                    waitbar(dayIndx/(totalDays-obj.icTestForwardDays),h,str);
+                end
+
+                %close wait bar
+                close(h);
+                
+                plot(cumprod(1+cumFtRtSeries(find(~isnan(cumFtRtSeries)))));
+                title('cumulative factor return: market portfolio way');
+            else
+                cumFtRtSeries = obj.computeAllFtRts();
+                
+                if size(cumFtRtSeries,2)>1
+                    error("cumProd method can only work for single factor test.");
+                end
+                
+                plot(cumprod(1+cumFtRtSeries(find(~isnan(cumFtRtSeries)))));
+                title('cumulative factor return: cumProd way');
+            end
+        end
     end
 end
 
