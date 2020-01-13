@@ -6,11 +6,12 @@ classdef singleFactorTest < handle
         industryCube;
         styleCube;
         alphaNameList;
-                
+        
         %mat
         processedClose;
         returnClose;
         factorReturn;
+        stockScreen;
         
         %public
         startTime;
@@ -25,21 +26,28 @@ classdef singleFactorTest < handle
             rts = targetClose ./ closeYesterday -1;
         end
         
-        function orderY = calOrder(Y)
-            [~,rankY] = sort(Y);
-            toSortRow = [rankY',(1:length(rankY))'];
-            sortedMat = sortrows(toSortRow, 1);
-            orderY = sortedMat(:, 2)';
+%         function orderY = calOrder(Y)
+%             [~,rankY] = sort(Y);
+%             toSortRow = [rankY',(1:length(rankY))'];
+%             sortedMat = sortrows(toSortRow, 1);
+%             orderY = sortedMat(:, 2)';
+%         end
+        
+        function cor = rankCorr(arr1, arr2)
+            % spearman rank coefficient
+            corrMat = corr([arr1(:), arr2(:)], 'Type', 'Spearman');
+            cor = corrMat(1,2);
         end
     end
     
     methods
-        function obj = singleFactorTest(processedAlphas, processedClose, startTime,ICpredictDays,ICmode,industryFactor,styleFactor, alphaNameList)
+        function obj = singleFactorTest(processedAlphas, processedClose, startTime,ICpredictDays,ICmode,stockScreen,industryFactor,styleFactor, alphaNameList)
             %constructor
             obj.alphaNameList = alphaNameList;
             obj.processedAlphas = processedAlphas;
             obj.industryCube = industryFactor;
             obj.styleCube = styleFactor;
+            obj.stockScreen = stockScreen;
             
             if nargin >1
                 obj.processedClose = processedClose;
@@ -63,39 +71,45 @@ classdef singleFactorTest < handle
                 obj.ICmode = ICmode;
             else
                 obj.ICmode = 1;
-            end    
+            end
+            
             obj.returnClose = obj.calRts(obj.processedClose, obj.startTime);
         end
         
         %calculate the IC for singleFactor
         function IC = ICValue(obj,alphaTable,ICpredictDays,ICmode)
-            getAlpha = alphaTable(end-obj.startTime +1:end,:);
-            
+            %getAlpha = alphaTable(end-obj.startTime +1:end,:);
+            getValidAlpha = getMask(obj,alphaTable);
             %Normal IC:IC mode ==0
             if obj.ICmode == 0
                 [factorReturn,tValue] = calFactorReturn(obj,alphaTable); %200 第一个是0
-                for i =  3: obj.startTime - obj.ICpredictDays  %2:199 从第3天才有IC
-                    BigMatrix = [getAlpha(i,:).*factorReturn(i-1);obj.returnClose(i + obj.ICpredictDays,:)];
-                    %BigMatrix = [getAlpha(i,:);obj.returnClose(i + obj.ICpredictDays,:)];
+                for i =  2: obj.startTime - obj.ICpredictDays  %2:199 从第3天才有IC
+                    BigMatrix = [getValidAlpha(i,:).*factorReturn(i);obj.returnClose(i + obj.ICpredictDays,:)];
+                    colRow = sum(isinf(BigMatrix),1)>0;
+                    BigMatrix(:,colRow) = [];
                     BigMatrix = rmmissing(BigMatrix,2);
                     corrMatrix = corrcoef(BigMatrix(1,:),BigMatrix(2,:));
                     IC(i) = corrMatrix(1,2);
+                    meanPortfolio = mean(BigMatrix(1,:));
                 end
                 
                 %rank IC:IC mode ==1
             else obj.ICmode == 1
-                 [factorReturn,tValue] = calFactorReturn(obj,alphaTable);
-                for i =  3: obj.startTime - obj.ICpredictDays
-                    BigMatrix = [getAlpha(i,:).*factorReturn(i-1);obj.returnClose(i + obj.ICpredictDays,:)];
+                [factorReturn,tValue] = calFactorReturn(obj,alphaTable);
+                for i =  2: obj.startTime - obj.ICpredictDays
+                    BigMatrix = [getValidAlpha(i,:).*factorReturn(i);obj.returnClose(i + obj.ICpredictDays,:)];
+                    colRow = sum(isinf(BigMatrix),1)>0;
+                    BigMatrix(:,colRow) = [];
                     BigMatrix = rmmissing(BigMatrix,2);
-                    X = BigMatrix(1,:);
-                    orderX = obj.calOrder(X);
-                    
-                    Y = BigMatrix(2,:);
-                    orderY = obj.calOrder(Y);
-                    
-                    corrMatrix = corrcoef(orderX,orderY);
-                    IC(i) = corrMatrix(1,2);
+                    IC(i) = obj.rankCorr(BigMatrix(1,:), BigMatrix(2,:));
+                    %                     X = BigMatrix(1,:);
+                    %                     orderX = obj.calOrder(X);
+                    %
+                    %                     Y = BigMatrix(2,:);
+                    %                     orderY = obj.calOrder(Y);
+                    %
+                    %                     corrMatrix = corrcoef(orderX,orderY);
+                    %                     IC(i) = corrMatrix(1,2);
                 end
             end
         end
@@ -111,8 +125,8 @@ classdef singleFactorTest < handle
             dt = datestr(now,'yyyymmdd');
             filepath = pwd;
             cd('/Users/mac/Documents/local_PHBS_multi-factor_project/002 src/05 singleFactorTest/singleFactorReturn_testResult');
-            savePath = strcat('SingleAlphaTest_ICValue_',dt,'.mat'); 
-            save(savePath,'ICTable'); 
+            savePath = strcat('SingleAlphaTest_ICValue_',dt,'.mat');
+            save(savePath,'ICTable');
             cd(filepath);
         end
         
@@ -123,20 +137,20 @@ classdef singleFactorTest < handle
             for i = 1: alphaCount
                 pic = figure(); %'visible','off'
                 IC = ICTable(i,:);
-                plot(IC(3:end));
-                ylim=get(gca,'Ylim'); 
+                plot(IC(2:end));
+                ylim=get(gca,'Ylim');
                 hold on
                 plot(xlim,[0,0],'m--'); %abline y = 0
+                hold on
+                
                 xlabel('startTime');
                 
                 if obj.ICmode ==0
                     ylabel('NormalICValue');
-                    %title('NormalIC plot');
                     title(strcat('NormalIC plot' ,obj.alphaNameList{i}));
                     
                 else obj.ICmode == 1
                     ylabel('rankICValue');
-                    %title('rankIC plot');
                     title(strcat('rankIC plot' ,obj.alphaNameList{i}));
                 end
                 
@@ -170,25 +184,35 @@ classdef singleFactorTest < handle
                 savefig(pic, strcat('singleFactorHistogram_',obj.alphaNameList{i},'_ICmode=',num2str(obj.ICmode),'_',dt,'.fig'));
                 cd(filepath);
             end
-            
         end
-          
+        
         function BigCubeSlice = catIndustryStyleCube(obj)
             BigCube = cat(3,obj.industryCube, obj.styleCube);
             BigCubeSlice = BigCube(end-obj.startTime +1:end,:,:);
         end
         
-        %cumFactorReturnPlot
-        function [factorReturn,tValue] = calFactorReturn(obj,alphaTable)
+        function getValidAlpha = getMask(obj,alphaTable)
+            toMask = obj.stockScreen(end-obj.startTime +1:end,:);
             getAlpha = alphaTable(end-obj.startTime +1:end,:);
-            [m,~] = size(getAlpha);
+            toMask(toMask==0)=nan;
+            getValidAlpha = toMask .* getAlpha;
+        end
+        
+        function [factorReturn,tValue] = calFactorReturn(obj,alphaTable)
+            getValidAlpha = getMask(obj,alphaTable);
+            
+            [m,~] = size(getValidAlpha);
             BigCubeSlice = catIndustryStyleCube(obj);
             for i = 2:m
                 ReshapeBigCubeSlice = BigCubeSlice(i-1,:,:);
                 reshapeBigCube = reshape(ReshapeBigCubeSlice,size(ReshapeBigCubeSlice,2),size(ReshapeBigCubeSlice,3),1);
-                BigMatrix =[reshapeBigCube,getAlpha(i-1,:)',obj.returnClose(i,:)'];
+                BigMatrix =[reshapeBigCube,getValidAlpha(i-1,:)',obj.returnClose(i,:)'];
+                infRow = sum(isinf(BigMatrix),2)>0;
+                BigMatrix(infRow,:) = [];
+                
                 BigMatrix = rmmissing(BigMatrix,1);
-                %BigMatrix(:,36) = []; % the 36 column is inf and nan.r
+                colIndex = find(sum(abs(BigMatrix))~=0);
+                BigMatrix = BigMatrix(:,colIndex);
                 
                 factorReturnAll = regress((BigMatrix(:,end)),(BigMatrix(:,1:end-1)));
                 factorReturn(i) = factorReturnAll(end); %1 dont' have factor return
@@ -200,10 +224,11 @@ classdef singleFactorTest < handle
         
         function cumlongShortReturn = callongShortReturn(obj,alphaTable)
             [factorReturn,tValue] = calFactorReturn(obj,alphaTable);
-            getAlpha = alphaTable(end-obj.startTime +1:end,:);
+            %getAlpha = alphaTable(end-obj.startTime +1:end,:);
+            getValidAlpha = getMask(obj,alphaTable);
             group = 10;
-            for i =  3: obj.startTime - obj.ICpredictDays
-                AlphaExplainPart = factorReturn(i-1)* getAlpha(i,:);
+            for i =  2: obj.startTime - obj.ICpredictDays
+                AlphaExplainPart = factorReturn(i)* getValidAlpha(i,:);
                 nextTimeRealReturn = obj.returnClose(i+1,:);
                 
                 bigMatrix = [AlphaExplainPart;nextTimeRealReturn];
@@ -239,7 +264,7 @@ classdef singleFactorTest < handle
                 cumlongShortReturnTable(j,:) = callongShortReturn(obj,obj.processedAlphas(:,:,j));
             end
         end
-           
+        
         function plotAllcumlongShortReturnTable(obj)
             cumlongShortReturnTable = calAllcumlongShortReturn(obj);
             [~,~,alphaCount] = size(obj.processedAlphas);
@@ -345,15 +370,15 @@ classdef singleFactorTest < handle
             dt = datestr(now,'yyyymmdd');
             filepath = pwd;
             cd('/Users/mac/Documents/local_PHBS_multi-factor_project/002 src/05 singleFactorTest/singleFactorReturn_testResult');
-            savePath = strcat('SingleAlphaTest_result_',dt,'.mat'); 
-            save(savePath,'AlphaStatResult'); 
+            savePath = strcat('SingleAlphaTest_result_',dt,'.mat');
+            save(savePath,'AlphaStatResult');
             cd(filepath);
         end
         
         function cumFactorReturn = calCumFactorReturn(obj,alphaTable)
             [factorReturn,~] = calFactorReturn(obj,alphaTable);
             factorReturn = factorReturn(:,2:end);
-            cumFactorReturn = cumprod(factorReturn + 1) /(1+ factorReturn(1));
+            cumFactorReturn = cumprod(factorReturn +1) /(1+ factorReturn(1));
         end
         
         function cumFactorReturnTable = calAllCumFactorReturn(obj)
@@ -362,7 +387,7 @@ classdef singleFactorTest < handle
                 cumFactorReturnTable(j,:) = calCumFactorReturn(obj,obj.processedAlphas(:,:,j));
             end
         end
-           
+        
         function plotAllCumFactorReturn(obj)
             cumFactorReturnTable = calAllCumFactorReturn(obj);
             [~,~,alphaCount] = size(obj.processedAlphas);
