@@ -1,0 +1,20 @@
+{   
+	"DASTD":{
+	"datasets":["close"]
+    },
+	"ETOP":{
+	"datasets":["PETTM"]
+    },
+	"LNCAP":{
+	"datasets":["totalMktCap"]
+    },
+	"stoa":{
+	"datasets":["volume","floatingShares"]
+    },
+    "stom":{
+	"datasets":["volume","floatingShares"]
+    },
+	"stoq":{
+	"datasets":["volume","floatingShares"]
+    }
+}
