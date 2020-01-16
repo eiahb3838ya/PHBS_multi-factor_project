@@ -68,6 +68,22 @@ classdef MultiFactorTest < handle
 %             cor = cor(1,2);
         end
         
+        function [] = plotCumProdRtsFromDailyRts(arr1)
+            
+            nonNanArr = arr1(find(~isnan(arr1)));
+            cumProdRts = cumprod(1+nonNanArr);
+            
+            subplot(2,1,1);
+            plot(cumProdRts);
+            title('cumProd returns');
+            
+            subplot(2,1,2);
+            histogram(nonNanArr, 50);
+            xline(mean(nonNanArr));
+            title('histogram of returns');
+            
+        end
+        
         function [factorRts, validIndx] = computeOneDayFtRts(rtMat, cube, currentDayIndx, alphaStartIndx, predictionDays, stockScreen, maskShift)
             %COMPUTEONEDAYFTRTS  computeOneDayFtRts(rtMat, cube, currentDayIndx, alphaStartIndx, predictionDays, stockScreen, maskPredictShift)
             % note how the matrix look like
@@ -108,7 +124,8 @@ classdef MultiFactorTest < handle
                 X = preprocessData(validIndx,notAllZeroColumn+shiftDummy);
                 Y = preprocessData(validIndx,1);
 
-                beta = (X'*X)\(X'*Y);
+                beta = (X'*X)\(X'*Y); %here is the method of regression
+%                 beta = ridge(Y,X,0.1);
 
                 factorRts = zeros(1, size(mat,1));
                 factorRts(notAllZeroColumn+shiftDummy-1) = beta;
@@ -162,6 +179,48 @@ classdef MultiFactorTest < handle
             end    
         end
         
+        function [oneDayModelIC, validIndx] = computeOneDayICFast(stockRtMat, cube, fastCube, stockScreen, currentDayIndx, alphaStartIndx, predictionDays, icTestForwardDays, isRankIC, maskShift)
+        % COMPUTEONEDAYIC computeOneDayIC(stockRtMat, mixCube, stockScreen, currentDayIndx, alphaStartIndx, predictionDays, icTestForwardDays, isRankIC)
+            if nargin == 6
+                predictionDays = 1;
+                maskShift = -1*predictionDays;
+                icTestForwardDays = 1;
+                isRankIC = 1;
+            end
+            
+            % factor rts, length is #features
+            [factorRts, ~] = MultiFactorTest.computeOneDayFtRts(stockRtMat, cube, currentDayIndx, alphaStartIndx, predictionDays, stockScreen, maskShift);
+
+            % get stock return ready to test IC
+            % get stock exposure of size stocks by features
+            icDayForwardStockRt = stockRtMat(currentDayIndx + icTestForwardDays,:); %1 by stocks,R_t+1
+            oneDayFactorExposure = MultiFactorTest.cube2Mat(fastCube, currentDayIndx); %features by stocks,fastCube = mixCube(:,:,alphaStartIndx:end)
+            
+            % get valid stock 
+            stockScreenOneDay = stockScreen(currentDayIndx,:);
+            stockScreenValidIndx = find(stockScreenOneDay==1);
+            [nanInfValidIndx, ~, ~] = MultiFactorTest.preprocessEntry([icDayForwardStockRt',oneDayFactorExposure']);%pick by stock's num
+            validIndx = intersect(nanInfValidIndx, stockScreenValidIndx);
+            
+            if isRankIC == -1
+                oneDayModelIC = oneDayFactorExposure'*factorRts';
+                return;
+            end
+            
+            rtsContributedByFts = oneDayFactorExposure(:,validIndx)'*factorRts'; %column vector
+
+            icStockRts = icDayForwardStockRt(validIndx);
+            icFtRts = rtsContributedByFts;
+
+            if isRankIC == 1
+                oneDayModelIC = MultiFactorTest.rankCorr(icStockRts, icFtRts);
+            elseif isRankIC == 0
+                oneDayModelIC = MultiFactorTest.commonCorr(icStockRts, icFtRts);
+            else
+                error("isRankIC can only be 0 or 1 or -1");
+            end    
+        end
+    
     end
     
     methods(Access = public)
@@ -246,11 +305,11 @@ classdef MultiFactorTest < handle
             
             % init a waiting bar
             h=waitbar(0,'please wait');
-            
+            fastCube = obj.combinedCube(:,:,obj.alphaStartIndex:end);
             for dayIndx = obj.startIndx+obj.predictionDays : totalDays-obj.icTestForwardDays
                 %run IC mode
                 % stockRtMat, mixCube, stockScreen, currentDayIndx, alphaStartIndx, predictionDays, icTestForwardDays, isRankIC
-                [icOneDay,~] = MultiFactorTest.computeOneDayIC(obj.rtMat, obj.combinedCube, obj.stockScreen, dayIndx, obj.alphaStartIndex, obj.predictionDays, obj.icTestForwardDays, obj.isRankIC, obj.maskShift);
+                [icOneDay,~] = MultiFactorTest.computeOneDayICFast(obj.rtMat, obj.combinedCube, fastCube, obj.stockScreen, dayIndx, obj.alphaStartIndex, obj.predictionDays, obj.icTestForwardDays, obj.isRankIC, obj.maskShift);
                 icArray(dayIndx) = icOneDay;
                 
                 % wait bar information
@@ -336,14 +395,13 @@ classdef MultiFactorTest < handle
             close(h2);
         end
         
-        function longShortRts = computeAllLSRts(obj, longShortPercentage, stockCloseMat)
+        function longShortRts = computeLongShortRts(obj, longShortPercentage, stockCloseMat)
             % position change interval is the same as the prediction
             % interval
             
             %total days
             totalDays = size(obj.rtMat, 1);
             totalStocks = size(obj.rtMat, 2);
-            longShortRts = nan*ones(totalDays, 1));
             
             %number of stocks of each group
             numStockEachGroup = round(totalStocks*longShortPercentage);
@@ -364,15 +422,15 @@ classdef MultiFactorTest < handle
             h=waitbar(0,'step 1 of 2,computing factor return:');
             
             % calculate every day return
-            for dayIndx = obj.startIndx + obj.predictionDays:totalDays
+            for dayIndx = obj.startIndx + obj.predictionDays:totalDays - obj.predictionDays
                 % get one day expected factor returns
                 [oneDayExpectRts, oneDayValidIndx] = MultiFactorTest.computeOneDayIC(obj.rtMat, obj.combinedCube, obj.stockScreen, dayIndx, obj.alphaStartIndex, obj.predictionDays, obj.icTestForwardDays, -1, obj.maskShift);
                 allDayExpectRts{dayIndx} = oneDayExpectRts;
                 allValidIndx{dayIndx} = oneDayValidIndx;
                 
                 % wait bar information
-                str=['factor return, process day: ',num2str(dayIndx),'/',num2str(totalDays)];
-                waitbar(dayIndx/totalDays,h,str);
+                str=['factor return, process day: ',num2str(dayIndx),'/',num2str(totalDays-obj.predictionDays)];
+                waitbar(dayIndx/(totalDays - obj.predictionDays),h,str);
             end
             
             %close wait bar
@@ -386,7 +444,7 @@ classdef MultiFactorTest < handle
                 decideTradeDay = getRtDayIndx - obj.predictionDays;
                 % on every decide trade day
                 % merge decide day expected return and valid index
-                toSort = [allDayExpectRts{decideTradeDay}(:),allValidIndx{decideTradeDay}(:)];
+                toSort = [allDayExpectRts{decideTradeDay}(allValidIndx{decideTradeDay}),allValidIndx{decideTradeDay}(:)];
                 sorted = sortrows(toSort, 1); % ascending sort according to column 1
                 
                 longPositionIndx = sorted(1:numStockEachGroup,2);
@@ -429,7 +487,7 @@ classdef MultiFactorTest < handle
             end
             
             if isPlot
-                bins = 10;
+                bins = 50;
                 rowNumber = length(icPredictArray) / 2;
                 for i = 1:length(icPredictArray)
                     subplot(rowNumber, 2, i);
@@ -448,7 +506,7 @@ classdef MultiFactorTest < handle
             if ~contains(plotMethod, ["marketPortfolio","cumProd"])
                 error("plotMethod must be either marketPortfolio or cumProd");
             else
-                disp(['plot method deployed is: ', convertCharsToStrings(plotMethod)]);
+                disp(['plot method deployed is: ', convertStringsToChars(plotMethod)]);
             end
             
             if strcmp(plotMethod, "marketPortfolio")
