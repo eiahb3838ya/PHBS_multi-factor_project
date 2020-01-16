@@ -1,5 +1,5 @@
 function [outputCell, elementIndicator] = arrayGroupBy2CellOneDay(arr1, groupBySectorVector, stockScreenOneDay)
-%ARRAYGROUPBY2CELL given an array D by N by Alphas, can be matrix or cube; 
+%ARRAYGROUPBY2CELL given an array, can be matrix or cube; 
 % according to groupby vector, which is a ROW vector indicating arr1's 
 % corresponding position's group number(must be positive!).
 %   When encounting nans in groupByMat, will use most frequent element, if
