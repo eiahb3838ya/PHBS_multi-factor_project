@@ -1,4 +1,5 @@
-function visualization(factorExposureCell, stockReturnCell, alphaFilter)
+function visualization(factorExposureCell, stockReturnCell)
+% function visualization(factorExposureCell, stockReturnCell, alphaFilter)
 % VISUALIZATION receives the factor exposures and stock returns for every
 %   factor in every industry sector of the day, give out plots of the
 %   ladder-like returns with exposures for every sector of the day.
@@ -16,9 +17,9 @@ function visualization(factorExposureCell, stockReturnCell, alphaFilter)
             for k = 1: factors
                 % to eliminate the factors that cannot be used today
                 kFactorExposure = factorExposure(:, k);
-                kFactorExposure(~alphaFilter) = 0;
+                % kFactorExposure(~alphaFilter) = 0;
                 if ~all(kFactorExposure)
-                    disp('No. ', num2str(k), ' alpha factor cannot be used today.')
+                    disp(['No. ', num2str(k), ' alpha factor cannot be used today.'])
                     continue
                 end
                 % to rank the exposures from the biggest to the smallest
@@ -32,16 +33,20 @@ function visualization(factorExposureCell, stockReturnCell, alphaFilter)
                 % draw the horizontal bars, with x-axis as stock returns
                 % and y-axis as exposures
                 figure(i)
-                subplot(6, 6, k)
+                subplot(2, 1, k)
                 barh(stockReturn, 0.8, 'c')
-                set(gca, 'yTickLabel', rankedExposure)
+                rankedCharExposure = cell(1, factors);
+                for j = 1: factors
+                    rankedCharExposure{j} = num2str(rankedExposure(j));
+                end
+                set(gca, 'yTickLabel', rankedCharExposure)
                 ylabel('factor exposure')
                 xlabel('stock return')
                 
                 % draw the line chart, with x-axis as exposures and y-axis
                 % as stock returns
                 figure(sectorLen + i)
-                subplot(6, 6, k)
+                subplot(2, 1, k)
                 plot(rankedExposure, stockReturn)
             end
     end
