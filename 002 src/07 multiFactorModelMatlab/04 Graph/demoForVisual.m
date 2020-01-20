@@ -8,7 +8,9 @@ factorExposure = orthFactorCube(2166, :, :);
 groupByVector = sector(2166, :);
 stockScreenOneDay = stockScreenMatrix(2166,:);
 
-[factorExposureCell, ~] = arrayGroupBy2CellOneDay(factorExposure, groupByVector, stockScreenOneDay);
+[factorExposureCell, ~] = arrayGroupBy2CellOneDay(factorExposure, ...
+    groupByVector, stockScreenOneDay);
 stockReturn = rts(2166, :);
-[stockReturnCell, ~] = arrayGroupBy2CellOneDay(stockReturn, groupByVector, stockScreenOneDay);
+[stockReturnCell, ~] = arrayGroupBy2CellOneDay(stockReturn, ...
+    groupByVector, stockScreenOneDay);
 visualization(factorExposureCell, stockReturnCell)
