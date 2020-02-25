@@ -11,10 +11,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import h5py
+from sklearn.linear_model import LinearRegression, Lasso, Ridge
 
 #%%
 
-ROOT = "."
+ROOT = "../PHBS_multi-factor_project/002 src/08 multiFactorModelPython/"
 savingROOT = './outputData/'
 
 #%%
@@ -65,17 +66,27 @@ Klass = MultiFactorModelTest(close,
                              stockScreenTable, 
                              d_timeShift = 1 )
 
-modelIC, predictReturnTable, factorReturnTable, validFactorTable = Klass.singleFactorTest(0, noStyle=True, doPlot=True, backTestDays =1465, T = 1)
+modelIC, predictReturnTable, factorReturnTable, validFactorTable = Klass.singleFactorTest(0 ,doPlot=True,startday = 2066 ,T = 1)
+
+# modelIC, predictReturnTable, factorReturnTable, validFactorTable = Klass.singleFactorTest(0 ,doPlot=True, T = 1)
 #%%
 modelICs, predictReturnTables, factorReturnTables = Klass.singleFactorTestAll(noStyle = True, doPlot=True, backTestDays=200, T = 1, saveDir=savingROOT)
 #%%
-modelIC, predictReturnTable, factorReturnTable, validFactorTable = Klass.multiFactorTest(noStyle=True,doPlot=True, backTestDays =200, T = 1, useRidge = False)
+modelIC, predictReturnTable, factorReturnTable, validFactorTable = Klass.multiFactorTest(noStyle=True,doPlot=True, backTestDays =1465, T = 1, useRidge = True)
 #%%
 plt.figure(figsize = (20, 8))
 plt.plot(modelIC[-1465+1:-1])
 pd.Series(modelIC[-1465+1:]).to_csv(savingROOT+"normalIC.csv")
 
 #%%
+factorReturnDes = pd.DataFrame(factorReturnTable).describe()
+
+
+Lasso.__new__({'alpha':0.001})
+factorReturnTable
+
+
+
 
 
 
